@@ -110,6 +110,36 @@ html[data-vt="tab-right"]::view-transition-new(root){animation:vt-in-r .38s var(
   main{padding-top:56px}
   .top .wrap{padding-bottom:14px}
 }
+
+/* pizza + yellow swoosh beside each page heading, same as the website hero */
+.hello{line-height:1.1}
+.ht{position:relative;display:inline-block}
+.ht .swoosh{position:absolute;left:-2%;bottom:-.3em;width:104%;height:.38em;overflow:visible;pointer-events:none}
+.ht .swoosh path{fill:none;stroke:#F2B33D;stroke-width:6;stroke-linecap:round}
+.ht .pie{position:absolute;left:calc(100% + .22em);top:-.22em;width:1.7em;padding:0;border:0;background:none;cursor:pointer;line-height:0}
+.ht .pie img{width:100%;height:auto;display:block;transition:transform .2s}
+.ht .pie:hover img{transform:rotate(-8deg) scale(1.05)}
+.ht .pie.spin img{animation:pspin .9s cubic-bezier(.3,.6,.2,1)}
+.ht .steam{position:absolute;left:30%;top:-.4em;width:.8em;height:.42em;pointer-events:none}
+.ht .steam svg{width:100%;height:100%;overflow:visible}
+.ht .steam path{fill:none;stroke:#F2B33D;stroke-width:4;stroke-linecap:round;opacity:0}
+@keyframes pspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:no-preference){
+  .ht .swoosh path{stroke-dasharray:1;stroke-dashoffset:1;animation:pink .7s ease-out .35s forwards}
+  .ht .swoosh path+path{animation-delay:.6s}
+  .ht .pie{animation:pdrop .7s cubic-bezier(.3,1.4,.5,1) .3s both}
+  .ht .pie img{animation:prock 4.5s ease-in-out 1.4s infinite}
+  .ht .pie.spin img{animation:pspin .9s cubic-bezier(.3,.6,.2,1)}
+  .ht .steam path{animation:psteam 2.6s ease-in-out 1.2s infinite}
+  .ht .steam path:nth-child(2){animation-delay:1.7s}.ht .steam path:nth-child(3){animation-delay:2.2s}
+  @keyframes pink{to{stroke-dashoffset:0}}
+  @keyframes pdrop{from{opacity:0;transform:translateY(-26px) rotate(-30deg)}to{opacity:1;transform:none}}
+  @keyframes prock{0%,100%{transform:rotate(0)}50%{transform:rotate(-5deg) translateY(-3px)}}
+  @keyframes psteam{0%{opacity:0;transform:translateY(6px)}40%{opacity:.9}100%{opacity:0;transform:translateY(-8px)}}
+}
+@media (prefers-reduced-motion:reduce){.ht .swoosh path{stroke-dasharray:none}}
+main.wrap{padding-top:64px}
+@media (max-width:640px){main.wrap{padding-top:44px}.ht .pie{width:1.45em}}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -390,7 +420,7 @@ main{padding-top:88px}
 <section id="orders" role="tabpanel" aria-labelledby="t-orders">
   <div class="o-head">
     <div>
-      <p class="hello" id="hello">Boa noite!</p>
+      <p class="hello"><span class="ht"><span id="hello">Boa noite!</span><svg class="swoosh" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M6 24 C 90 8, 230 4, 394 16"/><path pathLength="1" d="M30 34 C 120 22, 250 20, 340 30"/></svg><button type="button" class="pie" aria-label="Spin the pizza" title="Tap me"><span class="steam" aria-hidden="true"><svg viewBox="0 0 90 50"><path d="M18 46 C 10 36, 26 30, 18 18 C 12 10, 22 6, 20 2"/><path d="M45 46 C 37 34, 53 28, 45 16 C 39 8, 49 4, 47 0"/><path d="M72 46 C 64 36, 80 30, 72 18 C 66 10, 76 6, 74 2"/></svg></span><img src="images/pizza-doodle-red.png" alt=""></button></span></p>
       <p class="say" id="ordersSay"></p>
     </div>
     <button class="btn plus" id="newOrder"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New order</button>
@@ -416,7 +446,7 @@ main{padding-top:88px}
 <!-- ================= MONEY ================= -->
 <section id="money" role="tabpanel" aria-labelledby="t-money" hidden>
   <div class="head">
-    <p class="hello">Your money</p>
+    <p class="hello"><span class="ht"><span>Your money</span><svg class="swoosh" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M6 24 C 90 8, 230 4, 394 16"/><path pathLength="1" d="M30 34 C 120 22, 250 20, 340 30"/></svg><button type="button" class="pie" aria-label="Spin the pizza" title="Tap me"><span class="steam" aria-hidden="true"><svg viewBox="0 0 90 50"><path d="M18 46 C 10 36, 26 30, 18 18 C 12 10, 22 6, 20 2"/><path d="M45 46 C 37 34, 53 28, 45 16 C 39 8, 49 4, 47 0"/><path d="M72 46 C 64 36, 80 30, 72 18 C 66 10, 76 6, 74 2"/></svg></span><img src="images/pizza-doodle-red.png" alt=""></button></span></p>
     <div class="seg" role="group" aria-label="Time period">
       <button data-range="1" aria-pressed="true">Today</button>
       <button data-range="7" aria-pressed="false">This week</button>
@@ -434,7 +464,7 @@ main{padding-top:88px}
 <!-- ================= WEBSITE ================= -->
 <section id="site" role="tabpanel" aria-labelledby="t-site" hidden>
   <div class="head">
-    <p class="hello">Your website</p>
+    <p class="hello"><span class="ht"><span>Your website</span><svg class="swoosh" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M6 24 C 90 8, 230 4, 394 16"/><path pathLength="1" d="M30 34 C 120 22, 250 20, 340 30"/></svg><button type="button" class="pie" aria-label="Spin the pizza" title="Tap me"><span class="steam" aria-hidden="true"><svg viewBox="0 0 90 50"><path d="M18 46 C 10 36, 26 30, 18 18 C 12 10, 22 6, 20 2"/><path d="M45 46 C 37 34, 53 28, 45 16 C 39 8, 49 4, 47 0"/><path d="M72 46 C 64 36, 80 30, 72 18 C 66 10, 76 6, 74 2"/></svg></span><img src="images/pizza-doodle-red.png" alt=""></button></span></p>
     <p class="say">Change prices, photos and dishes. <span class="soft">Sold out of something? Just switch it off.</span></p>
     <div class="seg" role="group" aria-label="What to change">
       <button data-part="menu" aria-pressed="true">Menu</button>
@@ -513,6 +543,8 @@ main{padding-top:88px}
 
 <script>
 /* SWAP: the owner's first name makes the greeting personal ("Boa noite, Marcos!"). */
+
+document.addEventListener("click",e=>{const p=e.target.closest(".ht .pie");if(!p)return;p.classList.remove("spin");void p.offsetWidth;p.classList.add("spin");setTimeout(()=>p.classList.remove("spin"),950)});
 const OWNER = "";
 
 /* Menu copied from the website so names and prices match.
