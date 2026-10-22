@@ -349,6 +349,67 @@ main.wrap{padding-top:40px}
   .nh-s{font-size:13.5px}
   .pgx{display:none}
 }
+
+/* ---------- one day, v2: summary, hour bars, grouped by hour ---------- */
+.panel{padding:20px 24px 14px;border-radius:24px;box-shadow:0 1px 2px rgba(42,24,35,.05),0 12px 32px -12px rgba(42,24,35,.14)}
+.ph2{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.dh{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.dh h2{margin:0;font-size:34px;font-weight:800;letter-spacing:-.8px;line-height:1.05}
+.dh p{margin:4px 0 0;color:var(--muted);font-weight:600;font-size:15px}
+.dstats{display:flex;gap:34px}
+.dstats div{display:flex;flex-direction:column;align-items:flex-end}
+.dstats b{font-size:26px;font-weight:800;letter-spacing:-.6px;line-height:1}
+.dstats span{font-size:13px;font-weight:600;color:var(--muted);margin-top:4px}
+.hours{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;height:92px;margin:26px 0 4px;align-items:end}
+.hb{height:100%;border:0;background:none;padding:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;gap:6px;cursor:pointer}
+.hb:disabled{cursor:default}
+.hb i{display:block;width:min(100%,30px);align-self:center;height:max(4px,calc(var(--h) * .72));border-radius:999px;background:#E9E1E4;transition:background .2s,transform .2s var(--ease);transform-origin:bottom}
+.hb:not(:disabled):hover i{background:var(--ink)}
+.hb.peak i{background:var(--red)}
+.hb span{font-size:11.5px;font-weight:700;color:var(--faint);text-align:center;height:14px;line-height:14px}
+.busy-note{margin:8px 0 22px;color:var(--muted);font-size:14.5px;font-weight:600}
+.busy-note b{color:var(--ink)}
+.kf{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--note);margin-bottom:8px}
+.kf button{border:0;background:none;border-radius:999px;padding:8px 16px;font-weight:700;font-size:14.5px;color:var(--muted);transition:background .25s,color .2s,box-shadow .25s}
+.kf button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(42,24,35,.12)}
+.hg{scroll-margin-top:90px;border-radius:16px;transition:background .6s}
+.hg.flash{animation:hgflash 1.4s ease-out}
+@keyframes hgflash{0%,30%{background:#FBEAE7}100%{background:transparent}}
+.hg-h{display:flex;justify-content:space-between;align-items:baseline;margin:0;padding:18px 12px 8px;border-bottom:1px solid var(--line);font-size:13px;font-weight:800;color:var(--muted)}
+.hg-h span:first-child{color:var(--ink);font-size:14px}
+.r2{all:unset;box-sizing:border-box;display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:center;width:100%;padding:12px;border-radius:14px;cursor:pointer;transition:background .2s}
+.r2:hover{background:#F8F3F4}
+.r2:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.av{width:40px;height:40px;border-radius:50%;background:var(--note);display:grid;place-items:center;font-size:13.5px;font-weight:800;color:var(--ink)}
+.r2.waiting .av{background:var(--red);color:#fff}
+.r2-top{display:flex;align-items:center;gap:10px}
+.r2-top b{font-size:16px;font-weight:800}
+.r2-k{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.r2-k svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.r2-it{display:block;color:var(--muted);font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.r2-end{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.r2-p{font-weight:800;font-size:16px}
+.r2-t{font-size:13px;font-weight:600;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.r2.waiting .r2-t{color:var(--red);font-weight:800}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--red)}
+@media (prefers-reduced-motion:no-preference){
+  .hb i{animation:grow .7s var(--ease) both;animation-delay:calc(var(--j) * 35ms + 250ms)}
+  @keyframes grow{from{transform:scaleY(0)}}
+  .panel .r2{animation:rowin .45s var(--ease) both;animation-delay:calc(min(var(--i), 12) * 28ms + 300ms)}
+  .dstats div{animation:rowin .5s var(--ease) both}
+  .dstats div:nth-child(2){animation-delay:.08s}.dstats div:nth-child(3){animation-delay:.16s}
+}
+@media (max-width:640px){
+  .panel{padding:16px 14px 10px}
+  .dh h2{font-size:28px}
+  .dstats{width:100%;justify-content:space-between;gap:12px}
+  .dstats div{align-items:flex-start}
+  .dstats b{font-size:22px}
+  .hours{gap:4px;height:80px}
+  .r2{grid-template-columns:36px minmax(0,1fr) auto;gap:12px;padding:11px 6px}
+  .av{width:36px;height:36px}
+  .r2-k{display:none}
+}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -1161,25 +1222,47 @@ function renderWeek(){
 }
 
 /* ---------- one day ---------- */
+let dayKind = "all";
+const hourLabel = h => `${h % 12 || 12} ${h < 12 ? "am" : "pm"}`;
 function renderPanel(){
   const M = byId(), k = curDay, d = keyToDate(k), isToday = k === todayKeyNow();
-  const list = ordersOnDay(k).sort((a,b) => due(b) - due(a)), sales = list.reduce((x,o) => x + o.sub, 0);
+  const all = ordersOnDay(k).sort((a,b) => due(b) - due(a));
+  const list = dayKind === "all" ? all : all.filter(o => o.kind === dayKind);
+  const sales = all.reduce((x,o) => x + o.sub, 0);
   const next = keyToDate(k); next.setDate(next.getDate() + 1);
-  const row = (o, i) => { const t = clock(new Date(due(o))), wait = o.status === "open";
-    return `<div class="r${wait ? " waiting" : ""}" data-order="${o.num}" style="--i:${i}">
-      <span class="t num">${t.replace(/\s?[ap]m/, "")}<small>${/pm/.test(t) ? "pm" : "am"}</small></span>
-      <span><b>${esc(o.name)}</b><span class="k">${o.kind === "pickup" ? "Pickup" : "Delivery"}</span><span class="it">${esc(shortItems(o, M))}</span></span>
-      <span class="p num">${money(o.sub)}</span>
-      <span class="st" aria-label="${wait ? "Waiting" : "Done"}">${wait ? "" : CHECK}</span>
-    </div>`; };
-  $("#panel").innerHTML = `<div class="ph">
+  const hrs = {}; all.forEach(o => { const h = new Date(due(o)).getHours(); hrs[h] = (hrs[h] || 0) + 1; });
+  const H = Array.from({length:12}, (_, i) => 11 + i), top = Math.max(1, ...H.map(h => hrs[h] || 0));
+  const busy = H.reduce((b, h) => (hrs[h] || 0) > (hrs[b] || 0) ? h : b, H[0]);
+  const nPick = all.filter(o => o.kind === "pickup").length, nDel = all.length - nPick;
+  const groups = []; list.forEach(o => { const h = new Date(due(o)).getHours(); let g = groups[groups.length - 1]; if (!g || g.h !== h){ g = {h, os:[]}; groups.push(g); } g.os.push(o); });
+  let n = 0;
+  const row = o => { const t = clock(new Date(due(o))), wait = o.status === "open", ini = o.name.split(" ").map(x => x[0]).join("").slice(0,2);
+    return `<button class="r2${wait ? " waiting" : ""}" data-order="${o.num}" style="--i:${n++}">
+      <span class="av" aria-hidden="true">${esc(ini)}</span>
+      <span class="r2-main"><span class="r2-top"><b>${esc(o.name)}</b><span class="r2-k">${ICON[o.kind]}${o.kind === "pickup" ? "Pickup" : "Delivery"}</span></span><span class="r2-it">${esc(shortItems(o, M))}</span></span>
+      <span class="r2-end"><span class="r2-p num">${money(o.sub)}</span><span class="r2-t num">${wait ? `<i class="live-dot"></i>Waiting` : t}</span></span>
+    </button>`; };
+  $("#panel").innerHTML = `<div class="ph2">
       <button class="back" data-back><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Week</button>
-      <div class="pt"><h2>${isToday ? "Today" : d.toLocaleDateString("en-US",{weekday:"long"})}</h2>
-        <p>${d.toLocaleDateString("en-US",{month:"long", day:"numeric"})}${list.length ? ` · ${plural(list.length, "order", "orders")} · ${money0(sales)}` : ""}</p></div>
-      <button class="arrow" data-step="-1" aria-label="Day before"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <button class="arrow" data-step="1" aria-label="Day after" ${dayKey(next) > todayKeyNow() ? "disabled" : ""}><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
-    </div>${list.length ? list.map(row).join("") : `<p class="empty-day">No orders on this day.</p>`}`;
+      <div class="pager"><button class="arrow" data-step="-1" aria-label="Day before"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button class="arrow" data-step="1" aria-label="Day after" ${dayKey(next) > todayKeyNow() ? "disabled" : ""}><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
+    </div>
+    <div class="dh">
+      <div><h2>${isToday ? "Today" : d.toLocaleDateString("en-US",{weekday:"long"})}</h2><p>${d.toLocaleDateString("en-US",{month:"long", day:"numeric", year:"numeric"})}</p></div>
+      ${all.length ? `<div class="dstats"><div><b class="num">${money0(sales)}</b><span>sales</span></div><div><b class="num">${all.length}</b><span>orders</span></div><div><b class="num">${money0(sales / all.length)}</b><span>average</span></div></div>` : ""}
+    </div>
+    ${all.length ? `<div class="hours" aria-label="Orders by hour">${H.map((h, i) => `<button class="hb${h === busy && hrs[h] ? " peak" : ""}" data-hour="${h}" ${hrs[h] ? "" : "disabled"} style="--h:${((hrs[h] || 0) / top * 100).toFixed(0)}%;--j:${i}" aria-label="${hourLabel(h)}: ${hrs[h] || 0} orders"><i></i><span>${h % 3 === 2 || h === busy ? hourLabel(h).replace(" ", "") : ""}</span></button>`).join("")}</div>
+    <p class="busy-note">Busiest around <b>${hourLabel(busy)}</b> with ${plural(hrs[busy], "order", "orders")}. Tap a bar to jump there.</p>
+    <div class="kf" role="group" aria-label="Show">${[["all", `All ${all.length}`], ["pickup", `Pickup ${nPick}`], ["delivery", `Delivery ${nDel}`]].map(([v, l]) => `<button data-kf="${v}" aria-pressed="${dayKind === v}">${l}</button>`).join("")}</div>
+    <div class="dlist">${groups.map(g => `<div class="hg" data-hg="${g.h}"><p class="hg-h"><span>${hourLabel(g.h)}</span><span class="num">${plural(g.os.length, "order", "orders")} · ${money0(g.os.reduce((x,o) => x + o.sub, 0))}</span></p>${g.os.map(row).join("")}</div>`).join("") || `<p class="empty-day">No ${dayKind} orders this day.</p>`}</div>`
+    : `<p class="empty-day">No orders on this day.</p>`}`;
 }
+$("#panel").addEventListener("click", e => {
+  const f = e.target.closest("[data-kf]");
+  if (f){ dayKind = f.dataset.kf; renderPanel(); return; }
+  const hb = e.target.closest("[data-hour]");
+  if (hb){ if (dayKind !== "all"){ dayKind = "all"; renderPanel(); } const g = document.querySelector(`[data-hg="${hb.dataset.hour}"]`);
+    if (g){ g.scrollIntoView({behavior: calmMotion ? "auto" : "smooth", block:"start"}); g.classList.remove("flash"); void g.offsetWidth; g.classList.add("flash"); } }
+});
 
 /* the zoom: the day card and the day panel share one name, so the browser grows one into the other */
 function morph(name, el, update){
