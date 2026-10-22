@@ -297,6 +297,58 @@ main.wrap{padding-top:44px}
   @keyframes sheen{from{background-position:120% 0}to{background-position:-130% 0}}
 }
 @media (max-width:640px){.tk{flex-basis:86%}.rail{align-items:flex-start}.tk-top{gap:12px;padding:14px 16px}}
+
+/* ---------- header v3: light, calm, clear ---------- */
+.top{background:#fff;color:var(--ink);box-shadow:0 1px 0 var(--line),0 6px 20px -14px rgba(42,24,35,.25)}
+.top::after{display:none}
+.top .wrap{height:72px;gap:40px}
+.brand3{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink);flex:none}
+.mono{width:40px;height:40px;border-radius:12px;background:var(--red);color:#fff;display:grid;place-items:center;font-family:var(--mark);font-size:24px;line-height:1;padding-top:3px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.14);transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+.brand3:hover .mono{transform:rotate(-8deg) scale(1.06)}
+.bt b{display:block;font-size:17px;font-weight:800;letter-spacing:-.2px;line-height:1.1}
+.bt small{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-top:2px}
+.tabs{align-self:stretch;gap:30px;padding:0;background:none;border-radius:0;margin:0}
+.tabs button{height:100%;padding:0 2px;border-radius:0;color:var(--muted);opacity:1;font-size:15.5px;font-weight:700}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--ink)}
+.tabs .slider{top:auto;bottom:0;left:0;height:3px;border-radius:3px 3px 0 0;background:var(--red);box-shadow:none}
+.top .badge,.tabs button[aria-selected="true"] .badge,.tabs button:not([aria-selected="true"]) .badge{background:var(--red);color:#fff}
+.clock{margin-left:auto;font-size:14px;font-weight:600;color:var(--muted);white-space:pre}
+.live{margin-left:0;gap:10px;padding:6px 6px 6px 14px;border-radius:999px;background:#FBEAE7;color:var(--red);font-weight:800;font-size:14px;transition:background .3s,color .3s}
+.live .dot{width:8px;height:8px;border-radius:50%;background:currentColor;position:relative}
+.live.off{background:var(--note);color:var(--muted)}
+.top .switch{width:44px;height:26px}
+.top .switch span{background:#D8CDD1}
+.top .switch span::after{width:20px;height:20px}
+.top .switch input:checked+span{background:var(--red)}
+.top .switch input:checked+span::after{transform:translateX(18px)}
+@media (prefers-reduced-motion:no-preference){
+  .live:not(.off) .dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:currentColor;animation:ping 1.8s cubic-bezier(0,0,.2,1) infinite}
+  @keyframes ping{75%,100%{transform:scale(2.6);opacity:0}}
+}
+main.wrap{padding-top:40px}
+/* right now: a clear title, a count, arrows together */
+.now-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 6px}
+.nh-t{margin:0;font-size:22px;font-weight:800;letter-spacing:-.3px}
+.nh-s{margin:3px 0 0;color:var(--muted);font-size:14.5px;font-weight:600}
+.pager{display:flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:4px;box-shadow:0 1px 3px rgba(42,24,35,.1)}
+.pager .arrow{width:36px;height:36px;box-shadow:none;background:var(--note)}
+.pager .arrow:disabled{visibility:visible;opacity:.35;cursor:default;transform:none;box-shadow:none}
+.pager .arrow:not(:disabled):hover{background:var(--ink);color:#fff}
+.pgx{min-width:52px;text-align:center;font-size:14px;font-weight:800}
+@media (max-width:640px){
+  .top .wrap{height:auto;padding-top:12px;padding-bottom:0;row-gap:10px;column-gap:12px}
+  .clock{display:none}
+  .live{margin-left:auto;padding:5px 5px 5px 12px;font-size:13px}
+  #liveLbl{display:inline}
+  .tabs{order:3;flex:1 0 100%;display:grid;grid-template-columns:repeat(3,1fr);height:46px;gap:0}
+  .tabs button{justify-content:center;font-size:15px}
+  .mono{width:36px;height:36px;font-size:21px}
+  .bt b{font-size:16px}
+  main.wrap{padding-top:28px}
+  .nh-s{font-size:13.5px}
+  .pgx{display:none}
+}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -559,13 +611,14 @@ main{padding-top:88px}
 
 <header class="top">
   <div class="wrap">
-    <div class="brand"><a class="wordmark" href="index.html" title="Open your website"><b>Bella Pizzeria</b><span>Dashboard</span></a></div>
+    <a class="brand3" href="index.html" title="Open your website"><span class="mono" aria-hidden="true">B</span><span class="bt"><b>Bella Pizzeria</b><small>Owner dashboard</small></span></a>
     <nav class="tabs" role="tablist" aria-label="Dashboard"><span class="slider" aria-hidden="true"></span>
       <button role="tab" id="t-orders" aria-controls="orders" aria-selected="true">Orders<span class="badge" id="openCount"></span></button>
       <button role="tab" id="t-money" aria-controls="money" aria-selected="false">Money</button>
       <button role="tab" id="t-site" aria-controls="site" aria-selected="false">Menu</button>
     </nav>
-    <label class="live"><span id="liveLbl">Taking orders</span>
+    <span class="clock" id="hdrClock"></span>
+    <label class="live"><span class="dot" aria-hidden="true"></span><span id="liveLbl">Taking orders</span>
       <span class="switch"><input type="checkbox" id="liveToggle" checked aria-label="Taking online orders"><span></span></span>
     </label>
   </div>
@@ -846,7 +899,7 @@ const byId = () => Object.fromEntries(items.map(i => [i.id, i]));
 const TABS = ["orders","money","site"];
 function moveSlider(){
   const on = document.querySelector('.tabs [aria-selected="true"]'), sl = $(".tabs .slider"); if (!on || !sl) return;
-  const w = on.offsetWidth + 4; sl.style.width = on.offsetWidth + "px"; sl.style.transform = `translateX(${on.offsetLeft - 4}px)`;
+  const w = on.offsetWidth + 4; sl.style.width = on.offsetWidth + "px"; sl.style.transform = `translateX(${on.offsetLeft}px)`;
 }
 let curTab = "orders";
 function showTab(id, instant){
@@ -1018,7 +1071,7 @@ const RING = 2 * Math.PI * 25;
 let seenNums = null;
 function renderNow(){
   const M = byId(), open = openToday().sort((a,b) => due(a) - due(b)), now = nowNY();
-  const head = n => `<div class="sechead"><p class="h2">Right now${n ? ` <span class="cnt">${n}</span>` : ""}</p>${n > 1 ? `<button class="arrow" data-slide="-1" aria-label="Previous order"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button class="arrow" data-slide="1" aria-label="Next order"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>` : ""}</div>`;
+  const head = n => `<div class="now-head"><div><p class="nh-t">Right now</p><p class="nh-s">${n ? "Most urgent first. Swipe or use the arrows." : "Nothing waiting."}</p></div>${n > 1 ? `<div class="pager"><button class="arrow" data-slide="-1" aria-label="Previous order"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><span class="pgx num" id="pgx">1 of ${n}</span><button class="arrow" data-slide="1" aria-label="Next order"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>` : ""}</div>`;
   if (!open.length){ seenNums = new Set(); $("#nowWrap").innerHTML = head(0) + `<div class="calm all-done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>All caught up. New orders slide in here with a ding.</div>`; return; }
   const keep = $("#rail") ? $("#rail").scrollLeft : 0, first = !seenNums;
   let k = 0;
@@ -1059,6 +1112,7 @@ function railArrows(){
   const card = r.querySelector(".tk"), step = card ? card.offsetWidth + 16 : 1;
   const idx = atEnd ? r.children.length - 1 : Math.round(r.scrollLeft / step);
   document.querySelectorAll("[data-dot]").forEach((d, i) => d.classList.toggle("on", i === idx));
+  if ($("#pgx")) $("#pgx").textContent = `${Math.min(idx, r.children.length - 1) + 1} of ${r.children.length}`;
 }
 /* a slight tilt toward the pointer, like picking up a ticket */
 $("#nowWrap").addEventListener("pointermove", e => {
@@ -1288,7 +1342,9 @@ $("#testOrder").addEventListener("click", () => {
 
 const liveToggle = $("#liveToggle");
 liveToggle.checked = store.get("taking", true);
-function syncLive(){ $("#pausedNote").hidden = liveToggle.checked; $("#liveLbl").textContent = liveToggle.checked ? "Taking orders" : "Orders off"; }
+function syncLive(){ $("#pausedNote").hidden = liveToggle.checked; $("#liveLbl").textContent = liveToggle.checked ? "Taking orders" : "Orders paused"; document.querySelector(".live").classList.toggle("off", !liveToggle.checked); }
+function tickClock(){ const d = nowNY(); $("#hdrClock").textContent = d.toLocaleDateString("en-US",{weekday:"short", month:"short", day:"numeric"}) + "  ·  " + clock(d); }
+tickClock(); setInterval(tickClock, 15000);
 liveToggle.addEventListener("change", () => { store.set("taking", liveToggle.checked); syncLive(); toast(liveToggle.checked ? "You're taking orders again" : "Online orders are off"); /* SYNC: tell the website */ });
 syncLive();
 
