@@ -1,0 +1,4 @@
+dist/
+dashboard.src.html
+.DS_Store
+.vercel

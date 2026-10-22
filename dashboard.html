@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bella Dashboard</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#C94233">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!--
+  Bella Pizzeria owner dashboard (Studio 1801 mockup).
+  Not connected yet: orders and sales are sample data, edits are saved only in this browser.
+  Hookup points are marked "SYNC:". Things to fill in are marked "SWAP:".
+-->
+<style>
+:root{
+  --red:#C94233; --red-dark:#A8331F;
+  /* two tones only: red for "needs you", ink for everything else */
+  --green:#2A1823; --green-ok:#2A1823; --green-soft:#F2EDEF;
+  --ink:#2A1823; --muted:#6F6168; --faint:#A69AA0;
+  --line:#EEE8EA; --bg:#FBF8F6; --card:#FFFFFF;
+  --mustard:#C94233; --note:#F6F0F2;
+  --ease:cubic-bezier(.2,.8,.2,1);
+  --body:"Figtree", system-ui, -apple-system, sans-serif;
+  --mark:"Permanent Marker", "Comic Sans MS", cursive;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid rgba(201,66,51,.45);outline-offset:2px;border-radius:8px}
+a{color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:0 18px}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- motion ---------- */
+:where(.btn,.arrow,.back,.tabs button,.tick,.seg button,.kseg button,.quick button,.link,.chip,.hd,.qty button,.call){transition:transform .2s var(--ease),background-color .2s,box-shadow .25s var(--ease),color .2s,opacity .2s}
+:where(.btn,.arrow,.back,.tick,.seg button,.kseg button,.quick button,.qty button):active{transform:scale(.95)}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(201,66,51,.28)}
+.arrow:hover,.back:hover{transform:translateY(-1px);box-shadow:0 6px 14px rgba(42,24,35,.12)}
+.badge.bump{animation:bump .45s var(--ease)}
+@keyframes bump{40%{transform:scale(1.35)}}
+.pop:not([hidden]){animation:fade .2s ease-out}
+.pop:not([hidden]) .box{animation:rise .32s var(--ease)}
+@keyframes fade{from{opacity:0}}
+@keyframes rise{from{opacity:0;transform:translateY(14px) scale(.97)}}
+.sheet:not([hidden]){animation:slidein .34s var(--ease)}
+@keyframes slidein{from{transform:translateX(40px);opacity:0}}
+@media (max-width:600px){@keyframes slidein{from{transform:translateY(40px);opacity:0}}}
+.scrim:not([hidden]){animation:fade .25s ease-out}
+.toast{transform:translate(-50%,12px);transition:opacity .25s,transform .3s var(--ease)}
+.toast.show{transform:translate(-50%,0)}
+/* tab switches and the calendar zoom use the browser's view transitions */
+::view-transition-group(*){animation-duration:.55s;animation-timing-function:cubic-bezier(.2,.85,.15,1)}
+::view-transition-old(root){animation:vt-out .22s ease-in both}
+::view-transition-new(root){animation:vt-in .4s var(--ease) .06s both}
+html[data-vt="tab-left"]::view-transition-new(root){animation:vt-in-l .38s var(--ease) both}
+html[data-vt="tab-right"]::view-transition-new(root){animation:vt-in-r .38s var(--ease) both}
+@keyframes vt-out{to{opacity:0}}
+@keyframes vt-in{from{opacity:0}}
+@keyframes vt-in-l{from{opacity:0;transform:translateX(-24px)}}
+@keyframes vt-in-r{from{opacity:0;transform:translateX(24px)}}
+::view-transition-image-pair(.chip),::view-transition-image-pair(.hd),::view-transition-image-pair(.c),::view-transition-image-pair(.gut){overflow:hidden}
+::view-transition-old(.chip),::view-transition-new(.chip),::view-transition-old(.hd),::view-transition-new(.hd),::view-transition-old(.gut),::view-transition-new(.gut){height:100%;width:auto;object-fit:none;object-position:right top}
+::view-transition-old(.chip),::view-transition-old(.hd){animation:vt-out .2s ease-in both}
+::view-transition-new(.chip),::view-transition-new(.hd){animation:vt-in .35s ease-out .12s both}
+@media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none !important}*{transition:none !important}}
+
+/* ---------- top bar: same as the website header ---------- */
+.top{background:var(--red);color:#fff;position:sticky;top:0;z-index:20;view-transition-name:topbar}
+.top::after{content:"";position:absolute;left:0;right:0;top:100%;height:12px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 14' preserveAspectRatio='none'%3E%3Cpath d='M0 0 L0 6 C 120 14, 240 1, 360 7 S 600 14, 720 6 S 960 0, 1080 7 S 1320 13, 1440 5 L1440 0 Z' fill='%23C94233'/%3E%3C/svg%3E") no-repeat center/100% 100%;pointer-events:none}
+.top .wrap{display:flex;align-items:center;gap:34px;height:64px}
+.wordmark{display:flex;flex-direction:column;line-height:1;text-decoration:none;color:#fff;white-space:nowrap}
+.wordmark b{font-family:var(--mark);font-weight:400;font-size:23px;letter-spacing:.5px}
+.wordmark span{font-size:12.5px;opacity:.8;margin-top:4px}
+.tabs{display:flex;gap:26px;position:relative}
+.tabs button{position:relative;border:0;background:none;color:#fff;opacity:.82;padding:6px 0;font-weight:600;font-size:15.5px;display:flex;align-items:center;gap:8px}
+.tabs button:hover,.tabs button[aria-selected="true"]{opacity:1}
+.tabs button:not([aria-selected="true"])::after{content:"";position:absolute;left:-2px;right:-2px;bottom:-4px;height:7px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 C 20 2, 40 7, 60 4 S 90 3, 98 5' fill='none' stroke='%23F2B33D' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center/100% 100%;clip-path:inset(0 100% 0 0);transition:clip-path .3s ease-out;opacity:.6}
+.tabs button:not([aria-selected="true"]):hover::after{clip-path:inset(0 0 0 0)}
+/* the hand-drawn yellow underline slides to the tab you pick */
+.tabs .slider{position:absolute;left:0;bottom:-4px;height:7px;width:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 C 20 2, 40 7, 60 4 S 90 3, 98 5' fill='none' stroke='%23F2B33D' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center/100% 100%;transition:transform .45s var(--ease),width .45s var(--ease);pointer-events:none}
+.top .badge{background:#fff;color:var(--red)}
+.badge{min-width:22px;height:22px;border-radius:999px;background:var(--red);color:#fff;font-size:13px;font-weight:800;display:grid;place-items:center;padding:0 6px}
+.badge:empty{display:none}
+.live{margin-left:auto;display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;white-space:nowrap}
+
+.switch{position:relative;width:50px;height:30px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1}
+.switch span{position:absolute;inset:0;border-radius:999px;background:#CFC5CA;transition:background .15s;pointer-events:none}
+.switch span::after{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+.switch input:checked+span{background:var(--green-ok)}
+.switch input:checked+span::after{transform:translateX(20px)}
+.switch input:focus-visible+span{outline:3px solid rgba(255,255,255,.6);outline-offset:2px}
+.top .switch span{background:rgba(255,255,255,.35)}
+.top .switch input:checked+span{background:var(--green)}
+
+/* phone: name and switch on top, the three tabs underneath */
+@media (max-width:640px){
+  .top .wrap{flex-wrap:wrap;height:auto;padding-top:12px;padding-bottom:10px;row-gap:8px}
+  .wordmark b{font-size:21px}
+  .tabs{order:3;flex:1 0 100%;gap:24px}
+  .tabs button{font-size:16px}
+  #liveLbl{display:none}
+  main{padding-top:30px}
+  .top .wrap{padding-bottom:14px}
+}
+body{padding-bottom:40px}
+
+/* ---------- page heading: a greeting and one plain sentence ---------- */
+main{padding-top:52px}
+.hello{font-family:var(--mark);font-size:clamp(30px,5vw,40px);line-height:1.1;margin:0;color:var(--red);font-weight:400}
+.say .go{border:0;background:none;padding:0;font:inherit;color:var(--red);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:5px;cursor:pointer}
+.say{font-size:clamp(19px,2.6vw,22px);font-weight:600;margin:6px 0 0;line-height:1.35;max-width:30em}
+.say .soft{color:var(--muted);font-weight:500}
+.head{margin-bottom:26px}
+.seg{display:inline-flex;background:#F0EAEC;border-radius:999px;padding:4px;margin-top:18px}
+.seg button{border:0;background:none;border-radius:999px;padding:9px 18px;font-weight:700;font-size:15.5px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(42,24,35,.12)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;background:var(--red);color:#fff;font-weight:700;padding:12px 20px;text-decoration:none;font-size:16px}
+.btn:hover{background:var(--red-dark)}
+.link{border:0;background:none;padding:0;font-weight:700;text-decoration:underline;text-underline-offset:4px;color:var(--ink)}
+.small{font-size:15px;color:var(--muted)}
+
+/* ---------- Orders ---------- */
+.paused{background:var(--note);border-radius:16px;padding:14px 18px;margin-bottom:20px;font-weight:600}
+.list h2{font-size:15px;font-weight:800;color:var(--muted);margin:0 0 12px;letter-spacing:.2px}
+.order{background:var(--card)}
+.order.fresh{animation:arrive 1.8s ease-out}
+@keyframes arrive{0%{box-shadow:0 0 0 4px var(--mustard)}100%{box-shadow:0 1px 3px rgba(42,24,35,.07)}}
+.who{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.who b{font-size:22px;font-weight:800;letter-spacing:-.2px}
+.who .wait{font-size:15px;font-weight:600;color:var(--muted);white-space:nowrap}
+.who .wait.late{color:var(--red)}
+.when{font-size:17px;font-weight:600;margin-top:2px}
+.order.pickup .when{color:var(--green)}
+.order.delivery .when{color:var(--red)}
+.addr{font-size:16px;color:var(--muted)}
+.food{list-style:none;margin:14px 0 0;padding:0;font-size:18px}
+.food li{padding:4px 0;display:flex;gap:10px;align-items:baseline}
+.food .q{font-weight:800;min-width:30px}
+.food small{display:block;font-size:15px;color:var(--muted)}
+.ask{margin-top:12px;background:var(--note);border-radius:12px;padding:10px 14px;font-size:16.5px;font-weight:600}
+.ask::before{content:"Note: ";color:#8A6512}
+.pay{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:16px}
+.pay b{font-size:18px}
+.pay .paid{color:var(--green-ok);font-weight:700}
+.pay .due{color:var(--red);font-weight:700}
+.finish{width:100%;margin-top:14px;height:56px;border:0;border-radius:16px;background:var(--green-ok);color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;gap:10px}
+.finish:hover{background:var(--green)}
+.finish svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.call{display:block;text-align:center;margin-top:10px;font-weight:700;font-size:15.5px;color:var(--muted);text-decoration:none}
+.call:hover{color:var(--ink);text-decoration:underline}
+.test{margin-top:24px;font-size:15px;color:var(--muted)}
+
+/* ---------- orders: what's waiting now, and the week at a glance ---------- */
+.o-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+.plus{display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 20px}
+.plus svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.8;stroke-linecap:round}
+.arrow{width:40px;height:40px;border-radius:50%;border:0;background:#fff;display:grid;place-items:center;box-shadow:0 1px 3px rgba(42,24,35,.1);flex:none}
+.arrow:disabled{visibility:hidden}
+.arrow svg,.back svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.h2{font-size:15px;font-weight:800;color:var(--muted);margin:0}
+.hide-sm{}
+@media (max-width:900px){.hide-sm{display:none}}
+.sechead{display:flex;align-items:center;gap:10px;margin:0 0 12px;min-height:40px}
+.sechead .h2{margin-right:auto}
+
+/* right now */
+.now-list{background:#fff;border-radius:22px;box-shadow:0 1px 3px rgba(42,24,35,.07);padding:4px 18px;margin-bottom:34px}
+.w{display:grid;grid-template-columns:96px minmax(0,1fr) auto 52px;gap:16px;align-items:center;padding:14px 0;border-top:1px solid var(--line);cursor:pointer}
+.w:first-child{border-top:0}
+.w .due{font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.w .due small{display:block;font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:0;margin-top:3px}
+.w.late .due,.w.late .due small{color:var(--red)}
+.w .who2 b{font-size:18px;font-weight:800}
+.w .who2 .k{font-size:13.5px;font-weight:700;color:var(--muted);margin-left:8px}
+.w .who2 span.it{display:block;color:var(--muted);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w .amt{font-weight:700;color:var(--muted)}
+.w .tick{width:52px;height:52px;border-radius:50%;border:0;background:var(--red);color:#fff;display:grid;place-items:center;box-shadow:0 4px 12px rgba(201,66,51,.3)}
+.w .tick:hover{transform:scale(1.07)}
+.w .tick svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.w.leaving{animation:leave .38s var(--ease) forwards}
+@keyframes leave{to{opacity:0;transform:translateX(30px)}}
+.calm{background:#fff;border-radius:22px;padding:22px;margin-bottom:34px;font-weight:600;color:var(--muted);box-shadow:0 1px 3px rgba(42,24,35,.07)}
+
+/* the week: seven day cards */
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.day{border:0;background:#fff;border-radius:18px;padding:14px 14px 12px;text-align:left;display:flex;flex-direction:column;gap:2px;min-height:150px;box-shadow:0 1px 3px rgba(42,24,35,.07);cursor:pointer;view-transition-class:panel}
+.day:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(42,24,35,.1)}
+.day .dw{font-size:13.5px;font-weight:700;color:var(--muted)}
+.day .dd{font-size:30px;font-weight:800;letter-spacing:-.6px;line-height:1.05}
+.day .dn{margin-top:auto;font-weight:800;font-size:15px}
+.day .ds{font-size:14px;font-weight:600;color:var(--muted)}
+.day .meter{height:6px;border-radius:3px;background:var(--green-soft);margin-top:8px;overflow:hidden}
+.day .meter i{display:block;height:100%;border-radius:3px;background:var(--ink)}
+.day.today{box-shadow:0 0 0 2.5px var(--red)}
+.day.today .dw,.day.today .dd{color:var(--red)}
+.day.today .meter i{background:var(--red)}
+.day.future{background:transparent;box-shadow:inset 0 0 0 2px #EAE2E6;cursor:default}
+.day.future:hover{transform:none;box-shadow:inset 0 0 0 2px #EAE2E6}
+.day.future .dd{color:var(--faint)}
+.wk-note{margin:12px 2px 0;color:var(--muted);font-weight:600;font-size:15px}
+
+/* one day, zoomed in */
+.panel{background:#fff;border-radius:22px;padding:18px 20px 8px;box-shadow:0 1px 3px rgba(42,24,35,.07);view-transition-class:panel}
+.panel .ph{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.back{border:0;background:var(--green-soft);border-radius:999px;height:40px;padding:0 16px 0 10px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+.pt{margin-right:auto;min-width:0}
+.pt h2{margin:0;font-size:24px;font-weight:800;line-height:1.15}
+.pt p{margin:0;color:var(--muted);font-weight:600;font-size:15px}
+.r{display:grid;grid-template-columns:72px minmax(0,1fr) auto 28px;gap:14px;align-items:center;padding:13px 2px;border-top:1px solid var(--line);cursor:pointer}
+.r:hover{background:#FBF8F7}
+.r .t{font-weight:800;font-size:16px}
+.r .t small{font-size:12px;color:var(--muted);margin-left:2px}
+.r b{font-weight:700}
+.r .k{font-size:13px;font-weight:700;color:var(--muted);margin-left:8px}
+.r .it{display:block;color:var(--muted);font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r .p{font-weight:700;color:var(--muted)}
+.r .st{color:var(--muted);display:grid;place-items:center}
+.r .st svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.r.waiting .t,.r.waiting .st{color:var(--red)}
+.r.waiting .st::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--red)}
+.empty-day{color:var(--muted);padding:22px 2px;font-weight:600}
+@media (prefers-reduced-motion:no-preference){
+  .panel .r{animation:rowin .4s var(--ease) both;animation-delay:calc(min(var(--i), 14) * 22ms + 180ms)}
+  @keyframes rowin{from{opacity:0;transform:translateY(8px)}}
+}
+::view-transition-image-pair(.panel){overflow:hidden;border-radius:18px}
+::view-transition-old(.panel),::view-transition-new(.panel){height:100%;width:100%;object-fit:none;object-position:left top}
+::view-transition-old(.panel){animation:vt-out .18s ease-in both}
+::view-transition-new(.panel){animation:vt-in .3s ease-out .1s both}
+
+@media (max-width:900px){
+  .week{gap:5px}
+  .day{min-height:96px;padding:10px 4px 9px;align-items:center;text-align:center;border-radius:14px}
+  .day .dw{font-size:11.5px}
+  .day .dd{font-size:21px}
+  .day .dn{font-size:13px}
+  .day .ds{display:none}
+  .day .meter{width:70%;height:5px;margin-top:5px}
+  .w{grid-template-columns:70px minmax(0,1fr) 52px;gap:12px}
+  .w .due{font-size:21px}
+  .w .amt{display:none}
+  .now-list{padding:2px 14px}
+  .panel{padding:14px 14px 6px}
+  .panel .ph{flex-wrap:wrap}
+  .pt{order:3;flex:1 0 100%;margin-top:6px}
+  .r{grid-template-columns:62px minmax(0,1fr) 22px;gap:10px}
+  .r .p{display:none}
+  .o-head .plus{width:100%;justify-content:center}
+}
+
+/* new order sheet */
+.kseg{display:grid;grid-template-columns:1fr 1fr;background:#F0EAEC;border-radius:14px;padding:4px}
+.kseg button{border:0;background:none;border-radius:11px;height:46px;font-weight:800;font-size:16.5px;color:var(--muted)}
+.kseg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(42,24,35,.12)}
+.foodbox{display:grid;gap:10px}
+.foodbox .lbl{font-weight:700;font-size:16px}
+.form label.find{display:flex;gap:10px;border:2px solid #E2DADE;height:50px;border-radius:14px}
+.form label.find:focus-within{border-color:var(--green)}
+.form .find input{border:0;padding:0;height:100%;background:none;flex:1;min-width:0}
+.picked{display:grid;gap:6px}
+.pl{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;background:#fff;border-radius:12px;padding:8px 8px 8px 12px;font-weight:600}
+.pl .pp{color:var(--muted);font-size:15px}
+.qty{display:inline-flex;align-items:center;background:#F0EAEC;border-radius:999px}
+.qty button{width:36px;height:36px;border:0;background:none;font-size:20px;font-weight:700}
+.qty output{min-width:18px;text-align:center;font-weight:800}
+.quick{display:flex;flex-wrap:wrap;gap:6px}
+.quick button{border:0;background:#fff;border-radius:10px;padding:9px 12px;font-weight:600;font-size:15px;text-align:left}
+.quick button:hover{background:#F3EEF0}
+.quick button small{color:var(--muted);font-weight:600;margin-left:6px}
+.sheet footer .tot{font-weight:800;font-size:18px}
+.when-row{display:flex;gap:10px;align-items:center}
+.when-row input{flex:1}
+
+/* tap-an-order popup */
+.pop{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px;background:rgba(42,24,35,.45)}
+.pop .box{background:#fff;border-radius:22px;width:min(420px,100%);max-height:90vh;overflow:auto;padding:22px}
+.pop .order{box-shadow:none;padding:0;border:0;margin:0}
+.pop .row2{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.pop .undo{width:100%;margin-top:14px;height:52px;border:0;border-radius:16px;background:#F0EAEC;font-weight:800;font-size:17px}
+.pop .gone{margin:14px 0 0;color:var(--green-ok);font-weight:700;text-align:center}
+
+/* ---------- Money ---------- *//* ---------- Money ---------- */
+#money,#site{max-width:860px}
+.big{background:#fff;border-radius:22px;padding:24px;margin-bottom:16px}
+.big .amt{font-size:clamp(46px,9vw,64px);font-weight:800;letter-spacing:-1.5px;line-height:1}
+.big .lbl{font-size:18px;font-weight:600;color:var(--muted);margin-top:6px}
+.big .cmp{display:inline-block;margin-top:14px;font-weight:700;font-size:16.5px;padding:6px 12px;border-radius:999px}
+.cmp.up{background:var(--green-soft);color:var(--green-ok)}
+.cmp.down{background:#FBE9E6;color:var(--red-dark)}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.tile{background:#fff;border-radius:18px;padding:16px 18px}
+.tile .v{font-size:28px;font-weight:800;letter-spacing:-.5px}
+.tile .k{font-size:15px;color:var(--muted);font-weight:600}
+.card{background:#fff;border-radius:22px;padding:20px 22px;margin-bottom:16px}
+.card h2{font-size:18px;font-weight:800;margin:0 0 14px}
+.chart svg{width:100%;height:auto;display:block}
+.chart .bar{fill:var(--red)}
+.chart .bar.today{fill:var(--green)}
+.chart text{font-size:12px;fill:var(--muted);font-family:var(--body);font-weight:600}
+.chart .grid{stroke:var(--line)}
+.best{list-style:none;margin:0;padding:0;counter-reset:b}
+.best li{display:flex;align-items:center;gap:14px;padding:10px 0;border-top:1px solid var(--line);font-size:17px}
+.best li:first-child{border-top:0}
+.best li::before{counter-increment:b;content:counter(b);font-family:var(--mark);font-size:22px;color:var(--red);width:22px}
+.best .n{flex:1;font-weight:600}
+.best .c{color:var(--muted);font-weight:600}
+.kept{background:var(--green);color:#fff}
+.kept h2{color:#fff}
+.kept .amt{font-size:40px;font-weight:800;letter-spacing:-1px}
+.kept p{margin:4px 0 0;color:#CFE0D4;font-size:15.5px}
+@media (max-width:760px){.three{grid-template-columns:1fr 1fr 1fr;gap:8px}.tile{padding:12px}.tile .v{font-size:21px}.tile .k{font-size:13px}}
+
+/* ---------- Website ---------- */
+.saved-note{background:#fff;border-radius:16px;padding:12px 16px;font-size:15.5px;color:var(--muted);margin-bottom:16px}
+.find{display:flex;align-items:center;gap:10px;background:#fff;border-radius:16px;padding:0 16px;height:52px;margin-bottom:12px;border:2px solid transparent}
+.find:focus-within{border-color:var(--green)}
+.find input{border:0;outline:0;background:none;width:100%;height:100%;font-size:17px}
+.find svg{flex:none;color:var(--muted)}
+.dishes{background:#fff;border-radius:22px;padding:4px 18px}
+.sec{font-size:14.5px;font-weight:800;color:var(--muted);padding:18px 0 4px}
+.dish{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.sec+.dish{border-top:0}
+.pic{width:64px;height:64px;border-radius:14px;background:var(--green-soft) center/cover no-repeat;display:grid;place-items:center;color:var(--faint)}
+.pic svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8}
+.dish .nm{font-weight:700;font-size:17px;line-height:1.3}
+.dish .pr{font-weight:600;color:var(--muted);font-size:16px}
+.dish.out .nm,.dish.out .pic{opacity:.45}
+.dish .side{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.avail{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--green-ok)}
+.dish.out .avail{color:var(--red)}
+.addbar{margin-top:14px}
+.form{display:grid;gap:18px}
+.form label{display:grid;gap:6px;font-weight:700;font-size:16px}
+.form .hint{font-weight:500;color:var(--muted);font-size:14.5px}
+.form input,.form textarea,.form select{border:2px solid #E2DADE;border-radius:14px;padding:12px 14px;background:#fff;font-weight:500;font-size:17px}
+.form textarea{resize:vertical}
+.form input:focus,.form textarea:focus,.form select:focus{outline:0;border-color:var(--green)}
+.form .inline{display:flex;align-items:center;gap:12px}
+.photo{display:flex;align-items:center;gap:16px}
+.photo .pic{width:110px;height:110px;border-radius:18px}
+.photo .acts{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.savebar{display:flex;align-items:center;gap:16px}
+.ok{color:var(--green-ok);font-weight:700}
+.words{background:#fff;border-radius:22px;padding:22px}
+
+/* edit sheet */
+.scrim{position:fixed;inset:0;background:rgba(42,24,35,.45);z-index:40}
+.sheet .order{box-shadow:none;margin:0}
+.sheet .order .finish[disabled]{background:var(--green-soft);color:var(--green-ok);cursor:default}
+.sheet{position:fixed;top:0;right:0;bottom:0;width:min(480px,100%);background:var(--bg);z-index:41;display:flex;flex-direction:column}
+.sheet header{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 22px;background:#fff}
+.sheet header h2{margin:0;font-size:21px;font-weight:800}
+.sheet .body{flex:1;overflow:auto;padding:20px 22px}
+.sheet footer{padding:14px 22px calc(14px + env(safe-area-inset-bottom));background:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.sheet footer .btn{flex:1;max-width:220px;height:52px}
+@media (max-width:600px){.sheet{top:5vh;border-radius:22px 22px 0 0;overflow:hidden}}
+
+.toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:999px;padding:12px 20px;font-size:16px;font-weight:600;z-index:60;opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap}
+.toast.show{opacity:1}
+@media (min-width:761px){.toast{bottom:30px}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="wordmark" href="index.html" title="Open your website"><b>Bella Pizzeria</b><span>Your dashboard</span></a>
+    <nav class="tabs" role="tablist" aria-label="Dashboard"><span class="slider" aria-hidden="true"></span>
+      <button role="tab" id="t-orders" aria-controls="orders" aria-selected="true">Orders<span class="badge" id="openCount"></span></button>
+      <button role="tab" id="t-money" aria-controls="money" aria-selected="false">Money</button>
+      <button role="tab" id="t-site" aria-controls="site" aria-selected="false">Menu</button>
+    </nav>
+    <label class="live"><span id="liveLbl">Taking orders</span>
+      <span class="switch"><input type="checkbox" id="liveToggle" checked aria-label="Taking online orders"><span></span></span>
+    </label>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ================= ORDERS ================= -->
+<section id="orders" role="tabpanel" aria-labelledby="t-orders">
+  <div class="o-head">
+    <div>
+      <p class="hello" id="hello">Boa noite!</p>
+      <p class="say" id="ordersSay"></p>
+    </div>
+    <button class="btn plus" id="newOrder"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New order</button>
+  </div>
+  <p class="paused" id="pausedNote" hidden>Online orders are off. Your website asks customers to call you instead. Turn the switch back on when you're ready.</p>
+
+  <div id="nowWrap"></div>
+
+  <div id="weekWrap">
+    <div class="sechead">
+      <p class="h2" id="weekTitle">This week</p>
+      <button class="arrow" id="wkPrev" aria-label="Previous week"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="arrow" id="wkNext" aria-label="Next week"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <div class="week" id="week"></div>
+    <p class="wk-note" id="wkNote"></p>
+  </div>
+
+  <div class="panel" id="panel" hidden></div>
+  <p class="test">These are sample orders. <button class="link" id="testOrder">Send a test order</button></p>
+</section>
+
+<!-- ================= MONEY ================= -->
+<section id="money" role="tabpanel" aria-labelledby="t-money" hidden>
+  <div class="head">
+    <p class="hello">Your money</p>
+    <div class="seg" role="group" aria-label="Time period">
+      <button data-range="1" aria-pressed="true">Today</button>
+      <button data-range="7" aria-pressed="false">This week</button>
+      <button data-range="30" aria-pressed="false">This month</button>
+    </div>
+  </div>
+  <div class="big"><div class="amt num" id="amt"></div><div class="lbl" id="amtLbl"></div><span class="cmp" id="cmp"></span></div>
+  <div class="three" id="tiles"></div>
+  <div class="card chart"><h2 id="chartTitle"></h2><div id="chart"></div></div>
+  <div class="card"><h2>What sold the most</h2><ol class="best" id="best"></ol></div>
+  <div class="card kept" id="kept"></div>
+  <p class="test"><button class="link" id="csv">Download this as a spreadsheet</button></p>
+</section>
+
+<!-- ================= WEBSITE ================= -->
+<section id="site" role="tabpanel" aria-labelledby="t-site" hidden>
+  <div class="head">
+    <p class="hello">Your website</p>
+    <p class="say">Change prices, photos and dishes. <span class="soft">Sold out of something? Just switch it off.</span></p>
+    <div class="seg" role="group" aria-label="What to change">
+      <button data-part="menu" aria-pressed="true">Menu</button>
+      <button data-part="text" aria-pressed="false">Words on the site</button>
+    </div>
+  </div>
+  <p class="saved-note">For now, changes save on this phone or computer only. <a href="index.html" target="_blank" rel="noopener">See your website</a></p>
+
+  <div id="part-menu">
+    <label class="find"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><input id="mq" type="search" placeholder="Find a dish" aria-label="Find a dish"></label>
+    <div class="dishes" id="dishList"></div>
+    <div class="addbar"><button class="btn" id="addDish">Add a new dish</button></div>
+  </div>
+
+  <form class="form words" id="part-text" hidden>
+    <label>Message at the top of your website <span class="hint">For holidays or news. Leave it empty to hide it. Example: Closed on Thanksgiving.</span><input name="announce" maxlength="120"></label>
+    <label>Hours <input name="hours"></label>
+    <label>Phone number <input name="phone" type="tel"></label>
+    <label>Delivery fee <span class="hint">In dollars</span><input name="fee" inputmode="decimal"></label>
+    <label>Short intro <span class="hint">The sentence under your name at the top.</span><textarea name="lede" rows="3"></textarea></label>
+    <label>About us <textarea name="about" rows="6"></textarea></label>
+    <div class="savebar"><button class="btn" type="submit">Save</button><span class="ok" id="textSaved" hidden>Saved</span></div>
+  </form>
+</section>
+</main>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <header><h2 id="sheetTitle">Change dish</h2><button class="link" id="sheetClose">Close</button></header>
+  <div class="body">
+    <form class="form" id="dishForm">
+      <div class="photo">
+        <div class="pic" id="fPic"></div>
+        <div class="acts">
+          <label class="btn" style="padding:10px 16px;font-size:15.5px">Choose a photo<input type="file" accept="image/*" id="fFile" hidden></label>
+          <button type="button" class="link" id="fRemove">Remove photo</button>
+        </div>
+      </div>
+      <label>Name<input name="n" required></label>
+      <label>Price<input name="p" inputmode="decimal" required placeholder="18.00"></label>
+      <label class="inline"><span class="switch"><input type="checkbox" name="on"><span></span></span>Available to order</label>
+      <label>What's on it<textarea name="d" rows="2"></textarea></label>
+      <label>Short explanation <span class="hint">Helps new customers. Example: Coxinha is shredded chicken in dough, fried.</span><textarea name="x" rows="2"></textarea></label>
+      <label>How to say it <span class="hint">Optional. Example: ko-SHEEN-ya</span><input name="say"></label>
+      <label>Menu section<select name="cat" id="fCat"></select></label>
+    </form>
+  </div>
+  <footer><button class="link" id="fDelete" style="color:var(--red)">Delete</button><button class="btn" id="fSave">Save</button></footer>
+</aside>
+
+<aside class="sheet" id="nSheet" role="dialog" aria-modal="true" aria-labelledby="nTitle" hidden>
+  <header><div><h2 id="nTitle">New order</h2><span class="small" id="nFor"></span></div><button class="link" id="nClose">Close</button></header>
+  <div class="body">
+    <form class="form" id="nForm" autocomplete="off" onsubmit="return false">
+      <div class="kseg" role="group" aria-label="Pickup or delivery"><button type="button" data-k="pickup" aria-pressed="true">Pickup</button><button type="button" data-k="delivery" aria-pressed="false">Delivery</button></div>
+      <label>Name<input id="nName" placeholder="Customer's name"></label>
+      <label>Phone<input id="nPhone" type="tel" inputmode="tel" placeholder="Optional"></label>
+      <label id="nAddrWrap" hidden>Address<input id="nAddr" placeholder="Street and number"></label>
+      <div class="foodbox">
+        <span class="lbl">Food</span>
+        <div class="picked" id="nPicked"></div>
+        <label class="find" style="margin:0"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><input id="nFind" placeholder="Type to add food, like pepperoni" aria-label="Add food"></label>
+        <div class="quick" id="nQuick"></div>
+      </div>
+      <label><span id="nWhenLbl">Ready by</span><span class="when-row"><input id="nTime" type="time"></span><span class="hint" id="nWhenHint">Leave it as is for as soon as possible.</span></label>
+      <label>Note <span class="hint">Optional</span><input id="nNote" placeholder="No olives, extra catupiry..."></label>
+      <label class="inline"><span class="switch"><input type="checkbox" id="nPaid"><span></span></span>Already paid</label>
+    </form>
+  </div>
+  <footer><span class="tot num" id="nTotal">$0.00</span><button class="btn" id="nSave">Add order</button></footer>
+</aside>
+
+<div class="pop" id="pop" role="dialog" aria-modal="true" aria-label="Order" hidden><div class="box" id="popBox"></div></div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* SWAP: the owner's first name makes the greeting personal ("Boa noite, Marcos!"). */
+const OWNER = "";
+
+/* Menu copied from the website so names and prices match.
+   SYNC: in the live build, the site and this dashboard read the menu from one place. */
+const MENU = [
+  { id:"pizzas", name:"Pizzas", note:"The classics, on our thin Brazilian-style crust.", items:[
+    {id:"cheese", n:"Cheese Pizza", p:12, d:"Tomato sauce and mozzarella."},
+    {id:"pepperoni", n:"Pepperoni Pizza", p:12, d:"Tomato sauce, mozzarella and sliced pepperoni.", img:"1761185115_9e20ffd5ed"},
+    {id:"bbqchk", n:"BBQ Chicken Pizza", p:15, d:"Tomato sauce, mozzarella, BBQ sauce and grilled chicken."},
+    {id:"buffalo", n:"Buffalo Chicken Pizza", p:15, d:"Tomato sauce, mozzarella, grilled chicken and buffalo sauce."},
+    {id:"hawaiian", n:"Hawaiian Pizza", p:15, d:"Tomato sauce, mozzarella, pineapple and ham.", img:"1761185095_c80353fa25"},
+    {id:"margherita", n:"Margherita Pizza", p:15, d:"Tomato sauce, mozzarella, tomatoes and basil."},
+    {id:"special", n:"Bella Special Pizza", p:17, d:"Tomato sauce, mozzarella, hamburger, pepperoni, smoked sausage, ham, mushroom, red onion and green peppers."},
+    {id:"meat", n:"Meat Lover's Pizza", p:17, d:"Tomato sauce, mozzarella, hamburger, pepperoni, smoked sausage, bacon and salami."},
+    {id:"veggie", n:"Veggie Pizza", p:17, d:"Tomato sauce, mozzarella, mushroom, red onion, green peppers, broccoli and olives."},
+    {id:"alfredo", n:"Chicken Alfredo Pizza", p:17, d:"Alfredo sauce, grilled chicken, broccoli and cheese.", img:"1761268025_9e2105e75f"},
+    {id:"paradise", n:"Paradise Pizza", p:17, d:"Tomato sauce, chicken, green peppers, onion, bacon and pineapple."},
+  ]},
+  { id:"brazilian", name:"Brazilian pizzas", note:"What a pizzaria in São Paulo would serve.", items:[
+    {id:"catupiry", n:"Chicken with Catupiry Pizza", say:"ka-too-pee-REE", p:18, d:"Tomato sauce, mozzarella, shredded chicken, corn, olives and catupiry.", x:"Catupiry is a soft, creamy Brazilian cheese. Think cream cheese that melts like mozzarella.", img:"images/chicken-catupiry.jpg"},
+    {id:"house", n:"House-Style Pizza", p:18, d:"Tomato sauce, mozzarella, ham, chicken, tomatoes, smoked sausage, corn, olives, bacon, onion and catupiry.", x:"The everything pie. If you can't decide, get this one.", img:"images/house-style.jpg"},
+    {id:"calabresa", n:"Bella Calabresa Pizza", say:"ka-la-BREH-za", p:18, d:"Tomato sauce, mozzarella, smoked sausage, olives and red onion.", x:"Calabresa is smoked pork sausage. It's Brazil's pepperoni and one of the most ordered pizzas back home.", img:"images/calabresa.jpg"},
+    {id:"paulista", n:"Calabresa Paulista Pizza", say:"pow-LEES-ta", p:18, d:"Tomato sauce, smoked sausage, red onion and olives.", x:"Calabresa the São Paulo way, where the sausage and onion do the talking."},
+    {id:"fourcheese", n:"Four Cheese Pizza", p:17, d:"Tomato sauce, mozzarella, provolone, parmesan and catupiry."},
+    {id:"portuguesa", n:"Portuguesa Pizza", say:"por-too-GAY-za", p:18, d:"Tomato sauce, mozzarella, ham, egg, hearts of palm, onion and olives.", x:"A Brazilian favorite. Sliced boiled egg and hearts of palm sound odd on pizza until you try it."},
+    {id:"atum", n:"Tuna Pizza (Atum)", say:"ah-TOOM", p:17, d:"Tomato sauce, tuna, mozzarella, olives and onion.", x:"Sounds unusual here, but tuna pizza is on the menu at almost every pizzaria in Brazil.", img:"1761184784_05f4fb3f5e"},
+    {id:"lombinho", n:"Lombinho Pizza", say:"lom-BEEN-yo", p:17, d:"Tomato sauce, Canadian bacon, mozzarella, olives and onion.", x:"Lombinho means smoked pork loin."},
+    {id:"bauru", n:"Bauru Pizza", say:"bow-ROO", p:17, d:"Tomato sauce, ham, mozzarella, tomatoes and olives.", x:"Named after Bauru, a town in São Paulo famous for its ham and cheese sandwich."},
+    {id:"bacongold", n:"Bacon & Gold Pizza", p:17, d:"Tomato sauce, mozzarella, bacon, olives and corn.", img:"1761184761_b31922fc62"},
+    {id:"rustica", n:"Rústica Bella Pizza", p:18, d:"Tomato sauce, mozzarella, arugula, bacon, corn and grape tomatoes.", img:"images/rustica.jpg"},
+    {id:"nordestina", n:"Nordestina Pizza", say:"nor-des-CHEE-na", p:18, d:"Tomato sauce, mozzarella, carne seca, red onion and catupiry.", x:"Carne seca is salted, dried beef from Brazil's northeast, pulled and cooked soft. Salty, rich, and great with the creamy catupiry.", img:"images/nordestina.jpg"},
+    {id:"picanhapz", n:"Picanha Pizza", say:"pee-KAHN-ya", p:18, d:"Tomato sauce, mozzarella, green peppers, red onion, olives and picanha.", x:"Picanha is the top sirloin cap, the prized cut at every Brazilian steakhouse.", img:"images/picanha-pizza.jpg"},
+    {id:"strogonoff", n:"Chicken Strogonoff Pizza", p:17, d:"Tomato sauce, mozzarella, chicken strogonoff and crispy potato sticks.", x:"Brazil's comfort food: chicken in a creamy tomato sauce, topped with shoestring potato crunch.", img:"1761184716_c91fe51007"},
+  ]},
+  { id:"esfihas", name:"Esfihas", note:"Small open-face pies, baked fresh. Lebanese roots, very Brazilian.", items:[
+    {id:"esf6", n:"6 Esfihas", say:"es-FEE-ha", p:15, d:"You pick 2 or 3 flavors: beef, chicken with catupiry, pizza, or bacon and cheese.", opts:{q:"Pick 2 or 3 flavors", min:2, max:3, choices:["Beef","Chicken with catupiry","Pizza","Bacon and cheese"]}, x:"Each one is about the size of your palm. Six makes a light meal for one.", img:"1761184232_21de8949af"},
+    {id:"esf12", n:"12 Esfihas", say:"es-FEE-ha", p:29, d:"3 beef, 3 chicken with catupiry, 3 pizza and 3 bacon and cheese.", x:"A sampler of every flavor. Good for two.", img:"images/esfiha-board.jpg"},
+    {id:"esf24", n:"24 Esfihas", say:"es-FEE-ha", p:39, d:"6 beef, 6 chicken with catupiry, 6 pizza and 6 bacon and cheese.", x:"Party size. Feeds four to six.", img:"1761184317_21de8949af"},
+    {id:"esfsweet", n:"Sweet Esfiha", p:4.5, d:"A dessert esfiha. Ask which sweet flavors we have today.", img:"1761184196_fc9fc65084"},
+  ]},
+  { id:"burgers", name:"X-Burgers", note:"Say “X” in Portuguese and it sounds like “cheese.” So X-Burger means cheeseburger.", items:[
+    {id:"xtudo", n:"X-Tudo", say:"shees-TOO-doo", p:18, d:"Burger, egg, bacon, ham, American cheese, lettuce, tomato, onion, corn and potato sticks.", x:"Tudo means everything, and it really does have everything.", img:"images/xtudo.jpg"},
+    {id:"xtudocal", n:"X-Tudo Calabresa", p:19.9, d:"Burger, egg, bacon, American cheese, smoked sausage, catupiry, lettuce, tomato, onion, corn and potato sticks."},
+    {id:"xfrango", n:"X-Frango", say:"shees-FRAHN-go", p:18, d:"Crispy chicken, American cheese, egg, bacon, ham, catupiry, tomato, lettuce, onion, corn and potato sticks.", x:"Frango means chicken.", img:"1761184579_083524ac1a"},
+    {id:"xeggbacon", n:"X-Egg Bacon", p:17, d:"Burger, egg, bacon, American cheese, lettuce, tomato, corn and potato sticks."},
+    {id:"xbacon", n:"X-Bacon", p:14.9, d:"Burger, bacon, American cheese, lettuce, tomato, corn and potato sticks.", img:"1761184512_49b986464a"},
+    {id:"xsalada", n:"X-Salada", p:14, d:"Burger, American cheese, lettuce, tomato, onion, corn and potato sticks.", x:"A cheeseburger with the salad on it.", img:"1761184532_bd20939ae8"},
+    {id:"xburger", n:"X-Burger", p:10.9, d:"Burger and American cheese on a soft bun.", img:"1761184469_49b986464a"},
+  ]},
+  { id:"calzones", name:"Calzones", items:[
+    {id:"czcheese", n:"Cheese Calzone", p:10, d:"Mozzarella, folded and baked."},
+    {id:"czpep", n:"Pepperoni & Cheese Calzone", p:12, d:"Pepperoni and mozzarella."},
+    {id:"czbacon", n:"Bacon & Cheese Calzone", p:12, d:"Bacon and mozzarella."},
+    {id:"czsteak", n:"Steak & Cheese Calzone", p:15, d:"Steak, mozzarella and green peppers.", img:"1761185069_45e4cfb576"},
+    {id:"czchk", n:"Chicken & Catupiry Calzone", p:15, d:"Shredded chicken and creamy Brazilian catupiry cheese.", img:"1761185049_af6b9144a5"},
+    {id:"czcal", n:"Calabresa & Cheese Calzone", p:15, d:"Smoked calabresa sausage and mozzarella."},
+  ]},
+  { id:"sides", name:"Sides & plates", items:[
+    {id:"pastel", n:"Pastel", say:"pahs-TEL", p:8, d:"Ask for today's fillings.", x:"A big, thin, crackly fried pastry. The classic São Paulo street-market snack.", img:"1761184166_f3729df18a"},
+    {id:"coxinha", n:"Mini Coxinhas (10)", say:"ko-SHEEN-ya", p:11.99, d:"Ten bite-size coxinhas.", x:"Shredded chicken wrapped in dough, shaped like a little drumstick, breaded and fried.", img:"1761184381_6c9faa618b"},
+    {id:"minipastel", n:"Mini Pastel", p:11.99, d:"Small fried pastries with ground beef and cheese."},
+    {id:"fries", n:"French Fries", p:6, d:"Crispy and salted."},
+    {id:"friescb", n:"Fries with Cheddar & Bacon", p:10.5, d:"Fries topped with melted cheddar and bacon."},
+    {id:"wings", n:"Chicken Wings", p:12, d:"Ask for today's sauces."},
+    {id:"tenders", n:"Chicken Tenders", p:12, d:"Crispy breaded chicken strips."},
+    {id:"tilapia", n:"Tilapia Plate", p:22, d:"Tilapia with a side of fries or yuca.", x:"Yuca is cassava root, fried until crisp outside and soft inside.", img:"1761184357_af36e243c0"},
+    {id:"picanhaplate", n:"Picanha Plate", say:"pee-KAHN-ya", p:30, d:"Picanha with a side of fries or yuca.", x:"Top sirloin cap, sliced, the way Brazilian steakhouses serve it.", img:"1761184340_f52e05c218"},
+    {id:"housesalad", n:"House Salad", p:9, d:"Lettuce, tomato, corn, olives and onion.", img:"1761184428_c89689e6a9"},
+    {id:"caesar", n:"Caesar Salad", p:9, d:"Lettuce, cheese and croutons.", img:"1761184411_f9363082a1"},
+  ]},
+  { id:"subs", name:"Subs & pasta", items:[
+    {id:"steakbr", n:"Steak & Cheese Brazil", p:17.99, d:"Steak, cheese, bacon, lettuce, tomato and onion. Served with fries.", img:"1761184621_f0bd8f044b"},
+    {id:"hamcheese", n:"Ham & Cheese Sub", p:12, d:"Baguette, ham and American cheese."},
+    {id:"cheeseburgersub", n:"Cheeseburger Sub", p:13, d:"Baguette, burger and American cheese."},
+    {id:"tuna", n:"Tuna Sub", p:11, d:"Baguette, tuna, mayo, lettuce and tomato."},
+    {id:"grillchk", n:"Grilled Chicken Sub", p:13, d:"Baguette, grilled chicken, American cheese, lettuce and tomato."},
+    {id:"blt", n:"BLT Sub", p:13, d:"Baguette, bacon, lettuce, tomato and mayo."},
+    {id:"bbqsub", n:"BBQ Chicken Sub", p:13, d:"Baguette, American cheese, grilled chicken, BBQ sauce and grilled onion."},
+    {id:"buffsub", n:"Buffalo Chicken Sub", p:13, d:"Baguette, grilled chicken, buffalo sauce and mozzarella."},
+    {id:"parm", n:"Chicken Parmigiana Sub", p:14, d:"Baguette, breaded chicken, marinara and American cheese."},
+    {id:"pastaplate", n:"Pasta on a Plate", p:17.9, d:"Spaghetti, chicken, smoked sausage, onion, peppers, corn and olives in soy sauce.", x:"Spaghetti tossed in the pan with everything else, Brazilian home style.", img:"1761184450_d737354dee"},
+    {id:"alfredopasta", n:"Chicken Alfredo Pasta", p:17, d:"Spaghetti, chicken, broccoli and alfredo sauce."},
+  ]},
+  { id:"sweet", name:"Sweet pizzas & desserts", note:"Dessert pizza is normal in Brazil. Order one for the table.", items:[
+    {id:"romeo", n:"Romeo & Juliet Pizza", p:20, d:"Guava paste and mozzarella.", x:"In Brazil, guava paste with cheese is called Romeu e Julieta, the perfect couple. Sweet, a little salty."},
+    {id:"churros", n:"Churros Pizza", p:20, d:"Dulce de leche, sugar and cinnamon.", x:"Tastes like a churro in pizza form."},
+    {id:"banana", n:"Banana Cinnamon Pizza", p:20, d:"Banana, cinnamon and mozzarella."},
+    {id:"nutella", n:"Nutella Pizza", p:22, d:"Nutella, with fruit on top if you like."},
+    {id:"whitechoc", n:"White Chocolate Pizza", p:22, d:"Belgian white chocolate, with fruit on top if you like."},
+    {id:"brigadeiro", n:"Brigadeiro Pizza", say:"bree-ga-DAY-ro", p:22, d:"Dark chocolate brigadeiro, with fruit on top if you like.", x:"Brigadeiro is Brazil's chocolate fudge, made with condensed milk. Every birthday party has it."},
+    {id:"acai", n:"Açaí Bowl", say:"ah-sah-EE", p:12, d:"Condensed milk, powdered milk, strawberry, banana and granola.", x:"Frozen açaí berry blended thick like sorbet, then piled with toppings.", img:"1761184094_01fc11c35e"},
+    {id:"tresleches", n:"Tres Leches Cake", p:6, d:"Sponge cake soaked in three kinds of milk.", img:"1761184011_ab22f0912d"},
+    {id:"pudim", n:"Flan (Pudim)", say:"poo-JEEN", p:6, d:"Brazilian caramel custard, dense and silky."},
+    {id:"lime", n:"Lime Mousse", p:6, d:"Light, tart and cold."},
+    {id:"passion", n:"Passion Fruit Mousse", p:6, d:"Maracujá mousse, sweet and sour."},
+  ]},
+  { id:"drinks", name:"Drinks", items:[
+    {id:"guarana2", n:"Guaraná Antarctica, 2 liter", say:"gwa-ra-NAH", p:7, d:"Brazil's favorite soda.", x:"Made from the guaraná berry. Tastes a bit like apple and ginger ale. Try it with pizza."},
+    {id:"guaranacan", n:"Guaraná Antarctica, can", p:3, d:"The 12 oz can."},
+    {id:"coke20", n:"Coke, 20 oz", p:3.5},
+    {id:"cokezero20", n:"Coke Zero, 20 oz", p:3.5},
+    {id:"sprite20", n:"Sprite, 20 oz", p:3.5},
+    {id:"gingerale20", n:"Ginger Ale, 20 oz", p:3.5},
+    {id:"lemonade", n:"Lemonade, 20 oz", p:3.5},
+    {id:"pinklemonade", n:"Pink Lemonade, 20 oz", p:3.5},
+    {id:"cokezero2", n:"Coke Zero, 2 liter", p:5},
+    {id:"sprite2", n:"Sprite, 2 liter", p:5},
+    {id:"fanta2", n:"Fanta Orange, 2 liter", p:5},
+    {id:"cokecan", n:"Coke, can", p:2.5},
+    {id:"cokezerocan", n:"Coke Zero, can", p:2.5},
+    {id:"spritecan", n:"Sprite, can", p:2.5},
+    {id:"gingercan", n:"Ginger Ale, can", p:2.5},
+    {id:"water", n:"Dasani Water", p:2.5},
+  ]},
+];
+
+const $ = s => document.querySelector(s);
+const money = n => "$" + n.toLocaleString("en-US", {minimumFractionDigits:2, maximumFractionDigits:2});
+const money0 = n => "$" + Math.round(n).toLocaleString("en-US");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store = {
+  get(k, d){ try { const v = localStorage.getItem("bella-dash-" + k); return v ? JSON.parse(v) : d; } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem("bella-dash-" + k, JSON.stringify(v)); return true; } catch(e){ return false; } },
+};
+let toastT;
+function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2200); }
+const photoSrc = img => !img ? "" : (img.startsWith("data:") || img.includes("/")) ? img : `https://slice-menu-assets-prod.imgix.net/112568/${img}?auto=format&fit=crop&w=220&h=220`;
+const CAMERA = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>`;
+const CHECK = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+
+let items = store.get("menu", null);
+if (!items) items = MENU.flatMap(c => c.items.map(i => ({...i, cat:c.id, on:true})));
+const CATS = MENU.map(c => ({id:c.id, name:c.name}));
+const byId = () => Object.fromEntries(items.map(i => [i.id, i]));
+
+/* ---------- tabs ---------- */
+const TABS = ["orders","money","site"];
+function moveSlider(){
+  const on = document.querySelector('.tabs [aria-selected="true"]'), sl = $(".tabs .slider"); if (!on || !sl) return;
+  const w = on.offsetWidth + 4; sl.style.width = w + "px"; sl.style.transform = `translateX(${on.offsetLeft - 2}px)`;
+}
+let curTab = "orders";
+function showTab(id, instant){
+  const from = TABS.indexOf(curTab), to = TABS.indexOf(id);
+  const apply = () => {
+    TABS.forEach(t => { $("#" + t).hidden = t !== id; $(`[aria-controls="${t}"]`).setAttribute("aria-selected", t === id); });
+    if (id === "money") renderMoney();
+    if (id === "site") renderDishes();
+    curTab = id; store.set("tab", id); scrollTo(0, 0); moveSlider();
+  };
+  if (instant || from === to || !document.startViewTransition || calmMotion){ apply(); return; }
+  document.documentElement.dataset.vt = to > from ? "tab-right" : "tab-left";
+  document.startViewTransition(apply).finished.finally(() => delete document.documentElement.dataset.vt);
+}
+document.querySelectorAll('[role="tab"]').forEach(b => b.addEventListener("click", () => showTab(b.getAttribute("aria-controls"))));
+
+/* ============================================================
+   Sample order history. SYNC: replace with orders from the website.
+   Seeded so the numbers stay the same every time you open it.
+   ============================================================ */
+function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const NAMES = ["Ana P.","Lucas M.","Jess T.","Mike D.","Camila R.","Tom B.","Priya S.","Rafael O.","Kim L.","Diego F.","Sarah K.","Bruno A.","Emily W.","Joe C.","Fernanda L.","Chris H.","Nina V.","Matt G.","Juliana S.","Dan P."];
+const STREETS = ["Highland St","Pleasant St","Park Ave","Elm St","William St","Lancaster St","June St","Salisbury St","Dean St","Russell St"];
+const NOTES = ["Extra catupiry please","No olives","Cut in squares","Ring the side door","Well done crust","Can you add napkins?"];
+const POPULAR = [["catupiry",9],["calabresa",7],["nordestina",5],["house",5],["pepperoni",6],["cheese",6],["esf12",4],["esf6",4],["picanhapz",3],["rustica",3],["xtudo",4],["xbacon",2],["coxinha",3],["pastel",2],["brigadeiro",2],["churros",2],["guarana2",6],["coke20",3],["fries",3],["meat",2],["portuguesa",2],["acai",1]];
+const FLAVORS = ["Beef","Chicken with catupiry","Pizza","Bacon and cheese"];
+const nowNY = () => new Date(new Date().toLocaleString("en-US", {timeZone:"America/New_York"}));
+const clock = d => d.toLocaleTimeString("en-US", {hour:"numeric", minute:"2-digit"}).toLowerCase().replace(" ", " ");
+const dayKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+
+function makeOrder(r, at, num){
+  const M = byId(), pick = () => { const tot = POPULAR.reduce((n,[,w]) => n + w, 0); let x = r() * tot; for (const [id,w] of POPULAR){ if ((x -= w) < 0) return id; } return "cheese"; };
+  const lines = [], n = 1 + Math.floor(r() * 3.2);
+  for (let i = 0; i < n; i++){
+    const id = pick(); if (!M[id]) continue;
+    const ex = lines.find(l => l.id === id && !l.picks);
+    if (ex) { ex.q++; continue; }
+    const line = {id, q: 1 + (r() < .15 ? 1 : 0)};
+    if (id === "esf6") line.picks = [FLAVORS[Math.floor(r()*4)], FLAVORS[Math.floor(r()*4)]].filter((v,i,a) => a.indexOf(v) === i);
+    lines.push(line);
+  }
+  const kind = r() < .42 ? "delivery" : "pickup";
+  const sub = lines.reduce((s,l) => s + l.q * M[l.id].p, 0);
+  return {
+    num, at: at.getTime(), kind, lines, sub,
+    name: NAMES[Math.floor(r()*NAMES.length)],
+    phone: "(508) 555-01" + String(10 + Math.floor(r()*89)),
+    addr: kind === "delivery" ? `${10 + Math.floor(r()*190)} ${STREETS[Math.floor(r()*STREETS.length)]}` : "",
+    note: r() < .22 ? NOTES[Math.floor(r()*NOTES.length)] : "",
+    paid: r() < .78, status: "done",
+  };
+}
+const SEED = 1805;
+function buildHistory(){
+  const r = rng(SEED), now = nowNY(), out = []; let num = 3100;
+  for (let back = 64; back >= 0; back--){
+    const day = new Date(now); day.setDate(now.getDate() - back);
+    const dow = day.getDay(), base = [26,14,15,17,21,34,38][dow];
+    const count = Math.round(base * (.9 + r() * .2) * (1 + (64 - back) * .006));   // slow, steady growth
+    const times = [];
+    for (let i = 0; i < count; i++){
+      // lunch bump, bigger dinner rush
+      const h = r() < .3 ? 11.5 + r() * 2.5 : 16.5 + r() * 4.8;
+      const t = new Date(day); t.setHours(Math.floor(h), Math.floor((h % 1) * 60), Math.floor(r()*60), 0);
+      times.push(t);
+    }
+    times.sort((a,b) => a - b);
+    for (const t of times){ if (back === 0 && t > now) continue; out.push(makeOrder(r, t, ++num)); }
+  }
+  return out;
+}
+let history = buildHistory();
+
+/* today's live queue: the last few orders are still being worked on */
+let live = store.get("live3", null);
+const todayKey = dayKey(nowNY());
+if (!live || live.day !== todayKey){
+  const today = history.filter(o => dayKey(new Date(o.at)) === todayKey);
+  const tail = today.slice(-6);
+  // if it's before opening there's nothing today yet, so stage a believable queue anyway
+  const queue = tail.length >= 4 ? tail : (() => { const r = rng(7), n = nowNY(); return [0,1,2,3,4,5].map(i => makeOrder(r, new Date(n.getTime() - (34 - i*6) * 60000), 4000 + i)); })();
+  const states = ["done","done","open","open","open","open"], minsAgo = [41, 27, 19, 12, 5, 2];
+  const n = nowNY(), used = new Set();
+  queue.forEach((o, i) => {
+    o.status = states[i] || "open";
+    o.kind = i % 2 ? "pickup" : "delivery";              // a mix of both in the sample queue
+    if (o.kind === "pickup") o.addr = ""; else if (!o.addr) o.addr = `${20 + i * 17} ${STREETS[i % STREETS.length]}`;
+    o.at = n.getTime() - minsAgo[i] * 60000;         // keep the queue fresh whenever the demo is opened
+    let k = i; while (used.has(o.name)) o.name = NAMES[(NAMES.indexOf(o.name) + ++k) % NAMES.length];
+    used.add(o.name);
+  });
+  live = {day: todayKey, orders: queue.map(o => ({num:o.num, status:o.status, at:o.at, name:o.name})), extra: tail.length >= 4 ? [] : queue};
+  store.set("live3", live);
+}
+function liveOrders(){
+  const all = [...history, ...live.extra];
+  return live.orders.map(s => { const o = all.find(x => x.num === s.num); if (!o) return null; Object.assign(o, {status:s.status}); if (s.at) o.at = s.at; if (s.name) o.name = s.name; return o; }).filter(Boolean);
+}
+const ETA = {pickup:25, delivery:35};
+
+
+
+/* ---------- greeting ---------- */
+function greet(){
+  const h = nowNY().getHours(), word = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+  $("#hello").textContent = OWNER ? `${word}, ${OWNER}!` : `${word}!`;
+}
+
+/* ---------- Orders ---------- */
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+function waitText(o){
+  const m = Math.max(0, Math.round((nowNY() - o.at) / 60000)), late = m - ETA[o.kind];
+  if (late > 0) return [`${late} min late`, true];
+  return [m < 1 ? "Just now" : `${m} min ago`, false];
+}
+function orderCard(o){
+  const M = byId(), ready = new Date(o.at + ETA[o.kind] * 60000), [w, late] = waitText(o);
+  const total = o.sub * 1.07 + (o.kind === "delivery" ? 3.99 : 0);
+  return `<article class="order ${o.kind}" data-num="${o.num}">
+    <div class="who"><b>${esc(o.name)}</b><span class="wait${late ? " late" : ""}">${w}</span></div>
+    <div class="when">${o.kind === "pickup" ? "Pickup at" : "Deliver by"} ${clock(ready)}</div>
+    ${o.addr ? `<div class="addr">${esc(o.addr)}${/worcester/i.test(o.addr) ? "" : ", Worcester"}</div>` : ""}
+    <ul class="food">${o.lines.map(l => `<li><span class="q">${l.q}×</span><span>${esc(M[l.id]?.n || l.id)}${l.picks ? `<small>${esc(l.picks.join(", "))}</small>` : ""}</span></li>`).join("")}</ul>
+    ${o.note ? `<div class="ask">${esc(o.note)}</div>` : ""}
+    <div class="pay"><b class="num">${money(total)}</b>${o.paid ? `<span class="paid">Paid online</span>` : `<span class="due">Collect payment</span>`}</div>
+    <button class="finish" data-finish="${o.num}">${CHECK}${o.kind === "pickup" ? "Picked up" : "Delivered"}</button>
+    ${o.phone ? `<a class="call" href="tel:${o.phone.replace(/\D/g,"")}">Call ${esc(o.name.split(" ")[0])}</a>` : ""}
+  </article>`;
+}
+/* every order the dashboard knows about: sample history, today's live queue, and ones typed in by hand */
+let manual = store.get("manual", []);
+const allOrders = () => [...history, ...live.extra, ...manual];
+function setStatus(num, status){
+  const s = live.orders.find(x => x.num === num);
+  if (s) { s.status = status; store.set("live3", live); }
+  const m = manual.find(x => x.num === num);
+  if (m) { m.status = status; store.set("manual", manual); }
+}
+const todayKeyNow = () => dayKey(nowNY());
+function openToday(){ liveOrders(); return allOrders().filter(o => o.status === "open" && dayKey(new Date(o.at)) === todayKeyNow()); }
+
+function renderOrders(){
+  greet();
+  const open = openToday(), badge = $("#openCount"), before = badge.textContent;
+  $("#ordersSay").innerHTML = open.length
+    ? `${plural(open.length, "order", "orders")} waiting.`
+    : `All caught up. <span class="soft">New orders show up here with a ding.</span>`;
+  badge.textContent = open.length || "";
+  if (before !== badge.textContent){ badge.classList.remove("bump"); void badge.offsetWidth; badge.classList.add("bump"); }
+  if (curDay) renderPanel(); else { renderNow(); renderWeek(); }
+}
+
+let weekOffset = 0, curDay = null;
+function weekStart(off){ const d = nowNY(); d.setHours(0,0,0,0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7) + off * 7); return d; }
+const keyToDate = k => { const [y,m,d] = k.split("-").map(Number); return new Date(y, m-1, d); };
+function ordersOnDay(k){ liveOrders(); return allOrders().filter(o => dayKey(new Date(o.at)) === k); }
+const due = o => o.at + ETA[o.kind] * 60000;
+const shortItems = (o, M) => o.lines.map(l => `${l.q} ${(M[l.id]?.n || l.id).replace(/ Pizza$/, "")}`).join(", ");
+const fmtShort = d => d.toLocaleDateString("en-US", {month:"short", day:"numeric"});
+const calmMotion = matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+/* ---------- right now: what's waiting, most urgent first ---------- */
+function renderNow(){
+  const M = byId(), open = openToday().sort((a,b) => due(a) - due(b)), now = nowNY();
+  if (!open.length){ $("#nowWrap").innerHTML = `<p class="h2" style="margin-bottom:12px">Right now</p><div class="calm">Nothing waiting. New orders appear here with a ding.</div>`; return; }
+  $("#nowWrap").innerHTML = `<p class="h2" style="margin-bottom:12px">Right now</p><div class="now-list">${open.map(o => {
+    const mins = Math.round((due(o) - now) / 60000), late = mins < 0;
+    return `<div class="w${late ? " late" : ""}" data-order="${o.num}">
+      <span class="due num">${late ? -mins : Math.max(mins, 0)}<small>${late ? "min late" : mins <= 0 ? "due now" : "min left"}</small></span>
+      <span class="who2"><b>${esc(o.name)}</b><span class="k">${o.kind === "pickup" ? "Pickup" : "Delivery"}</span><span class="it">${esc(shortItems(o, M))}</span></span>
+      <span class="amt num">${money(o.sub)}</span>
+      <button class="tick" data-finish="${o.num}" aria-label="${o.kind === "pickup" ? "Picked up" : "Delivered"}">${CHECK}</button>
+    </div>`; }).join("")}</div>`;
+}
+
+/* ---------- the week ---------- */
+function renderWeek(){
+  const start = weekStart(weekOffset), today = todayKeyNow(), now = nowNY();
+  const days = Array.from({length:7}, (_, i) => { const d = new Date(start); d.setDate(d.getDate() + i); return d; });
+  const per = days.map(d => { const k = dayKey(d), list = ordersOnDay(k); return {d, k, n:list.length, s:list.reduce((x,o) => x + o.sub, 0)}; });
+  const max = Math.max(1, ...per.map(x => x.s));
+  $("#weekTitle").textContent = weekOffset === 0 ? "This week" : weekOffset === -1 ? "Last week" : `${fmtShort(days[0])} to ${fmtShort(days[6])}`;
+  $("#wkNext").disabled = weekOffset >= 0;
+  $("#week").innerHTML = per.map(({d, k, n, s}) => {
+    const isToday = k === today, future = d > now && !isToday && !n;
+    return `<button class="day${isToday ? " today" : ""}${future ? " future" : ""}" data-day="${k}" ${future ? 'tabindex="-1" aria-disabled="true"' : ""} aria-label="${d.toLocaleDateString("en-US",{weekday:"long", month:"long", day:"numeric"})}: ${n} orders">
+      <span class="dw">${isToday ? "Today" : d.toLocaleDateString("en-US",{weekday:"short"})}</span>
+      <span class="dd">${d.getDate()}</span>
+      ${n ? `<span class="dn">${n}<span class="hide-sm"> ${n === 1 ? "order" : "orders"}</span></span><span class="ds num">${money0(s)}</span><span class="meter"><i style="width:${Math.round(s / max * 100)}%"></i></span>` : ""}
+    </button>`;
+  }).join("");
+  const n = per.reduce((x,p) => x + p.n, 0), s = per.reduce((x,p) => x + p.s, 0);
+  $("#wkNote").textContent = n ? `${weekOffset === 0 ? "So far this week" : "That week"}: ${plural(n, "order", "orders")}, ${money0(s)}. Tap a day to see its orders.` : "No orders that week.";
+}
+
+/* ---------- one day ---------- */
+function renderPanel(){
+  const M = byId(), k = curDay, d = keyToDate(k), isToday = k === todayKeyNow();
+  const list = ordersOnDay(k).sort((a,b) => due(b) - due(a)), sales = list.reduce((x,o) => x + o.sub, 0);
+  const next = keyToDate(k); next.setDate(next.getDate() + 1);
+  const row = (o, i) => { const t = clock(new Date(due(o))), wait = o.status === "open";
+    return `<div class="r${wait ? " waiting" : ""}" data-order="${o.num}" style="--i:${i}">
+      <span class="t num">${t.replace(/\s?[ap]m/, "")}<small>${/pm/.test(t) ? "pm" : "am"}</small></span>
+      <span><b>${esc(o.name)}</b><span class="k">${o.kind === "pickup" ? "Pickup" : "Delivery"}</span><span class="it">${esc(shortItems(o, M))}</span></span>
+      <span class="p num">${money(o.sub)}</span>
+      <span class="st" aria-label="${wait ? "Waiting" : "Done"}">${wait ? "" : CHECK}</span>
+    </div>`; };
+  $("#panel").innerHTML = `<div class="ph">
+      <button class="back" data-back><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Week</button>
+      <div class="pt"><h2>${isToday ? "Today" : d.toLocaleDateString("en-US",{weekday:"long"})}</h2>
+        <p>${d.toLocaleDateString("en-US",{month:"long", day:"numeric"})}${list.length ? ` · ${plural(list.length, "order", "orders")} · ${money0(sales)}` : ""}</p></div>
+      <button class="arrow" data-step="-1" aria-label="Day before"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button class="arrow" data-step="1" aria-label="Day after" ${dayKey(next) > todayKeyNow() ? "disabled" : ""}><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>${list.length ? list.map(row).join("") : `<p class="empty-day">No orders on this day.</p>`}`;
+}
+
+/* the zoom: the day card and the day panel share one name, so the browser grows one into the other */
+function morph(name, el, update){
+  if (!document.startViewTransition || calmMotion){ update(); return; }
+  delete document.documentElement.dataset.vt;
+  if (el) el.style.viewTransitionName = name;
+  const t = document.startViewTransition(() => {
+    update();
+    if (el) el.style.viewTransitionName = "";
+    $("#panel").style.viewTransitionName = name;
+  });
+  t.finished.finally(() => document.querySelectorAll("#panel,.day").forEach(x => x.style.viewTransitionName = ""));
+  return t;
+}
+function zoomIn(k){
+  const card = document.querySelector(`.day[data-day="${k}"]`);
+  morph("dayzoom", card, () => { curDay = k; $("#nowWrap").hidden = true; $("#weekWrap").hidden = true; $("#panel").hidden = false; renderPanel(); });
+  const top = $("#panel").getBoundingClientRect().top; if (top < 70) scrollTo({top: 0, behavior: "smooth"});
+}
+function zoomOut(){
+  const k = curDay; if (!k) return;
+  const panel = $("#panel");
+  if (!document.startViewTransition || calmMotion){ curDay = null; showWeek(k); return; }
+  panel.style.viewTransitionName = "dayzoom";
+  const t = document.startViewTransition(() => {
+    curDay = null; showWeek(k); panel.style.viewTransitionName = "";
+    const card = document.querySelector(`.day[data-day="${k}"]`); if (card) card.style.viewTransitionName = "dayzoom";
+  });
+  t.finished.finally(() => document.querySelectorAll("#panel,.day").forEach(x => x.style.viewTransitionName = ""));
+}
+function showWeek(k){
+  weekOffset = Math.floor((keyToDate(k) - weekStart(0)) / (7 * 864e5));
+  $("#panel").hidden = true; $("#nowWrap").hidden = false; $("#weekWrap").hidden = false;
+  renderNow(); renderWeek();
+}
+function slide(n, update){
+  if (!document.startViewTransition || calmMotion){ update(); return; }
+  document.documentElement.dataset.vt = n < 0 ? "tab-left" : "tab-right";
+  document.startViewTransition(update).finished.finally(() => delete document.documentElement.dataset.vt);
+}
+function stepDay(n){
+  const d = keyToDate(curDay); d.setDate(d.getDate() + n);
+  if (dayKey(d) > todayKeyNow()) return;
+  slide(n, () => { curDay = dayKey(d); renderPanel(); });
+}
+$("#wkPrev").addEventListener("click", () => slide(-1, () => { weekOffset--; renderWeek(); }));
+$("#wkNext").addEventListener("click", () => { if (weekOffset < 0) slide(1, () => { weekOffset++; renderWeek(); }); });
+$("#week").addEventListener("click", e => { const c = e.target.closest(".day"); if (c && !c.classList.contains("future")) zoomIn(c.dataset.day); });
+$("#panel").addEventListener("click", e => {
+  if (e.target.closest("[data-back]")) { zoomOut(); return; }
+  const st = e.target.closest("[data-step]"); if (st) { stepDay(+st.dataset.step); return; }
+  const r = e.target.closest("[data-order]"); if (r) openOrder(+r.dataset.order);
+});
+$("#nowWrap").addEventListener("click", e => { if (e.target.closest("[data-finish]")) return; const r = e.target.closest("[data-order]"); if (r) openOrder(+r.dataset.order); });
+setInterval(() => { if (!curDay && $("#orders").hidden === false) renderNow(); }, 30000);
+
+/* tap a row: everything about the order */
+function findOrder(num){ liveOrders(); return allOrders().find(o => o.num === num); }
+function openOrder(num){
+  const o = findOrder(num); if (!o) return;
+  let html = orderCard(o);
+  if (o.status !== "open"){
+    html = html.replace(/<button class="finish"[^]*?<\/button>/, "").replace(/<span class="wait[^"]*">[^<]*<\/span>/, "");
+    const canUndo = live.orders.some(x => x.num === o.num) || manual.some(x => x.num === o.num);
+    html += `<p class="gone">${o.kind === "pickup" ? "Picked up" : "Delivered"}</p>` + (canUndo ? `<button class="undo" data-undo="${o.num}">Undo, it's not done yet</button>` : "");
+  }
+  $("#popBox").innerHTML = html + `<button class="link" id="popBack" style="display:block;margin:14px auto 0">Back</button>`;
+  $("#pop").hidden = false; document.body.style.overflow = "hidden";
+}
+function closeOrder(){ $("#pop").hidden = true; document.body.style.overflow = ""; }
+$("#pop").addEventListener("click", e => {
+  if (e.target.id === "pop" || e.target.id === "popBack") { closeOrder(); return; }
+  const u = e.target.closest("[data-undo]");
+  if (u){ setStatus(+u.dataset.undo, "open"); closeOrder(); renderOrders(); toast("Back on the to-do list"); }
+});
+document.addEventListener("click", e => {
+  const f = e.target.closest("[data-finish]"); if (!f) return;
+  const o = findOrder(+f.dataset.finish); if (!o) return;
+  setStatus(o.num, "done");
+  // SYNC: tell the customer (pickup: "thanks", delivery: "it's at your door").
+  toast(o.kind === "pickup" ? `${o.name.split(" ")[0]} picked up` : `${o.name.split(" ")[0]}'s order delivered`);
+  closeOrder();
+  const row = document.querySelector(`.w[data-order="${o.num}"]`);
+  if (row && !calmMotion){ row.classList.add("leaving"); setTimeout(renderOrders, 360); }
+  else renderOrders();
+});
+
+/* ---------- typing in a phone order ---------- */
+let nKind = "pickup", nLines = [];
+const QUICK = ["catupiry","pepperoni","cheese","calabresa","nordestina","house","esf12","xtudo","guarana2","coke20"];
+function openNew(){
+  nKind = "pickup"; nLines = [];
+  const forDay = curDay || todayKeyNow(), isToday = forDay === todayKeyNow();
+  $("#nSheet").dataset.day = forDay;
+  $("#nFor").textContent = isToday ? "For today" : "For " + keyToDate(forDay).toLocaleDateString("en-US", {weekday:"long", month:"short", day:"numeric"});
+  ["nName","nPhone","nAddr","nNote","nFind"].forEach(id => $("#" + id).value = "");
+  $("#nPaid").checked = false;
+  const t = isToday ? new Date(nowNY().getTime() + ETA.pickup * 60000) : (() => { const d = keyToDate(forDay); d.setHours(18, 0); return d; })();
+  $("#nTime").value = `${String(t.getHours()).padStart(2,"0")}:${String(Math.ceil(t.getMinutes() / 5) * 5 % 60).padStart(2,"0")}`;
+  $("#nWhenHint").hidden = !isToday;
+  paintNew();
+  $("#nSheet").hidden = false; $("#scrim").hidden = false; document.body.style.overflow = "hidden";
+  setTimeout(() => $("#nName").focus(), 60);
+}
+function closeNew(){ $("#nSheet").hidden = true; $("#scrim").hidden = true; document.body.style.overflow = ""; }
+function nSub(){ const M = byId(); return nLines.reduce((s,l) => s + l.q * (M[l.id]?.p || 0), 0); }
+function paintNew(){
+  const M = byId();
+  document.querySelectorAll("#nForm [data-k]").forEach(b => b.setAttribute("aria-pressed", b.dataset.k === nKind));
+  $("#nAddrWrap").hidden = nKind !== "delivery";
+  $("#nWhenLbl").textContent = nKind === "pickup" ? "Pickup time" : "Deliver by";
+  $("#nPicked").innerHTML = nLines.map(l => `<div class="pl"><span>${esc(M[l.id]?.n || l.id)}</span><span class="pp num">${money(l.q * (M[l.id]?.p || 0))}</span>
+    <span class="qty"><button type="button" data-nd="${l.id}" aria-label="One less">&minus;</button><output>${l.q}</output><button type="button" data-ni="${l.id}" aria-label="One more">+</button></span></div>`).join("");
+  const q = $("#nFind").value.trim().toLowerCase();
+  const pool = q ? items.filter(i => i.on && (i.n + " " + (i.d || "")).toLowerCase().includes(q)).slice(0, 8) : QUICK.map(id => M[id]).filter(i => i && i.on);
+  $("#nQuick").innerHTML = pool.map(i => `<button type="button" data-na="${i.id}">${esc(i.n.replace(/ Pizza$/, ""))}<small class="num">${money(+i.p)}</small></button>`).join("") || `<span class="small">Nothing called "${esc(q)}" on the menu.</span>`;
+  const sub = nSub(), total = sub ? sub * 1.07 + (nKind === "delivery" ? 3.99 : 0) : 0;
+  $("#nTotal").textContent = sub ? `${money(total)} with tax` : "No food yet";
+}
+$("#newOrder").addEventListener("click", openNew);
+$("#nClose").addEventListener("click", closeNew);
+$("#nFind").addEventListener("input", paintNew);
+$("#nForm").addEventListener("click", e => {
+  const k = e.target.closest("[data-k]"), a = e.target.closest("[data-na]"), inc = e.target.closest("[data-ni]"), dec = e.target.closest("[data-nd]");
+  if (k){ nKind = k.dataset.k; paintNew(); if (nKind === "delivery") $("#nAddr").focus(); return; }
+  if (a){ const l = nLines.find(x => x.id === a.dataset.na); if (l) l.q++; else nLines.push({id:a.dataset.na, q:1}); $("#nFind").value = ""; paintNew(); return; }
+  if (inc){ nLines.find(x => x.id === inc.dataset.ni).q++; paintNew(); return; }
+  if (dec){ const l = nLines.find(x => x.id === dec.dataset.nd); l.q--; if (l.q <= 0) nLines = nLines.filter(x => x !== l); paintNew(); }
+});
+$("#nSave").addEventListener("click", () => {
+  const name = $("#nName").value.trim();
+  if (!name){ $("#nName").focus(); toast("Add the customer's name"); return; }
+  if (!nLines.length){ $("#nFind").focus(); toast("Add at least one dish"); return; }
+  if (nKind === "delivery" && !$("#nAddr").value.trim()){ $("#nAddr").focus(); toast("Add the delivery address"); return; }
+  const day = keyToDate($("#nSheet").dataset.day), [hh, mm] = ($("#nTime").value || "18:00").split(":").map(Number);
+  day.setHours(hh, mm, 0, 0);
+  const o = {num: 7000 + manual.length + Math.floor(Math.random() * 90), at: day.getTime() - ETA[nKind] * 60000, kind: nKind,
+    lines: nLines.map(l => ({...l})), sub: nSub(), name, phone: $("#nPhone").value.trim() || "", addr: nKind === "delivery" ? $("#nAddr").value.trim() : "",
+    note: $("#nNote").value.trim(), paid: $("#nPaid").checked, status: "open", byHand: true};
+  manual.push(o); store.set("manual", manual);
+  // SYNC: save to the shared order list and send the customer a confirmation text.
+  closeNew(); renderOrders();
+  if (curDay){ curDay = dayKey(day); renderPanel(); } else renderOrders();
+  toast(`Order for ${name.split(" ")[0]} added`);
+});
+
+function ding(){
+  try {
+    const a = new (window.AudioContext || window.webkitAudioContext)(), t = a.currentTime;
+    [880, 1320].forEach((fq, i) => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = fq; o.connect(g); g.connect(a.destination);
+      g.gain.setValueAtTime(0, t + i*.16); g.gain.linearRampToValueAtTime(.2, t + i*.16 + .02); g.gain.exponentialRampToValueAtTime(.001, t + i*.16 + .5); o.start(t + i*.16); o.stop(t + i*.16 + .55); });
+  } catch(e){}
+}
+$("#testOrder").addEventListener("click", () => {
+  const o = makeOrder(rng(Date.now() % 100000), nowNY(), 5000 + live.extra.length + Math.floor(Math.random()*400));
+  o.status = "open"; live.extra.push(o); live.orders.push({num:o.num, status:"open"}); store.set("live3", live);
+  weekOffset = 0; renderOrders(); ding();
+  toast(`New ${o.kind} order from ${o.name.split(" ")[0]}`);
+});
+
+const liveToggle = $("#liveToggle");
+liveToggle.checked = store.get("taking", true);
+function syncLive(){ $("#pausedNote").hidden = liveToggle.checked; $("#liveLbl").textContent = liveToggle.checked ? "Taking orders" : "Orders off"; }
+liveToggle.addEventListener("change", () => { store.set("taking", liveToggle.checked); syncLive(); toast(liveToggle.checked ? "You're taking orders again" : "Online orders are off"); /* SYNC: tell the website */ });
+syncLive();
+
+/* ---------- Money ---------- */
+let range = 1;
+function periodOrders(days, backDays = 0){
+  const end = nowNY(); end.setDate(end.getDate() - backDays);
+  const start = new Date(end); start.setHours(0,0,0,0); start.setDate(start.getDate() - (days - 1));
+  return {start, list: allOrders().filter(o => o.at >= start.getTime() && o.at <= end.getTime())};
+}
+const sum = l => l.reduce((s,o) => s + o.sub, 0);
+function renderMoney(){
+  const {start, list} = periodOrders(range), prev = periodOrders(range, range === 1 ? 7 : range).list;
+  const sales = sum(list), ps = sum(prev), n = list.length, diff = sales - ps;
+  const words = {1:["made today","last " + nowNY().toLocaleDateString("en-US",{weekday:"long"}) + " by this time"], 7:["made in the last 7 days","the 7 days before"], 30:["made in the last 30 days","the 30 days before"]}[range];
+  $("#amt").textContent = money0(sales);
+  $("#amtLbl").textContent = `You ${words[0]}`;
+  const c = $("#cmp"); c.className = "cmp " + (diff >= 0 ? "up" : "down");
+  c.textContent = `${money0(Math.abs(diff))} ${diff >= 0 ? "more" : "less"} than ${words[1]}`;
+
+  const h = Array(24).fill(0); list.forEach(o => h[new Date(o.at).getHours()]++);
+  const peak = h.indexOf(Math.max(...h)), hr = x => (x % 12 || 12) + (x < 12 ? " am" : " pm");
+  $("#tiles").innerHTML = [
+    [n.toLocaleString(), n === 1 ? "order" : "orders"],
+    [money0(n ? sales / n : 0), "average order"],
+    [n ? hr(peak) : "None", "busiest time"],
+  ].map(([v,k]) => `<div class="tile"><div class="v num">${v}</div><div class="k">${k}</div></div>`).join("");
+
+  let buckets;
+  if (range === 1){
+    buckets = Array.from({length:11}, (_, i) => ({label: (11+i) % 12 || 12, full: hr(11+i), v:0}));
+    list.forEach(o => { const i = new Date(o.at).getHours() - 11; if (buckets[i]) buckets[i].v += o.sub; });
+    $("#chartTitle").textContent = "Today, hour by hour";
+  } else {
+    buckets = Array.from({length:range}, (_, i) => { const d = new Date(start); d.setDate(d.getDate() + i);
+      return {label: range === 7 ? d.toLocaleDateString("en-US",{weekday:"short"}) : (i % 7 === 0 || i === range-1 ? d.toLocaleDateString("en-US",{month:"short",day:"numeric"}) : ""), full: d.toLocaleDateString("en-US",{weekday:"long", month:"short", day:"numeric"}), v:0, today: i === range - 1}; });
+    list.forEach(o => { const i = Math.round((new Date(new Date(o.at).toDateString()) - new Date(start.toDateString())) / 864e5); if (buckets[i]) buckets[i].v += o.sub; });
+    $("#chartTitle").textContent = "Day by day";
+  }
+  $("#chart").innerHTML = barChart(buckets);
+
+  const M = byId(), cnt = {};
+  list.forEach(o => o.lines.forEach(l => { cnt[l.id] = (cnt[l.id] || 0) + l.q; }));
+  const top = Object.entries(cnt).sort((a,b) => b[1] - a[1]).slice(0, 5);
+  $("#best").innerHTML = top.map(([id, c]) => `<li><span class="n">${esc(M[id]?.n || id)}</span><span class="c num">${c} sold</span></li>`).join("") || `<li><span class="n" style="color:var(--muted)">Nothing sold yet.</span></li>`;
+
+  $("#kept").innerHTML = `<h2>Money you kept</h2><div class="amt num">${money0(n * 2.25)}</div><p>On Slice you'd pay about $2.25 per order. That's ${plural(n, "order", "orders")} × $2.25.</p>`;
+}
+function barChart(b){
+  const W = 640, H = 210, padL = 44, padB = 26, max = Math.max(...b.map(x => x.v), 1);
+  const step = niceStep(max), top = Math.ceil(max / step) * step, bw = (W - padL) / b.length, gap = Math.min(12, bw * .3);
+  let g = "";
+  for (let v = 0; v <= top; v += step){ const y = H - padB - (v / top) * (H - padB - 10); g += `<line class="grid" x1="${padL}" x2="${W}" y1="${y}" y2="${y}"/><text x="${padL - 8}" y="${y + 4}" text-anchor="end">${v >= 1000 ? "$" + v/1000 + "k" : "$" + v}</text>`; }
+  b.forEach((x, i) => {
+    const h = (x.v / top) * (H - padB - 10), X = padL + i * bw + gap/2, Y = H - padB - h;
+    g += `<rect class="bar${x.today ? " today" : ""}" x="${X}" y="${Y}" width="${bw - gap}" height="${Math.max(h,0)}" rx="5"><title>${x.full}: ${money(x.v)}</title></rect>`;
+    if (x.label !== "") g += `<text x="${X + (bw - gap)/2}" y="${H - 6}" text-anchor="middle">${x.label}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Bar chart of sales">${g}</svg>`;
+}
+function niceStep(max){ const raw = max / 4, p = Math.pow(10, Math.floor(Math.log10(raw))); return [1,2,2.5,5,10].map(m => m*p).find(s => s >= raw); }
+document.querySelectorAll("[data-range]").forEach(b => b.addEventListener("click", () => { range = +b.dataset.range; document.querySelectorAll("[data-range]").forEach(x => x.setAttribute("aria-pressed", x === b)); renderMoney(); }));
+$("#csv").addEventListener("click", () => {
+  const M = byId(), {list} = periodOrders(range);
+  const rows = [["Order","Date","Time","Type","Customer","Items","Subtotal","Paid online"]].concat(list.map(o => { const d = new Date(o.at);
+    return [o.num, dayKey(d), clock(d), o.kind, o.name, o.lines.map(l => `${l.q}x ${M[l.id]?.n || l.id}`).join("; "), o.sub.toFixed(2), o.paid ? "yes" : "no"]; }));
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"})); a.download = `bella-sales-${{1:"today",7:"week",30:"month"}[range]}.csv`; a.click();
+});
+
+/* ---------- Website ---------- */
+document.querySelectorAll("[data-part]").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("[data-part]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  $("#part-menu").hidden = b.dataset.part !== "menu"; $("#part-text").hidden = b.dataset.part !== "text";
+}));
+$("#fCat").innerHTML = CATS.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("");
+function saveMenu(){ if (!store.set("menu", items)) toast("Couldn't save. Try a smaller photo."); }
+function renderDishes(){
+  const q = $("#mq").value.trim().toLowerCase();
+  const shown = items.filter(i => !q || (i.n + " " + (i.d||"")).toLowerCase().includes(q));
+  $("#dishList").innerHTML = CATS.map(c => {
+    const list = shown.filter(i => i.cat === c.id); if (!list.length) return "";
+    return `<div class="sec">${esc(c.name)}</div>` + list.map(i => `<div class="dish${i.on ? "" : " out"}">
+      <button class="pic" data-edit="${i.id}" style="border:0;padding:0;${i.img ? `background-image:url('${photoSrc(i.img)}')` : ""}" aria-label="Change ${esc(i.n)}">${i.img ? "" : CAMERA}</button>
+      <div><div class="nm">${esc(i.n)}</div><div class="pr num">${money(+i.p)}</div></div>
+      <div class="side">
+        <label class="avail"><span>${i.on ? "Available" : "Sold out"}</span><span class="switch"><input type="checkbox" data-toggle="${i.id}" ${i.on ? "checked" : ""} aria-label="${esc(i.n)} available"><span></span></span></label>
+        <button class="link" data-edit="${i.id}">Change</button>
+      </div>
+    </div>`).join("");
+  }).join("") || `<p style="color:var(--muted);padding:20px 0">No dish called "${esc(q)}".</p>`;
+}
+$("#mq").addEventListener("input", renderDishes);
+$("#dishList").addEventListener("change", e => {
+  const t = e.target.closest("[data-toggle]"); if (!t) return;
+  const it = items.find(i => i.id === t.dataset.toggle); it.on = t.checked; saveMenu(); renderDishes();
+  toast(it.on ? `${it.n} is back on the menu` : `${it.n} marked sold out`);
+});
+
+let editing = null, draftImg = null;
+const form = $("#dishForm");
+function openSheet(it){
+  editing = it; draftImg = it.img || null;
+  $("#sheetTitle").textContent = it._new ? "New dish" : "Change dish";
+  form.n.value = it.n || ""; form.p.value = it.p != null ? (+it.p).toFixed(2) : ""; form.cat.value = it.cat; form.d.value = it.d || ""; form.x.value = it.x || ""; form.say.value = it.say || ""; form.on.checked = it.on !== false;
+  $("#fDelete").hidden = !!it._new; paintPic();
+  $("#sheet").hidden = false; $("#scrim").hidden = false; document.body.style.overflow = "hidden";
+}
+function closeSheet(){ $("#sheet").hidden = true; $("#scrim").hidden = true; document.body.style.overflow = ""; editing = null; }
+function paintPic(){ const t = $("#fPic"); t.style.backgroundImage = draftImg ? `url('${photoSrc(draftImg)}')` : ""; t.innerHTML = draftImg ? "" : CAMERA; $("#fRemove").hidden = !draftImg; }
+$("#dishList").addEventListener("click", e => { const b = e.target.closest("[data-edit]"); if (b) openSheet(items.find(i => i.id === b.dataset.edit)); });
+$("#addDish").addEventListener("click", () => openSheet({id:"new" + Date.now(), cat:"pizzas", on:true, _new:true}));
+$("#sheetClose").addEventListener("click", closeSheet); $("#scrim").addEventListener("click", () => { if (!$("#nSheet").hidden) closeNew(); else closeSheet(); });
+document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if (!$("#pop").hidden) closeOrder(); else if (!$("#nSheet").hidden) closeNew(); else if (!$("#sheet").hidden) closeSheet(); else if (curDay) zoomOut(); });
+$("#fRemove").addEventListener("click", () => { draftImg = null; paintPic(); });
+/* shrink photos so they fit in browser storage. SYNC: upload the original to the image host instead. */
+$("#fFile").addEventListener("change", e => {
+  const f = e.target.files[0]; if (!f) return;
+  const img = new Image(), url = URL.createObjectURL(f);
+  img.onload = () => { const s = Math.min(1, 900 / Math.max(img.width, img.height)), c = document.createElement("canvas");
+    c.width = Math.round(img.width * s); c.height = Math.round(img.height * s); c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    draftImg = c.toDataURL("image/jpeg", .82); URL.revokeObjectURL(url); paintPic(); };
+  img.src = url; e.target.value = "";
+});
+$("#fSave").addEventListener("click", () => {
+  const price = parseFloat(String(form.p.value).replace(/[^0-9.]/g, ""));
+  if (!form.n.value.trim()) { form.n.focus(); toast("Give the dish a name"); return; }
+  if (!(price > 0)) { form.p.focus(); toast("Add a price, like 18.00"); return; }
+  Object.assign(editing, {n:form.n.value.trim(), p:price, cat:form.cat.value, d:form.d.value.trim(), x:form.x.value.trim(), say:form.say.value.trim(), on:form.on.checked, img:draftImg || undefined});
+  if (editing._new){ delete editing._new; items.push(editing); }
+  const name = editing.n; saveMenu(); closeSheet(); renderDishes(); toast(`${name} saved`);
+});
+$("#fDelete").addEventListener("click", () => {
+  if (!editing || !confirmDelete()) return;
+  items = items.filter(i => i !== editing); saveMenu(); const n = editing.n; closeSheet(); renderDishes(); toast(`${n} deleted`);
+});
+/* ask twice before deleting, without a browser popup: first tap arms the button */
+let armed = false, armT;
+function confirmDelete(){
+  const b = $("#fDelete");
+  if (armed){ armed = false; b.textContent = "Delete"; return true; }
+  armed = true; b.textContent = "Tap again to delete"; clearTimeout(armT); armT = setTimeout(() => { armed = false; b.textContent = "Delete"; }, 3000);
+  return false;
+}
+
+const TEXT_DEFAULT = {
+  announce: "", hours: "Every day, 11 am to 9:30 pm", phone: "(781) 970-8515", fee: "3.99",
+  lede: "Pizza the way they make it in São Paulo, plus esfihas, pastel and X-burgers, on Highland Street in Worcester. New to Brazilian food? Every dish on our menu tells you what it is and how to say it.",
+  about: "Bella is a small, family-run spot on Highland Street. The pizza is the kind you'd get at a pizzaria in São Paulo: a thin, crisp crust, plenty of cheese, and toppings like smoked calabresa, catupiry and sweet corn.\n\nNext to the pizza we make esfihas, pastel, coxinha and the stacked X-burgers you'd find at any Brazilian lanchonete.",
+};
+const textForm = $("#part-text"), pageText = Object.assign({}, TEXT_DEFAULT, store.get("text", {}));
+Object.entries(pageText).forEach(([k,v]) => { if (textForm[k]) textForm[k].value = v; });
+textForm.addEventListener("input", () => $("#textSaved").hidden = true);
+textForm.addEventListener("submit", e => { e.preventDefault(); store.set("text", Object.fromEntries(new FormData(textForm))); $("#textSaved").hidden = false; toast("Saved"); });
+
+renderOrders();
+setInterval(renderOrders, 60000);
+showTab(store.get("tab", "orders"), true);
+addEventListener("resize", moveSlider);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveSlider);
+</script>
+</body>
+</html>

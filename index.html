@@ -1,0 +1,1374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bella Pizzeria | Brazilian pizza in Worcester, MA</title>
+<meta name="description" content="Brazilian-style pizza, esfihas, pastel and X-burgers on Highland Street in Worcester, MA. Order online for pickup or delivery.">
+<meta name="theme-color" content="#173F2E">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+<!--
+  Bella Pizzeria mockup by Studio 1801.
+  Single file on purpose: CSS, menu data and cart logic all live here so it drops straight into Replit.
+  Things to replace before showing the owner are marked with "SWAP:" comments.
+-->
+
+<style>
+:root{
+  --green:#173F2E;        /* bottle green, like old boteco tile and signage */
+  --green-deep:#0F2C20;
+  --sage:#EAF0EA;
+  --paper:#FFFFFF;
+  --ink:#2A1823;          /* plum black, pulled from the storefront sign */
+  --muted:#6B5C64;
+  --red:#C94233;          /* hand-painted window red, hero + actions */
+  --red-dark:#A8331F;
+  --red-deep:#B23A2C;
+  --mustard:#F2B33D;
+  --line:#E6E0E3;
+
+  --display:"Permanent Marker", "Comic Sans MS", cursive;
+  --body:"Figtree", system-ui, -apple-system, sans-serif;
+
+  --header-h:64px;
+  --tabs-h:52px;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--header-h) + var(--tabs-h) + 12px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--mustard);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Buttons: one filled style for actions, text links for everything else */
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;border:0;border-radius:999px;padding:14px 24px;font-weight:700;font-size:16px;text-decoration:none;transition:background .15s}
+.btn:hover{background:var(--red-dark)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.textlink{font-weight:600;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+.textlink:hover{text-decoration-color:var(--mustard)}
+
+/* ---------- Header ---------- */
+.site-header{position:sticky;top:0;z-index:40;background:var(--red);color:#fff;height:var(--header-h)}
+.site-header .wrap{height:100%;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.wordmark{display:flex;flex-direction:column;line-height:1;text-decoration:none}
+.wordmark b{font-family:var(--display);font-weight:400;font-size:23px;letter-spacing:.5px}
+.wordmark span{font-size:12.5px;opacity:.8;margin-top:4px}
+.nav{display:flex;align-items:center;gap:28px;font-weight:500;font-size:15.5px}
+.nav a{text-decoration:none;opacity:.88}
+.nav a:hover{opacity:1;text-decoration:underline;text-underline-offset:5px}
+.cart-btn{background:#fff;color:var(--red);border:0;border-radius:999px;padding:9px 16px;font-weight:700;font-size:15px;display:flex;gap:8px;align-items:center}
+.cart-btn:hover{background:#FBE9E6}
+@media (prefers-reduced-motion:no-preference){.cart-btn.bump{animation:bump .5s cubic-bezier(.3,1.6,.5,1)}@keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.18) rotate(-4deg)}100%{transform:scale(1)}}}
+.cart-btn .count{background:var(--red);color:#fff;border-radius:999px;min-width:22px;height:22px;display:grid;place-items:center;font-size:13px;padding:0 6px}
+.cart-btn .count:empty{display:none}
+@media (max-width:760px){.nav .hide-sm{display:none}.nav{gap:16px}}
+
+/* ---------- Hero: hand-lettered shop window ---------- */
+.hero{background:var(--red);color:#fff;overflow:hidden;position:relative}
+.hero-edge{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:28px;z-index:1;pointer-events:none}
+.hero-edge path{fill:var(--paper)}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:36px;align-items:center;padding-top:76px;padding-bottom:84px}
+.sign{font-family:var(--display);font-weight:400;font-size:clamp(72px,10.5vw,146px);line-height:.9;margin:0;letter-spacing:1px;transform:rotate(-2.5deg);transform-origin:left bottom}
+.sign span{display:block}
+.sign .l1{white-space:nowrap}
+.sign .l2{position:relative;display:inline-block;margin-left:.08em}
+.swoosh{position:absolute;left:-2%;bottom:-.32em;width:104%;height:.4em;overflow:visible}
+.doodle{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.swoosh path{stroke:var(--mustard);stroke-width:7}
+.scrawl{font-family:var(--display);font-weight:400;line-height:1.15}
+.br-note{white-space:nowrap;display:flex;align-items:flex-start;gap:6px;margin:34px 0 0 22%;font-size:clamp(26px,2.8vw,34px);color:var(--mustard);transform:rotate(-4deg)}
+.br-note svg{width:58px;height:48px;flex:none;margin-top:-26px}
+.br-note svg path{stroke:var(--mustard);stroke-width:3.5}
+.hero p.lede{font-size:19.5px;max-width:30em;margin:30px 0 30px;color:#FFE9E4}
+.hero .actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px 26px}
+.hero .btn{background:#fff;color:var(--red)}
+.hero .btn:hover{background:#FBE9E6}
+.hero .actions .textlink{color:#fff}
+.hero .facts{margin:34px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:14px 40px;font-size:15.5px;color:#FFE1DA}
+.hero .facts strong{color:#fff;font-weight:700}
+.star{width:22px;height:22px;vertical-align:-4px;margin-right:6px}
+.star path{fill:var(--mustard);stroke:var(--mustard);stroke-width:1.5}
+.circled{position:relative;display:inline-block;font-family:var(--display);font-size:20px;color:#fff;padding:2px 10px;margin:0 20px 0 4px}
+.circled svg{position:absolute;left:-14px;top:-12px;width:calc(100% + 28px);height:calc(100% + 24px);overflow:visible}
+.circled svg path{stroke:#fff;stroke-width:2.6}
+
+.hero-photos{position:relative;aspect-ratio:1/1.08;margin:0}
+.hero-photos .main,.hero-photos .side,.hero-photos .third{position:absolute;overflow:hidden;background:var(--red-deep)}
+.hero-photos img{width:100%;height:100%;object-fit:cover}
+.hero-photos .main{left:16%;right:0;top:0;bottom:22%;border-radius:20px;transform:rotate(1.5deg)}
+.hero-photos .third{right:0;top:7%;width:31%;aspect-ratio:3/4;border-radius:12px;border:5px solid #fff;transform:rotate(6deg)}
+.hero-photos .side{left:0;bottom:4%;width:46%;overflow:visible!important;aspect-ratio:3/4;border-radius:14px;border:6px solid #fff;transform:rotate(-4deg)}
+.hero-photos .side img{border-radius:9px}
+.tape{position:absolute;width:74px;height:24px;background:rgba(255,241,200,.78);z-index:2;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.tape.t1{top:-12px;left:18%;transform:rotate(-8deg)}
+.tape.t2{top:-10px;right:14%;transform:rotate(10deg)}
+.sticker{position:absolute;right:-22px;bottom:18%;z-index:3;width:68px;height:68px;border-radius:50%;background:var(--mustard);color:var(--ink);display:grid;place-items:center;font-size:22px;transform:rotate(12deg);box-shadow:0 4px 10px rgba(0,0,0,.2)}
+.snap:hover .sticker{animation:wob .5s ease-in-out}
+@keyframes wob{50%{transform:rotate(-8deg) scale(1.1)}}
+.photo-note{position:absolute;right:-2%;bottom:0;width:58%;font-size:clamp(19px,1.9vw,24px);color:#fff;transform:rotate(-3deg);padding-left:8%}
+.photo-note svg{position:absolute;left:-12%;top:-6px;width:70px;height:36px;overflow:visible}
+.photo-note svg path{stroke:#fff;stroke-width:3}
+.photo-note small{display:block;font-family:var(--body);font-size:14px;color:#FFE1DA;margin-top:4px;transform:rotate(3deg)}
+
+@media (max-width:900px){
+  .hero .wrap{grid-template-columns:1fr;padding-top:52px;padding-bottom:52px;gap:44px}
+  .br-note{margin-left:18%}
+  .hero-photos{max-width:420px;width:100%;margin:0 auto;aspect-ratio:1/1.05}
+  .hero p.lede{font-size:18px}
+}
+
+/* the pizza doodle: tap it to spin, it tells you something about Brazilian pizza */
+.sign .l1{display:inline-block;position:relative}
+.pie{position:absolute;left:calc(100% + .14em);top:-.16em;width:2.05em;padding:0;border:0;background:none;cursor:pointer;line-height:0}
+@media (max-width:600px){.pie{width:1.6em;top:-.06em}}
+.pie img{width:100%;height:auto;transition:transform .2s}
+.pie:hover img{transform:rotate(-8deg) scale(1.04)}
+.pie.spin img{animation:spin .9s cubic-bezier(.3,.6,.2,1)}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.steam{position:absolute;left:30%;top:-.38em;width:.7em;height:.38em;pointer-events:none}
+.steam svg{width:100%;height:100%;overflow:visible}
+.steam path{stroke:#fff;stroke-width:4;opacity:.9}
+.br-note.fact{white-space:normal;max-width:24em;font-size:clamp(19px,1.9vw,24px)}
+.br-note.fact span{animation:fadein .3s ease-out both}
+.hero .copy{position:relative}
+
+.cta-note{display:flex;align-items:flex-start;gap:6px;margin:12px 0 0 34px;font-size:clamp(17px,1.5vw,19px);color:var(--mustard);transform:rotate(-2deg)}
+.cta-note svg{width:40px;height:28px;flex:none;margin-top:-14px}
+.cta-note path{stroke:var(--mustard);stroke-width:3}
+
+/* polaroids: lift and straighten when you point at them, tap to jump to that dish */
+.snap{padding:0;cursor:pointer;transition:rotate .25s, scale .25s, box-shadow .25s}
+.snap:hover,.snap:focus-visible{scale:1.05;z-index:3;box-shadow:0 14px 30px rgba(60,10,5,.35)}
+.hero-photos .side.snap:hover,.hero-photos .side.snap:focus-visible{rotate:4deg}
+.hero-photos .third.snap:hover,.hero-photos .third.snap:focus-visible{rotate:-6deg}
+/* a touch of depth that follows the pointer (desktop only, set from JS) */
+.hero-photos .main{translate:calc(var(--mx,0) * -6px) calc(var(--my,0) * -6px)}
+.hero-photos .side{translate:calc(var(--mx,0) * 10px) calc(var(--my,0) * 10px)}
+.hero-photos .third{translate:calc(var(--mx,0) * 14px) calc(var(--my,0) * 14px)}
+.pie{translate:calc(var(--mx,0) * 8px) calc(var(--my,0) * 6px)}
+.item.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%,30%{background:#FCEDB9;border-color:var(--mustard)}100%{}}
+
+/* nav links get a hand-drawn underline on hover */
+.nav a{position:relative}
+.nav a:hover{text-decoration:none}
+.nav a::after{content:"";position:absolute;left:-2px;right:-2px;bottom:-7px;height:7px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 C 20 2, 40 7, 60 4 S 90 3, 98 5' fill='none' stroke='%23F2B33D' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center/100% 100%;clip-path:inset(0 100% 0 0);transition:clip-path .3s ease-out}
+.nav a:hover::after,.nav a:focus-visible::after{clip-path:inset(0 0 0 0)}
+
+/* hero letters: each one hops when you point at it, and the name does one wave after it lands */
+.sign .ch{display:inline-block;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+@media (prefers-reduced-motion:no-preference){
+  .sign .ch:hover{transform:translateY(-.12em) rotate(-6deg)}
+  .sign.wave .ch{animation:hop .5s cubic-bezier(.3,1.6,.5,1) both;animation-delay:calc(var(--i) * 55ms)}
+  @keyframes hop{40%{transform:translateY(-.14em) rotate(-5deg)}100%{transform:none}}
+  .pie img{animation:rock 4.5s ease-in-out 1.4s infinite}
+  @keyframes rock{0%,100%{transform:rotate(0)}50%{transform:rotate(-5deg) translateY(-4px)}}
+  .br-note svg{animation:nudge 2.8s ease-in-out 2s infinite}
+  @keyframes nudge{0%,70%,100%{transform:none}80%{transform:translate(-5px,-6px)}90%{transform:translate(0,0)}}
+  .swoosh{animation:shine 5s ease-in-out 2.2s infinite}
+  @keyframes shine{0%,85%,100%{filter:none}92%{filter:brightness(1.25) drop-shadow(0 0 6px rgba(242,179,61,.7))}}
+}
+
+/* one orchestrated moment: the lettering lands, then the doodles draw themselves on */
+@media (prefers-reduced-motion:no-preference){
+  .sign{animation:paint .6s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes paint{from{opacity:0;transform:rotate(-6deg) translateY(10px)}to{opacity:1;transform:rotate(-2.5deg)}}
+  .hero .draw{stroke-dasharray:1;stroke-dashoffset:1;animation:ink .7s ease-out forwards}
+  .swoosh .draw{animation-delay:.45s}.swoosh .draw+.draw{animation-delay:.7s}
+  .br-note .draw{animation-delay:.95s}.circled .draw{animation-delay:1.2s}.photo-note .draw{animation-delay:1.4s}
+  @keyframes ink{to{stroke-dashoffset:0}}
+  .br-note span,.photo-note span{animation:fadein .4s ease-out 1.05s both}
+  .cta-note .draw{animation-delay:1.6s}.cta-note span{animation:fadein .4s ease-out 1.6s both}
+  .pie{animation:drop .7s cubic-bezier(.3,1.4,.5,1) .5s both}
+  @keyframes drop{from{opacity:0;transform:translateY(-30px) rotate(-30deg)}to{opacity:1;transform:none}}
+  .steam path{animation:steam 2.6s ease-in-out infinite}
+  .steam path:nth-child(2){animation-delay:.5s}.steam path:nth-child(3){animation-delay:1s}
+  @keyframes steam{0%{opacity:0;transform:translateY(6px)}40%{opacity:.85}100%{opacity:0;transform:translateY(-8px)}}
+  @keyframes fadein{from{opacity:0}to{opacity:1}}
+  .hero-photos .main{animation:settle .9s cubic-bezier(.2,.7,.2,1) .15s both}
+  .hero-photos .third{animation:settle3 .9s cubic-bezier(.2,.7,.2,1) .4s both}
+  @keyframes settle3{from{opacity:0;transform:translateY(24px) rotate(12deg)}to{opacity:1;transform:rotate(6deg)}}
+  .hero-photos .side{animation:settle2 .9s cubic-bezier(.2,.7,.2,1) .3s both}
+  @keyframes settle{from{opacity:0;transform:translateY(24px) rotate(4deg)}to{opacity:1;transform:rotate(1.5deg)}}
+  @keyframes settle2{from{opacity:0;transform:translateY(24px) rotate(-8deg)}to{opacity:1;transform:rotate(-4deg)}}
+}
+
+/* ---------- Start here (inside the ordering section) ---------- */
+.menu h2,.words h2,.story h2,.visit h2{font-family:var(--display);font-weight:400;line-height:1.15;margin:0;letter-spacing:.3px}
+.start{margin:44px 0 8px}
+.start-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:22px}
+.start-head h3{font-family:var(--display);font-weight:400;font-size:clamp(22px,2.4vw,28px);margin:0;line-height:1.2}
+.swipe{display:none;font-size:14px;color:var(--muted);white-space:nowrap}
+.picks{display:grid;grid-template-columns:1fr 1fr;gap:34px 48px}
+.pick{display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:start}
+.pick .ph{aspect-ratio:1;border-radius:14px;overflow:hidden;background:var(--sage)}
+.pick .ph img{width:100%;height:100%;object-fit:cover}
+.pick h3{font-size:20px;font-weight:700;margin:2px 0 2px;line-height:1.25}
+.say{font-style:italic;color:var(--muted);font-size:15px}
+.pick p{margin:8px 0 14px;font-size:16px}
+.pick .row{display:flex;align-items:center;gap:16px}
+.price{font-weight:700;font-variant-numeric:tabular-nums}
+.pick.lead{grid-column:1/-1;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:40px;align-items:center;margin-bottom:6px}
+.pick.lead .ph{aspect-ratio:4/3;border-radius:20px}
+.pick.lead h3{font-family:var(--display);font-weight:400;font-size:clamp(28px,3vw,38px);line-height:1.1;margin-bottom:6px}
+.pick.lead p{font-size:18px;max-width:28em}
+.pick.lead .note{display:block;color:var(--green);font-weight:600;font-size:15px;margin-bottom:10px}
+/* phones: the five picks become one swipeable row instead of three screens of scrolling */
+@media (max-width:860px){
+  .swipe{display:inline}
+  .picks{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -20px;padding:0 20px 10px;scrollbar-width:none}
+  .picks::-webkit-scrollbar{display:none}
+  .pick,.pick.lead{flex:0 0 76%;max-width:300px;grid-template-columns:1fr;gap:12px;scroll-snap-align:start;margin:0}
+  .pick .ph,.pick.lead .ph{aspect-ratio:4/3;border-radius:14px}
+  .pick.lead h3{font-family:var(--body);font-weight:700;font-size:19px}
+  .pick p,.pick.lead p{font-size:15px;margin:6px 0 12px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .pick.lead .note{font-size:13.5px;margin-bottom:4px}
+}
+
+/* let the pizza pick */
+.pick-me{display:inline-flex;align-items:center;gap:10px;background:none;border:0;padding:6px 0;font-family:var(--display);font-size:clamp(17px,1.6vw,20px);color:var(--red);margin-left:auto;white-space:nowrap}
+.pick-me:hover{color:var(--red-dark)}
+.pick-me:hover .pm-icon{transform:rotate(-20deg)}
+.pm-icon{width:46px;height:auto;transition:transform .25s}
+.pick-me.rolling .pm-icon{animation:spin .8s cubic-bezier(.3,.6,.2,1)}
+@media (max-width:860px){.start-head{flex-wrap:wrap;align-items:center;row-gap:6px}.start-head h3{flex:1 0 100%}.pick-me{margin-left:0;font-size:17px}.swipe{margin-left:auto}}
+
+/* hear it: tap the speaker to hear the word said in Brazilian Portuguese */
+.hear{display:inline-grid;place-items:center;width:28px;height:28px;margin-left:6px;vertical-align:-6px;border:0;border-radius:50%;background:var(--sage);color:var(--green);padding:0;transition:background .15s}
+.hear:hover{background:#DCE6DD}
+.hear svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hear .w{opacity:.35}
+.hear.talking{background:var(--green);color:#fff}
+.hear.talking .w{animation:wave .6s ease-in-out infinite alternate}
+.hear.talking .w2{animation-delay:.2s}
+@keyframes wave{to{opacity:1}}
+.glossary .hear{width:32px;height:32px;vertical-align:-4px;background:#fff}
+
+/* search */
+.search{position:relative;margin-top:26px;max-width:640px}
+.search svg{position:absolute;left:18px;top:50%;width:22px;height:22px;transform:translateY(-50%);fill:none;stroke:var(--muted);stroke-width:2.2;stroke-linecap:round}
+.search input{width:100%;height:56px;border-radius:999px;border:2px solid #D9D0D4;background:#fff;padding:0 92px 0 52px;font:inherit;font-size:17px;color:var(--ink);-webkit-appearance:none;appearance:none}
+.search input::-webkit-search-cancel-button{display:none}
+.search input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 4px rgba(23,63,46,.14)}
+.search button{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:0;font-weight:600;text-decoration:underline;text-underline-offset:4px;padding:10px 14px}
+.qinfo{margin:12px 0 0;color:var(--muted);font-size:15px}
+.qinfo:empty{display:none}
+.nomatch{padding:40px 0 20px;max-width:34em}
+.nomatch p{margin:0 0 12px;font-size:17px}
+.nomatch button{background:none;border:0;padding:0;font-weight:600;text-decoration:underline;text-underline-offset:4px;color:var(--green)}
+.searching .start{display:none}
+
+/* add controls */
+.add{width:40px;height:40px;border-radius:50%;border:0;background:var(--red);color:#fff;font-size:24px;line-height:1;display:grid;place-items:center;flex:none;transition:background .15s}
+.add:hover{background:var(--red-dark)}
+.add.wide{width:auto;border-radius:999px;padding:0 18px;font-size:15.5px;font-weight:700;height:42px}
+.stepper{display:inline-flex;align-items:center;background:var(--ink);color:#fff;border-radius:999px;height:40px;flex:none}
+.stepper button{background:none;border:0;color:#fff;width:38px;height:40px;font-size:20px;line-height:1}
+.stepper output{min-width:20px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:no-preference){.stepper{animation:pop .22s ease-out}@keyframes pop{from{transform:scale(.8)}to{transform:none}}}
+
+/* ---------- Menu ---------- */
+.menu{padding:64px 0 80px}
+.menu-head{display:flex;flex-direction:column;gap:10px}
+.menu-head h2{font-size:clamp(30px,3.6vw,44px)}
+.menu-head p{margin:0;color:var(--muted);max-width:34em;font-size:17px}
+.tabs{position:sticky;top:var(--header-h);z-index:30;background:var(--paper);border-bottom:1px solid var(--line);margin-top:28px}
+.tabs .inner{display:flex;gap:26px;overflow-x:auto;scrollbar-width:none;height:var(--tabs-h);align-items:stretch}
+.tabs .inner::-webkit-scrollbar{display:none}
+.tabs a{white-space:nowrap;text-decoration:none;font-weight:600;font-size:15.5px;color:var(--muted);display:flex;align-items:center;border-bottom:3px solid transparent;padding-top:3px}
+.tabs a:hover{color:var(--ink)}
+.tabs a.on{color:var(--ink);border-bottom-color:var(--red)}
+@media (max-width:1100px){.tabs .inner{-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent);padding-right:40px}}
+
+.cat{padding-top:44px}
+.cat-head{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.cat-head h3{font-family:var(--display);font-weight:400;font-size:27px;margin:0;line-height:1.1}
+.cat-head p{margin:0;color:var(--muted);font-size:15.5px}
+.items{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:start;padding:16px;background:#fff;border:1.5px solid #E8E0E4;border-radius:16px;transition:border-color .15s,background .15s}
+.item:hover{border-color:#CDBFC6}
+/* anything already in the order is easy to spot while scrolling */
+.item.in-cart{border-color:var(--green);background:#F3F7F3}
+.item.noimg{grid-template-columns:1fr auto}
+.item .thumb{width:76px;height:76px;border-radius:12px;overflow:hidden;background:var(--sage)}
+.item .thumb img{width:100%;height:100%;object-fit:cover}
+.item h4{margin:0;font-size:17.5px;font-weight:700;line-height:1.3}
+.item h4 .say{font-weight:400;margin-left:6px}
+.item .desc{margin:4px 0 0;font-size:15.5px;color:var(--muted)}
+.item .explain{margin:6px 0 0;font-size:15.5px;color:var(--green);font-weight:500}
+.item .end{display:flex;align-items:center;gap:12px;min-width:72px;align-self:center}
+.item .end .price{min-width:58px;text-align:right}
+@media (max-width:860px){
+  .items{grid-template-columns:1fr;gap:10px}
+  /* phones: price and add button sit on their own row so the dish text gets the full width */
+  .item{grid-template-columns:64px 1fr;padding:14px;gap:4px 14px}
+  .item .thumb{width:64px;height:64px}
+  .item.noimg{grid-template-columns:1fr}
+  .item .end{grid-column:-2/-1;justify-content:space-between;align-self:auto;margin-top:10px}
+  .item .end .price{text-align:left;font-size:17px}
+}
+
+/* ---------- Words ---------- */
+.words{background:var(--sage);padding:80px 0}
+.words h2{font-size:clamp(30px,3.8vw,44px);max-width:16em}
+.words .intro{color:var(--muted);margin:12px 0 40px;max-width:34em}
+.glossary{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:34px 40px;margin:0}
+.glossary div{margin:0}
+.glossary dt{font-family:var(--display);font-size:30px;line-height:1.1;color:var(--green)}
+.glossary dt small{display:block;font-family:var(--body);font-style:italic;font-size:15px;color:var(--muted);margin-top:4px}
+.glossary dd{margin:8px 0 0;font-size:16px}
+
+/* ---------- Story ---------- */
+.story{padding:96px 0}
+.story .wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:center}
+.story h2{font-size:clamp(30px,3.6vw,44px);margin-bottom:22px}
+.story p{font-size:18.5px;max-width:31em;margin:0 0 16px}
+.story .ph{border-radius:22px;overflow:hidden;aspect-ratio:4/5;background:var(--sage)}
+.story .ph img{width:100%;height:100%;object-fit:cover}
+@media (max-width:860px){.story{padding:64px 0}.story .wrap{grid-template-columns:1fr;gap:32px}.story .ph{aspect-ratio:4/3}}
+
+/* ---------- Visit ---------- */
+.visit{background:var(--green);color:#fff;padding:80px 0 72px}
+.visit .wrap{display:grid;grid-template-columns:1fr 1.2fr;gap:56px}
+.visit h2{font-size:clamp(30px,3.6vw,44px);margin-bottom:28px}
+.visit dl{margin:0;display:grid;gap:22px}
+.visit dt{font-size:14.5px;color:#B9CBBE}
+.visit dd{margin:2px 0 0;font-size:19px}
+.visit dd a{text-decoration-thickness:1px;text-underline-offset:4px}
+.visit .map{border-radius:18px;overflow:hidden;min-height:360px;background:var(--green-deep);position:relative}
+.map-note{position:absolute;left:50%;top:calc(50% - 128px);z-index:2;margin:0;background:var(--mustard);color:var(--ink);font-size:19px;padding:8px 14px 10px;border-radius:4px;transform:translateX(-62%) rotate(-4deg);box-shadow:0 6px 14px rgba(0,0,0,.18);pointer-events:none;white-space:nowrap}
+.map-note svg{position:absolute;left:58%;top:100%;width:34px;height:40px;overflow:visible}
+.map-note path{stroke:var(--mustard);stroke-width:4}
+.visit .map iframe{width:100%;height:100%;min-height:360px;border:0;filter:saturate(.8)}
+@media (max-width:860px){.visit .wrap{grid-template-columns:1fr;gap:36px}}
+
+/* ---------- Footer ---------- */
+.site-footer{background:var(--green-deep);color:#B9CBBE;padding:36px 0 120px;font-size:14.5px}
+.site-footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.site-footer nav{display:flex;gap:22px;flex-wrap:wrap}
+.site-footer a{text-decoration:none}
+.site-footer a:hover{color:#fff;text-decoration:underline}
+@media (min-width:861px){.site-footer{padding-bottom:36px}}
+
+/* ---------- Mobile order bar ---------- */
+.order-bar{position:fixed;left:12px;right:12px;bottom:12px;z-index:45;display:none}
+.order-bar button{width:100%;justify-content:space-between;padding:16px 22px;box-shadow:0 10px 30px rgba(42,24,35,.25)}
+@media (max-width:860px){.order-bar.show{display:block}}
+
+/* ---------- Cart drawer ---------- */
+.scrim{position:fixed;inset:0;background:rgba(42,24,35,.45);z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.show{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:#fff;z-index:61;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.2,.7,.2,1)}
+.drawer{visibility:hidden;transition:transform .28s cubic-bezier(.2,.7,.2,1),visibility 0s linear .28s}
+.drawer.show{transform:none;visibility:visible;transition:transform .28s cubic-bezier(.2,.7,.2,1),visibility 0s}
+@media (max-width:600px){
+  .drawer{top:auto;left:0;width:100%;max-height:92vh;border-radius:20px 20px 0 0;transform:translateY(100%)}
+}
+@media (prefers-reduced-motion:reduce){.drawer,.scrim{transition:none}.steam{display:none}.pie.spin img{animation:none}.snap{transition:none}}
+.drawer header{display:flex;justify-content:space-between;align-items:center;padding:20px 22px 14px}
+.drawer header h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0}
+.close{background:none;border:0;font-size:15px;font-weight:600;text-decoration:underline;text-underline-offset:4px;padding:8px}
+.drawer .body{flex:1;overflow-y:auto;padding:0 22px 22px}
+.drawer footer{padding:16px 22px 22px;border-top:1px solid var(--line)}
+
+.mode{display:grid;grid-template-columns:1fr 1fr;background:var(--sage);border-radius:999px;padding:4px;margin-bottom:8px}
+.mode button{border:0;background:none;border-radius:999px;padding:10px;font-weight:600;font-size:15px;color:var(--muted)}
+.mode button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(42,24,35,.15)}
+.eta{font-size:14.5px;color:var(--muted);margin:0 0 18px}
+.eta strong{color:var(--ink)}
+
+.line{display:grid;grid-template-columns:1fr auto;gap:6px 14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.line:last-child{border-bottom:0}
+.line .n{font-weight:600}
+.line .stepper{height:34px;background:var(--sage);color:var(--ink)}
+.line .stepper button{color:var(--ink);height:34px;width:34px;font-size:18px}
+.empty{padding:40px 0;text-align:left}
+.empty p{margin:0 0 18px;color:var(--muted)}
+
+.totals{display:grid;gap:6px;font-size:15.5px;margin-bottom:16px}
+.totals div{display:flex;justify-content:space-between}
+.totals .grand{font-weight:700;font-size:18px;margin-top:4px}
+.drawer footer .btn{width:100%;justify-content:center}
+
+/* checkout form */
+.form{display:grid;gap:16px;padding-top:4px}
+.form label{display:grid;gap:6px;font-weight:600;font-size:15px}
+.form input,.form select,.form textarea{font:inherit;font-weight:400;padding:12px 14px;border:1.5px solid #CFC5CA;border-radius:12px;background:#fff;color:var(--ink)}
+.form input:focus,.form select:focus,.form textarea:focus{border-color:var(--green);outline:none;box-shadow:0 0 0 3px rgba(23,63,46,.15)}
+.form .hint{font-weight:400;color:var(--muted);font-size:14px}
+.form fieldset{border:0;padding:0;margin:0;display:grid;gap:8px}
+.form legend{font-weight:600;font-size:15px;margin-bottom:6px}
+.radio{display:flex !important;grid-template-columns:none;align-items:center;gap:10px;font-weight:500 !important}
+.radio input{accent-color:var(--green);width:18px;height:18px}
+.back{background:none;border:0;padding:0;font-weight:600;text-decoration:underline;text-underline-offset:4px;margin-bottom:10px}
+.err{color:var(--red-dark);font-size:14px;font-weight:500}
+
+.done{padding:30px 0}
+.done h3{font-family:var(--display);font-weight:400;font-size:32px;line-height:1.1;margin:0 0 12px}
+.done p{margin:0 0 12px;font-size:17px}
+
+/* returning customer */
+.again{margin-top:30px;background:rgba(255,255,255,.12);border-radius:16px;padding:16px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;max-width:34em}
+.again p{margin:0;flex:1 1 220px;font-size:15.5px;color:#FFE9E4}
+.again strong{display:block;color:#fff;font-size:17px}
+.again .btn{padding:11px 18px;font-size:15px}
+
+/* upsell inside the cart */
+.addon{background:var(--sage);border-radius:16px;padding:16px 18px;margin-top:18px}
+.addon h3{font-family:var(--display);font-weight:400;font-size:19px;margin:0 0 4px}
+.addon p{margin:0 0 10px;font-size:14.5px;color:var(--muted)}
+.addon .opt{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0}
+.addon .opt span{font-weight:600;font-size:15.5px}
+.addon .opt small{display:block;font-weight:400;color:var(--muted);font-size:13.5px}
+.addon .add{width:34px;height:34px;font-size:20px}
+.line .opts{grid-column:1/-1;font-size:14px;color:var(--green);margin-top:-2px}
+.callit{display:block;text-align:center;margin-top:12px;font-size:14.5px;color:var(--muted)}
+.callit a{font-weight:600;color:var(--ink)}
+
+/* options sheet */
+.sheet{position:fixed;left:50%;top:50%;z-index:62;width:min(440px,calc(100% - 24px));background:#fff;border-radius:20px;padding:24px 22px 22px;transform:translate(-50%,-46%);opacity:0;visibility:hidden;transition:opacity .2s,transform .2s,visibility 0s linear .2s}
+.sheet.show{opacity:1;visibility:visible;transform:translate(-50%,-50%);transition:opacity .2s,transform .2s}
+@media (max-width:600px){.sheet{top:auto;bottom:0;left:0;width:100%;border-radius:20px 20px 0 0;transform:translateY(30px)}.sheet.show{transform:none}}
+.sheet h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0 0 4px}
+.sheet .q{margin:0 0 14px;color:var(--muted)}
+.choice{display:flex;align-items:center;gap:12px;padding:13px 4px;border-bottom:1px solid var(--line);font-weight:500;cursor:pointer}
+.choice:last-of-type{border-bottom:0}
+.choice input{width:22px;height:22px;accent-color:var(--green)}
+.choice input:disabled+span{color:#B5AAB0}
+.sheet .btn{width:100%;justify-content:center;margin-top:16px}
+.sheet .close{position:absolute;right:14px;top:16px}
+
+/* call or text widget */
+.help{position:fixed;right:18px;bottom:18px;z-index:50;display:flex;flex-direction:column;align-items:flex-end;gap:12px;transition:bottom .25s}
+.help-btn{display:flex;align-items:center;gap:10px;background:var(--green);color:#fff;border:0;border-radius:999px;padding:12px 20px 12px 14px;font-weight:700;font-size:15.5px;box-shadow:0 10px 26px rgba(15,44,32,.35);transform:rotate(-2deg);transition:transform .2s,background .2s}
+.help-btn:hover{background:var(--green-deep);transform:rotate(0) scale(1.03)}
+.help-btn svg,.help-card .btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+.help-btn svg{background:var(--red);border-radius:50%;padding:7px;width:36px;height:36px;color:#fff}
+.help-btn[aria-expanded="true"] svg{animation:ring .5s ease-in-out}
+@keyframes ring{0%,100%{transform:rotate(0)}25%{transform:rotate(-18deg)}75%{transform:rotate(18deg)}}
+.help-card{background:#fff;border-radius:20px;padding:20px;width:min(300px,calc(100vw - 36px));box-shadow:0 18px 44px rgba(42,24,35,.28);display:grid;gap:10px;transform-origin:bottom right}
+.help-card:not([hidden]){animation:pop .22s ease-out}
+.help-card .scrawl{margin:0;font-size:22px;color:var(--red)}
+.help-sub{margin:0 0 4px;font-size:15px;color:var(--muted)}
+.help-card .btn{justify-content:center;width:100%}
+.help-card .btn.soft{background:var(--sage);color:var(--ink)}
+.help-card .btn.soft:hover{background:#DCE6DD}
+body.has-cart .help{bottom:92px}
+/* past the hero the button shrinks to just the phone so it never sits on top of menu buttons */
+body.past-hero .help-btn span{display:none}
+body.past-hero .help-btn{padding:10px;transform:none}
+body.past-hero .help-btn svg{width:40px;height:40px}
+body.drawer-open .help{display:none}
+@media (max-width:860px){.help-btn span{display:none}.help-btn{padding:10px;transform:none}.help-btn svg{width:40px;height:40px}}
+@media (min-width:861px){body.has-cart .help{bottom:18px}}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-size:15px;font-weight:500;z-index:70;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (min-width:861px){.toast{bottom:28px}}
+</style>
+</head>
+<body>
+
+<a class="sr" href="#menu">Skip to menu</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="#top" aria-label="Bella Pizzeria home">
+      <b>Bella Pizzeria</b>
+      <span>Brazilian style, Worcester</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#menu" class="hide-sm">Menu</a>
+      <a href="#story" class="hide-sm">Our story</a>
+      <a href="#visit" class="hide-sm">Visit</a>
+      <button class="cart-btn" id="openCart" aria-label="Open your order">
+        Order <span class="count" id="cartCount" aria-live="polite"></span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero" aria-labelledby="heroTitle">
+  <svg class="hero-edge" viewBox="0 0 1440 28" preserveAspectRatio="none" aria-hidden="true"><path d="M0 28 L0 14 C 90 4, 170 22, 260 12 S 430 2, 520 14 S 690 24, 780 12 S 950 0, 1040 13 S 1210 25, 1300 12 S 1400 6, 1440 14 L1440 28 Z"/></svg>
+  <div class="wrap">
+    <div class="copy">
+      <h1 class="sign" id="heroTitle">
+        <span class="l1">Bella<button type="button" class="pie" id="pie" aria-label="Spin the pizza for a Brazilian pizza fact" title="Tap me"><span class="steam" aria-hidden="true"><svg viewBox="0 0 90 50"><path class="doodle" d="M18 46 C 10 36, 26 30, 18 18 C 12 10, 22 6, 20 2"/><path class="doodle" d="M45 46 C 37 34, 53 28, 45 16 C 39 8, 49 4, 47 0"/><path class="doodle" d="M72 46 C 64 36, 80 30, 72 18 C 66 10, 76 6, 74 2"/></svg></span><img src="images/pizza-doodle.png" alt=""></button></span>
+        <span class="l2">Pizzeria<svg class="swoosh" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path class="doodle draw" pathLength="1" d="M6 24 C 90 8, 230 4, 394 16"/><path class="doodle draw" pathLength="1" d="M46 34 C 140 22, 262 20, 352 27"/></svg></span>
+      </h1>
+      <p class="br-note scrawl" aria-live="polite"><svg viewBox="0 0 60 50" aria-hidden="true"><path class="doodle draw" pathLength="1" d="M54 44 C 38 42, 18 30, 12 6 M12 6 L 5 20 M12 6 L 24 15"/></svg><span id="brNote">Brazilian style!</span></p>
+      <p class="lede">Pizza the way they make it in São Paulo, plus esfihas, pastel and X-burgers, on Highland Street in Worcester. New to Brazilian food? Every dish on our menu tells you what it is and how to say it.</p>
+      <div class="actions">
+        <a class="btn" href="#menu">Order now</a>
+        <a class="textlink" href="tel:+17819708515">Call (781) 970-8515</a>
+      </div>
+      <p class="cta-note scrawl"><svg viewBox="0 0 50 34" aria-hidden="true"><path class="doodle draw" pathLength="1" d="M46 30 C 30 30, 14 24, 8 6 M8 6 L 4 18 M8 6 L 18 10"/></svg><span id="ctaNote">Ready in about 25 minutes</span></p>
+      <div class="again" id="again" hidden></div>
+      <p class="facts">
+        <span id="openStatus">Open daily, 11 am to 9:30 pm</span>
+        <span><svg class="star" viewBox="0 0 30 30" aria-hidden="true"><path d="M15 2.5 L18.8 11 L27.6 11.8 L20.8 17.6 L23.1 26.6 L15 21.6 L6.8 26.4 L9.3 17.5 L2.6 11.7 L11.4 11.2 Z"/></svg><strong>4.7</strong> on Google from 445 reviews</span>
+      </p>
+    </div>
+    <figure class="hero-photos">
+      <div class="main"><img src="images/pizza-table.jpg" alt="Four Bella pizzas on the table, the front one covered in red onion rings"></div>
+      <button type="button" class="side snap" data-goto="catupiry" aria-label="See the chicken with catupiry pizza on the menu"><span class="tape t1" aria-hidden="true"></span><span class="tape t2" aria-hidden="true"></span><span class="sticker scrawl" aria-hidden="true">$18</span><img src="images/chicken-catupiry.jpg" alt="Chicken with catupiry pizza with sweet corn"></button>
+      <figcaption class="photo-note scrawl"><svg viewBox="0 0 80 40" aria-hidden="true"><path class="doodle draw" pathLength="1" d="M76 26 C 56 34, 30 30, 8 14 M8 14 L 14 30 M8 14 L 24 10"/></svg><span>Try this one first: chicken + catupiry</span><small>A favorite in our Google reviews.</small></figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="menu" id="menu" aria-labelledby="menuTitle">
+  <div class="wrap">
+    <div class="menu-head">
+      <h2 id="menuTitle">What are you hungry for?</h2>
+      <p>Search by dish or by what's in it. Brazilian dishes come with how to say them and what they are.</p>
+    </div>
+    <form class="search" role="search" onsubmit="return false">
+      <label class="sr" for="q">Search the menu</label>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 L21 21"/></svg>
+      <input id="q" type="search" placeholder="Try chicken or sausage" autocomplete="off" enterkeyhint="search">
+      <button type="button" id="qClear" hidden>Clear</button>
+    </form>
+    <p class="qinfo" id="qInfo" aria-live="polite"></p>
+
+    <div class="start" id="start">
+      <div class="start-head">
+        <h3>New here? Start with these four.</h3>
+        <button type="button" class="pick-me" id="pickMe"><img class="pm-icon" src="images/pizza-doodle-red.png" alt="">Can't decide? Let the pizza pick</button>
+        <span class="swipe">Swipe for more</span>
+      </div>
+      <div class="picks" id="picks"></div>
+    </div>
+  </div>
+  <nav class="tabs" aria-label="Menu sections"><div class="wrap inner" id="tabs"></div></nav>
+  <div class="wrap" id="cats"></div>
+  <div class="wrap"><div class="nomatch" id="noMatch" hidden></div></div>
+</section>
+
+<section class="words" aria-labelledby="wordsTitle">
+  <div class="wrap">
+    <h2 id="wordsTitle">Words you'll see on our menu</h2>
+    <p class="intro">Most of these don't have a neat English version, so here's the short story on each.</p>
+    <dl class="glossary" id="glossary"></dl>
+  </div>
+</section>
+
+<section class="story" id="story" aria-labelledby="storyTitle">
+  <div class="wrap">
+    <div class="ph"><img src="images/storefront.jpg" alt="Bella Pizzeria storefront on Highland Street with its Brazilian style sign" loading="lazy"></div>
+    <div>
+      <!-- SWAP: rewrite with the owner's real story (who they are, where in Brazil, when they opened). -->
+      <h2 id="storyTitle">A Brazilian kitchen in Worcester</h2>
+      <p>Bella is a small, family-run spot on Highland Street. The pizza is the kind you'd get at a pizzaria in São Paulo: a thin, crisp crust, plenty of cheese, and toppings like smoked calabresa, catupiry and sweet corn that surprise people the first time and bring them back the second.</p>
+      <p>Next to the pizza we make esfihas, pastel, coxinha and the stacked X-burgers you'd find at any Brazilian lanchonete. If something on the menu is new to you, ask at the counter. We'll tell you what to try.</p>
+    </div>
+  </div>
+</section>
+
+<section class="visit" id="visit" aria-labelledby="visitTitle">
+  <div class="wrap">
+    <div>
+      <h2 id="visitTitle">Come by</h2>
+      <dl>
+        <div><dt>Address</dt><dd><a href="https://www.google.com/maps/place/143+Highland+St+Worcester,+MA+01609" target="_blank" rel="noopener">143 Highland St, Worcester, MA 01609</a></dd></div>
+        <!-- SWAP: confirm full weekly hours with the owner. -->
+        <div><dt>Hours</dt><dd>Every day, 11 am to 9:30 pm</dd></div>
+        <div><dt>Phone</dt><dd><a href="tel:+17819708515">(781) 970-8515</a></dd></div>
+        <div><dt>Pickup and delivery</dt><dd>Pickup ready in about 20 to 30 minutes, delivery in 20 to 35.</dd></div>
+        <div><dt>Instagram</dt><dd><a href="https://www.instagram.com/bellapizzeriaworcester/" target="_blank" rel="noopener">@bellapizzeriaworcester</a></dd></div>
+      </dl>
+    </div>
+    <div class="map">
+      <p class="map-note scrawl" aria-hidden="true">We're right here!<svg viewBox="0 0 40 46"><path class="doodle" d="M8 4 C 22 10, 30 22, 26 40 M26 40 L 18 32 M26 40 L 34 31"/></svg></p>
+      <iframe title="Map showing Bella Pizzeria at 143 Highland St, Worcester" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=143+Highland+St,+Worcester,+MA+01609&output=embed"></iframe>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <span>&copy; <span id="yr">2026</span> Bella Pizzeria, Worcester, MA</span>
+    <nav aria-label="Legal">
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="privacy.html#accessibility">Accessibility</a>
+      <a href="https://www.instagram.com/bellapizzeriaworcester/" target="_blank" rel="noopener">Instagram</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="order-bar" id="orderBar">
+  <button class="btn" id="orderBarBtn"><span id="orderBarCount">View order</span><span id="orderBarTotal"></span></button>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle" aria-hidden="true">
+  <header>
+    <h2 id="drawerTitle">Your order</h2>
+    <button class="close" id="closeCart">Close</button>
+  </header>
+  <div class="body" id="drawerBody"></div>
+  <footer id="drawerFoot"></footer>
+</aside>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" aria-hidden="true"></div>
+<!-- SWAP: confirm the shop number can receive texts. If not, swap the sms link for WhatsApp (https://wa.me/1781...). -->
+<div class="help" id="help">
+  <div class="help-card" id="helpCard" role="dialog" aria-labelledby="helpTitle" hidden>
+    <p class="scrawl" id="helpTitle">Questions? Big order? Allergies?</p>
+    <p class="help-sub" id="helpSub">Call or text and a real person at Bella answers.</p>
+    <a class="btn" href="tel:+17819708515"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5 L9.4 3.2 L11 7.4 L8.9 9 C 9.9 11.3, 12.4 13.9, 15 15 L 16.7 12.9 L 20.8 14.6 L20.5 17.4 C 20.3 19.2, 18.7 20.4, 16.9 20.2 C 10.3 19.4, 4.6 13.7, 3.8 7.1 C 3.6 5.3, 4.8 3.7, 6.6 3.5 Z"/></svg>Call (781) 970-8515</a>
+    <a class="btn soft" href="sms:+17819708515?&body=Hi%20Bella!%20"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5 C 4 4.6, 4.7 4, 5.6 4 L 18.4 4 C 19.3 4, 20 4.6, 20 5.5 L 20 15 C 20 15.9, 19.3 16.5, 18.4 16.5 L 9.5 16.5 L 5.2 20 L 5.6 16.5 C 4.7 16.5, 4 15.9, 4 15 Z"/></svg>Text us</a>
+  </div>
+  <button type="button" class="help-btn" id="helpBtn" aria-expanded="false" aria-controls="helpCard">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5 L9.4 3.2 L11 7.4 L8.9 9 C 9.9 11.3, 12.4 13.9, 15 15 L 16.7 12.9 L 20.8 14.6 L20.5 17.4 C 20.3 19.2, 18.7 20.4, 16.9 20.2 C 10.3 19.4, 4.6 13.7, 3.8 7.1 C 3.6 5.3, 4.8 3.7, 6.6 3.5 Z"/></svg>
+    <span>Call or text</span>
+  </button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   MENU DATA
+   Prices and items come from Bella's current Slice menu (Oct 2026).
+   Typos from the old menu are fixed here.
+   img: Bella's own uploaded photos. SWAP for better Instagram shots where possible.
+   say: rough English pronunciation. explain: one plain-English line for unfamiliar dishes.
+   ============================================================ */
+const IMG = id => `https://slice-menu-assets-prod.imgix.net/112568/${id}?auto=format&fit=crop&w=400&h=400`;
+
+const MENU = [
+  { id:"pizzas", name:"Pizzas", note:"The classics, on our thin Brazilian-style crust.", items:[
+    {id:"cheese", n:"Cheese Pizza", p:12, d:"Tomato sauce and mozzarella."},
+    {id:"pepperoni", n:"Pepperoni Pizza", p:12, d:"Tomato sauce, mozzarella and sliced pepperoni.", img:"1761185115_9e20ffd5ed"},
+    {id:"bbqchk", n:"BBQ Chicken Pizza", p:15, d:"Tomato sauce, mozzarella, BBQ sauce and grilled chicken."},
+    {id:"buffalo", n:"Buffalo Chicken Pizza", p:15, d:"Tomato sauce, mozzarella, grilled chicken and buffalo sauce."},
+    {id:"hawaiian", n:"Hawaiian Pizza", p:15, d:"Tomato sauce, mozzarella, pineapple and ham.", img:"1761185095_c80353fa25"},
+    {id:"margherita", n:"Margherita Pizza", p:15, d:"Tomato sauce, mozzarella, tomatoes and basil."},
+    {id:"special", n:"Bella Special Pizza", p:17, d:"Tomato sauce, mozzarella, hamburger, pepperoni, smoked sausage, ham, mushroom, red onion and green peppers."},
+    {id:"meat", n:"Meat Lover's Pizza", p:17, d:"Tomato sauce, mozzarella, hamburger, pepperoni, smoked sausage, bacon and salami."},
+    {id:"veggie", n:"Veggie Pizza", p:17, d:"Tomato sauce, mozzarella, mushroom, red onion, green peppers, broccoli and olives."},
+    {id:"alfredo", n:"Chicken Alfredo Pizza", p:17, d:"Alfredo sauce, grilled chicken, broccoli and cheese.", img:"1761268025_9e2105e75f"},
+    {id:"paradise", n:"Paradise Pizza", p:17, d:"Tomato sauce, chicken, green peppers, onion, bacon and pineapple."},
+  ]},
+  { id:"brazilian", name:"Brazilian pizzas", note:"What a pizzaria in São Paulo would serve.", items:[
+    {id:"catupiry", n:"Chicken with Catupiry Pizza", say:"ka-too-pee-REE", p:18, d:"Tomato sauce, mozzarella, shredded chicken, corn, olives and catupiry.", x:"Catupiry is a soft, creamy Brazilian cheese. Think cream cheese that melts like mozzarella.", img:"images/chicken-catupiry.jpg"},
+    {id:"house", n:"House-Style Pizza", p:18, d:"Tomato sauce, mozzarella, ham, chicken, tomatoes, smoked sausage, corn, olives, bacon, onion and catupiry.", x:"The everything pie. If you can't decide, get this one.", img:"images/house-style.jpg"},
+    {id:"calabresa", n:"Bella Calabresa Pizza", say:"ka-la-BREH-za", p:18, d:"Tomato sauce, mozzarella, smoked sausage, olives and red onion.", x:"Calabresa is smoked pork sausage. It's Brazil's pepperoni and one of the most ordered pizzas back home.", img:"images/calabresa.jpg"},
+    {id:"paulista", n:"Calabresa Paulista Pizza", say:"pow-LEES-ta", p:18, d:"Tomato sauce, smoked sausage, red onion and olives.", x:"Calabresa the São Paulo way, where the sausage and onion do the talking."},
+    {id:"fourcheese", n:"Four Cheese Pizza", p:17, d:"Tomato sauce, mozzarella, provolone, parmesan and catupiry."},
+    {id:"portuguesa", n:"Portuguesa Pizza", say:"por-too-GAY-za", p:18, d:"Tomato sauce, mozzarella, ham, egg, hearts of palm, onion and olives.", x:"A Brazilian favorite. Sliced boiled egg and hearts of palm sound odd on pizza until you try it."},
+    {id:"atum", n:"Tuna Pizza (Atum)", say:"ah-TOOM", p:17, d:"Tomato sauce, tuna, mozzarella, olives and onion.", x:"Sounds unusual here, but tuna pizza is on the menu at almost every pizzaria in Brazil.", img:"1761184784_05f4fb3f5e"},
+    {id:"lombinho", n:"Lombinho Pizza", say:"lom-BEEN-yo", p:17, d:"Tomato sauce, Canadian bacon, mozzarella, olives and onion.", x:"Lombinho means smoked pork loin."},
+    {id:"bauru", n:"Bauru Pizza", say:"bow-ROO", p:17, d:"Tomato sauce, ham, mozzarella, tomatoes and olives.", x:"Named after Bauru, a town in São Paulo famous for its ham and cheese sandwich."},
+    {id:"bacongold", n:"Bacon & Gold Pizza", p:17, d:"Tomato sauce, mozzarella, bacon, olives and corn.", img:"1761184761_b31922fc62"},
+    {id:"rustica", n:"Rústica Bella Pizza", p:18, d:"Tomato sauce, mozzarella, arugula, bacon, corn and grape tomatoes.", img:"images/rustica.jpg"},
+    {id:"nordestina", n:"Nordestina Pizza", say:"nor-des-CHEE-na", p:18, d:"Tomato sauce, mozzarella, carne seca, red onion and catupiry.", x:"Carne seca is salted, dried beef from Brazil's northeast, pulled and cooked soft. Salty, rich, and great with the creamy catupiry.", img:"images/nordestina.jpg"},
+    {id:"picanhapz", n:"Picanha Pizza", say:"pee-KAHN-ya", p:18, d:"Tomato sauce, mozzarella, green peppers, red onion, olives and picanha.", x:"Picanha is the top sirloin cap, the prized cut at every Brazilian steakhouse.", img:"images/picanha-pizza.jpg"},
+    {id:"strogonoff", n:"Chicken Strogonoff Pizza", p:17, d:"Tomato sauce, mozzarella, chicken strogonoff and crispy potato sticks.", x:"Brazil's comfort food: chicken in a creamy tomato sauce, topped with shoestring potato crunch.", img:"1761184716_c91fe51007"},
+  ]},
+  { id:"esfihas", name:"Esfihas", note:"Small open-face pies, baked fresh. Lebanese roots, very Brazilian.", items:[
+    {id:"esf6", n:"6 Esfihas", say:"es-FEE-ha", p:15, d:"You pick 2 or 3 flavors: beef, chicken with catupiry, pizza, or bacon and cheese.", opts:{q:"Pick 2 or 3 flavors", min:2, max:3, choices:["Beef","Chicken with catupiry","Pizza","Bacon and cheese"]}, x:"Each one is about the size of your palm. Six makes a light meal for one.", img:"1761184232_21de8949af"},
+    {id:"esf12", n:"12 Esfihas", say:"es-FEE-ha", p:29, d:"3 beef, 3 chicken with catupiry, 3 pizza and 3 bacon and cheese.", x:"A sampler of every flavor. Good for two.", img:"images/esfiha-board.jpg"},
+    {id:"esf24", n:"24 Esfihas", say:"es-FEE-ha", p:39, d:"6 beef, 6 chicken with catupiry, 6 pizza and 6 bacon and cheese.", x:"Party size. Feeds four to six.", img:"1761184317_21de8949af"},
+    {id:"esfsweet", n:"Sweet Esfiha", p:4.5, d:"A dessert esfiha. Ask which sweet flavors we have today.", img:"1761184196_fc9fc65084"},
+  ]},
+  { id:"burgers", name:"X-Burgers", note:"Say “X” in Portuguese and it sounds like “cheese.” So X-Burger means cheeseburger.", items:[
+    {id:"xtudo", n:"X-Tudo", say:"shees-TOO-doo", p:18, d:"Burger, egg, bacon, ham, American cheese, lettuce, tomato, onion, corn and potato sticks.", x:"Tudo means everything, and it really does have everything.", img:"images/xtudo.jpg"},
+    {id:"xtudocal", n:"X-Tudo Calabresa", p:19.9, d:"Burger, egg, bacon, American cheese, smoked sausage, catupiry, lettuce, tomato, onion, corn and potato sticks."},
+    {id:"xfrango", n:"X-Frango", say:"shees-FRAHN-go", p:18, d:"Crispy chicken, American cheese, egg, bacon, ham, catupiry, tomato, lettuce, onion, corn and potato sticks.", x:"Frango means chicken.", img:"1761184579_083524ac1a"},
+    {id:"xeggbacon", n:"X-Egg Bacon", p:17, d:"Burger, egg, bacon, American cheese, lettuce, tomato, corn and potato sticks."},
+    {id:"xbacon", n:"X-Bacon", p:14.9, d:"Burger, bacon, American cheese, lettuce, tomato, corn and potato sticks.", img:"1761184512_49b986464a"},
+    {id:"xsalada", n:"X-Salada", p:14, d:"Burger, American cheese, lettuce, tomato, onion, corn and potato sticks.", x:"A cheeseburger with the salad on it.", img:"1761184532_bd20939ae8"},
+    {id:"xburger", n:"X-Burger", p:10.9, d:"Burger and American cheese on a soft bun.", img:"1761184469_49b986464a"},
+  ]},
+  { id:"calzones", name:"Calzones", items:[
+    {id:"czcheese", n:"Cheese Calzone", p:10, d:"Mozzarella, folded and baked."},
+    {id:"czpep", n:"Pepperoni & Cheese Calzone", p:12, d:"Pepperoni and mozzarella."},
+    {id:"czbacon", n:"Bacon & Cheese Calzone", p:12, d:"Bacon and mozzarella."},
+    {id:"czsteak", n:"Steak & Cheese Calzone", p:15, d:"Steak, mozzarella and green peppers.", img:"1761185069_45e4cfb576"},
+    {id:"czchk", n:"Chicken & Catupiry Calzone", p:15, d:"Shredded chicken and creamy Brazilian catupiry cheese.", img:"1761185049_af6b9144a5"},
+    {id:"czcal", n:"Calabresa & Cheese Calzone", p:15, d:"Smoked calabresa sausage and mozzarella."},
+  ]},
+  { id:"sides", name:"Sides & plates", items:[
+    {id:"pastel", n:"Pastel", say:"pahs-TEL", p:8, d:"Ask for today's fillings.", x:"A big, thin, crackly fried pastry. The classic São Paulo street-market snack.", img:"1761184166_f3729df18a"},
+    {id:"coxinha", n:"Mini Coxinhas (10)", say:"ko-SHEEN-ya", p:11.99, d:"Ten bite-size coxinhas.", x:"Shredded chicken wrapped in dough, shaped like a little drumstick, breaded and fried.", img:"1761184381_6c9faa618b"},
+    {id:"minipastel", n:"Mini Pastel", p:11.99, d:"Small fried pastries with ground beef and cheese."},
+    {id:"fries", n:"French Fries", p:6, d:"Crispy and salted."},
+    {id:"friescb", n:"Fries with Cheddar & Bacon", p:10.5, d:"Fries topped with melted cheddar and bacon."},
+    {id:"wings", n:"Chicken Wings", p:12, d:"Ask for today's sauces."},
+    {id:"tenders", n:"Chicken Tenders", p:12, d:"Crispy breaded chicken strips."},
+    {id:"tilapia", n:"Tilapia Plate", p:22, d:"Tilapia with a side of fries or yuca.", x:"Yuca is cassava root, fried until crisp outside and soft inside.", img:"1761184357_af36e243c0"},
+    {id:"picanhaplate", n:"Picanha Plate", say:"pee-KAHN-ya", p:30, d:"Picanha with a side of fries or yuca.", x:"Top sirloin cap, sliced, the way Brazilian steakhouses serve it.", img:"1761184340_f52e05c218"},
+    {id:"housesalad", n:"House Salad", p:9, d:"Lettuce, tomato, corn, olives and onion.", img:"1761184428_c89689e6a9"},
+    {id:"caesar", n:"Caesar Salad", p:9, d:"Lettuce, cheese and croutons.", img:"1761184411_f9363082a1"},
+  ]},
+  { id:"subs", name:"Subs & pasta", items:[
+    {id:"steakbr", n:"Steak & Cheese Brazil", p:17.99, d:"Steak, cheese, bacon, lettuce, tomato and onion. Served with fries.", img:"1761184621_f0bd8f044b"},
+    {id:"hamcheese", n:"Ham & Cheese Sub", p:12, d:"Baguette, ham and American cheese."},
+    {id:"cheeseburgersub", n:"Cheeseburger Sub", p:13, d:"Baguette, burger and American cheese."},
+    {id:"tuna", n:"Tuna Sub", p:11, d:"Baguette, tuna, mayo, lettuce and tomato."},
+    {id:"grillchk", n:"Grilled Chicken Sub", p:13, d:"Baguette, grilled chicken, American cheese, lettuce and tomato."},
+    {id:"blt", n:"BLT Sub", p:13, d:"Baguette, bacon, lettuce, tomato and mayo."},
+    {id:"bbqsub", n:"BBQ Chicken Sub", p:13, d:"Baguette, American cheese, grilled chicken, BBQ sauce and grilled onion."},
+    {id:"buffsub", n:"Buffalo Chicken Sub", p:13, d:"Baguette, grilled chicken, buffalo sauce and mozzarella."},
+    {id:"parm", n:"Chicken Parmigiana Sub", p:14, d:"Baguette, breaded chicken, marinara and American cheese."},
+    {id:"pastaplate", n:"Pasta on a Plate", p:17.9, d:"Spaghetti, chicken, smoked sausage, onion, peppers, corn and olives in soy sauce.", x:"Spaghetti tossed in the pan with everything else, Brazilian home style.", img:"1761184450_d737354dee"},
+    {id:"alfredopasta", n:"Chicken Alfredo Pasta", p:17, d:"Spaghetti, chicken, broccoli and alfredo sauce."},
+  ]},
+  { id:"sweet", name:"Sweet pizzas & desserts", note:"Dessert pizza is normal in Brazil. Order one for the table.", items:[
+    {id:"romeo", n:"Romeo & Juliet Pizza", p:20, d:"Guava paste and mozzarella.", x:"In Brazil, guava paste with cheese is called Romeu e Julieta, the perfect couple. Sweet, a little salty."},
+    {id:"churros", n:"Churros Pizza", p:20, d:"Dulce de leche, sugar and cinnamon.", x:"Tastes like a churro in pizza form."},
+    {id:"banana", n:"Banana Cinnamon Pizza", p:20, d:"Banana, cinnamon and mozzarella."},
+    {id:"nutella", n:"Nutella Pizza", p:22, d:"Nutella, with fruit on top if you like."},
+    {id:"whitechoc", n:"White Chocolate Pizza", p:22, d:"Belgian white chocolate, with fruit on top if you like."},
+    {id:"brigadeiro", n:"Brigadeiro Pizza", say:"bree-ga-DAY-ro", p:22, d:"Dark chocolate brigadeiro, with fruit on top if you like.", x:"Brigadeiro is Brazil's chocolate fudge, made with condensed milk. Every birthday party has it."},
+    {id:"acai", n:"Açaí Bowl", say:"ah-sah-EE", p:12, d:"Condensed milk, powdered milk, strawberry, banana and granola.", x:"Frozen açaí berry blended thick like sorbet, then piled with toppings.", img:"1761184094_01fc11c35e"},
+    {id:"tresleches", n:"Tres Leches Cake", p:6, d:"Sponge cake soaked in three kinds of milk.", img:"1761184011_ab22f0912d"},
+    {id:"pudim", n:"Flan (Pudim)", say:"poo-JEEN", p:6, d:"Brazilian caramel custard, dense and silky."},
+    {id:"lime", n:"Lime Mousse", p:6, d:"Light, tart and cold."},
+    {id:"passion", n:"Passion Fruit Mousse", p:6, d:"Maracujá mousse, sweet and sour."},
+  ]},
+  { id:"drinks", name:"Drinks", items:[
+    {id:"guarana2", n:"Guaraná Antarctica, 2 liter", say:"gwa-ra-NAH", p:7, d:"Brazil's favorite soda.", x:"Made from the guaraná berry. Tastes a bit like apple and ginger ale. Try it with pizza."},
+    {id:"guaranacan", n:"Guaraná Antarctica, can", p:3, d:"The 12 oz can."},
+    {id:"coke20", n:"Coke, 20 oz", p:3.5},
+    {id:"cokezero20", n:"Coke Zero, 20 oz", p:3.5},
+    {id:"sprite20", n:"Sprite, 20 oz", p:3.5},
+    {id:"gingerale20", n:"Ginger Ale, 20 oz", p:3.5},
+    {id:"lemonade", n:"Lemonade, 20 oz", p:3.5},
+    {id:"pinklemonade", n:"Pink Lemonade, 20 oz", p:3.5},
+    {id:"cokezero2", n:"Coke Zero, 2 liter", p:5},
+    {id:"sprite2", n:"Sprite, 2 liter", p:5},
+    {id:"fanta2", n:"Fanta Orange, 2 liter", p:5},
+    {id:"cokecan", n:"Coke, can", p:2.5},
+    {id:"cokezerocan", n:"Coke Zero, can", p:2.5},
+    {id:"spritecan", n:"Sprite, can", p:2.5},
+    {id:"gingercan", n:"Ginger Ale, can", p:2.5},
+    {id:"water", n:"Dasani Water", p:2.5},
+  ]},
+];
+
+/* The five "start here" dishes. lead = the big one. */
+const PICKS = [
+  {id:"catupiry", lead:true, note:"A favorite in our Google reviews", blurb:"Shredded chicken, sweet corn and olives under a layer of catupiry, Brazil's soft, creamy cheese. If you only try one thing, try this."},
+  {id:"nordestina", blurb:"Salted dried beef from Brazil's northeast, red onion and creamy catupiry. Rich and salty in the best way."},
+  {id:"picanhapz", blurb:"Brazil's favorite steak cut, sliced thin over peppers, onion and olives."},
+  {id:"rustica", blurb:"Peppery arugula, bacon, sweet corn and grape tomatoes over melted mozzarella. The fresh one on the menu."},
+];
+
+/* Extra words people type that aren't in the dish text */
+const ALSO = {
+  catupiry:"cream cheese", esf6:"flatbread meat pie sfiha", esf12:"flatbread meat pie sfiha", esf24:"flatbread meat pie sfiha party",
+  pastel:"empanada turnover", coxinha:"croquette", minipastel:"empanada", guarana2:"soda pop", guaranacan:"soda pop",
+  xtudo:"cheeseburger burger", xtudocal:"cheeseburger burger", xfrango:"chicken sandwich burger", xeggbacon:"cheeseburger burger",
+  xbacon:"cheeseburger burger", xsalada:"cheeseburger burger", xburger:"cheeseburger burger", brigadeiro:"chocolate dessert",
+  pudim:"custard dessert", acai:"smoothie dessert", calabresa:"pepperoni", paulista:"pepperoni", veggie:"vegetarian",
+  margherita:"vegetarian", cheese:"plain vegetarian", fourcheese:"vegetarian", tilapia:"fish", atum:"fish",
+};
+
+const WORDS = [
+  ["Catupiry","ka-too-pee-REE","A soft, creamy cheese Brazilians put on everything. Somewhere between cream cheese and melted mozzarella."],
+  ["Calabresa","ka-la-BREH-za","Smoked pork sausage, sliced thin. Brazil's answer to pepperoni."],
+  ["Esfiha","es-FEE-ha","A palm-size open-face pie. Brought to Brazil by Lebanese families, now sold on every corner."],
+  ["Picanha","pee-KAHN-ya","The top sirloin cap. The cut Brazilian steakhouses are known for."],
+  ["Pastel","pahs-TEL","A big, thin, fried pastry with a crackly shell. The street-market snack of São Paulo."],
+  ["Coxinha","ko-SHEEN-ya","Shredded chicken in dough, shaped like a drumstick and fried."],
+  ["Carne seca","KAR-nee SEH-ka","Salted, dried beef, cooked down until soft."],
+  ["Guaraná","gwa-ra-NAH","Brazil's soda, made from an Amazon berry. Light, fruity, a little like ginger ale."],
+];
+
+/* Business settings. SWAP: confirm with the owner. */
+const SETTINGS = {
+  taxRate: 0.07,          // MA 6.25% meals tax + 0.75% local option
+  deliveryFee: 3.99,      // placeholder, set to Bella's real fee
+  openHour: 11, openMin: 0,
+  closeHour: 21, closeMin: 30,
+  pickupEta: "about 20 to 30 minutes",
+  deliveryEta: "about 20 to 35 minutes",
+};
+
+/* ============================================================ */
+const ITEMS = {};
+MENU.forEach(c => c.items.forEach(i => { ITEMS[i.id] = {...i, cat:c.id}; }));
+
+const $ = s => document.querySelector(s);
+const money = n => "$" + n.toFixed(2);
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+
+/* ---------- state ----------
+   cart is a list of lines so the same dish can appear twice with different choices
+   (for example two orders of 6 esfihas with different flavors). */
+let cart = [], mode = "pickup", view = "cart", lastOrder = null;
+try {
+  const st = JSON.parse(localStorage.getItem("bella-cart-v2") || "{}");
+  cart = Array.isArray(st.cart) ? st.cart.filter(l => ITEMS[l.id]) : [];
+  mode = st.mode || "pickup";
+  lastOrder = st.last || null;
+} catch(e) {}
+function save(){ try { localStorage.setItem("bella-cart-v2", JSON.stringify({cart, mode, last:lastOrder})); } catch(e) {} }
+const qtyOf = id => cart.filter(l => l.id === id).reduce((n,l) => n + l.q, 0);
+const keyOf = (id, picks) => id + (picks && picks.length ? "|" + picks.join(",") : "");
+
+/* ---------- add / stepper control ---------- */
+function control(id, wide){
+  const q = qtyOf(id), name = esc(ITEMS[id].n);
+  if (!q) return wide
+    ? `<button class="add wide" data-add="${id}" aria-label="Add ${name} to your order">Add to order</button>`
+    : `<button class="add" data-add="${id}" aria-label="Add ${name} to your order">+</button>`;
+  return `<span class="stepper" role="group" aria-label="${name} quantity">
+    <button data-dec="${id}" aria-label="Remove one ${name}">&minus;</button>
+    <output>${q}</output>
+    <button data-add="${id}" aria-label="Add one more ${name}">+</button></span>`;
+}
+function refreshControls(id){
+  document.querySelectorAll(`[data-ctl="${id}"]`).forEach(el => el.innerHTML = control(id, el.dataset.wide === "1"));
+  const card = document.querySelector(`.item[data-id="${id}"]`); if (card) card.classList.toggle("in-cart", qtyOf(id) > 0);
+}
+const refreshAll = () => Object.keys(ITEMS).forEach(refreshControls);
+
+/* ---------- render: picks ---------- */
+function photo(img, size, alt, fallback){
+  const src = img.includes("/") ? img : `https://slice-menu-assets-prod.imgix.net/112568/${img}?auto=format&fit=crop&w=${size}&h=${size}`;
+  return `<img src="${src}" alt="${esc(alt)}" loading="lazy"${fallback ? ` data-fallback="${fallback}"` : ""}>`;
+}
+$("#picks").innerHTML = PICKS.map(pk => {
+  const it = ITEMS[pk.id], img = pk.img || it.img;
+  return `<article class="pick${pk.lead ? " lead" : ""}">
+    <div class="ph">${img ? photo(img, pk.lead ? 900 : 360, it.n, pk.lead ? "images/onion-pizza.jpg" : "") : ""}</div>
+    <div>
+      ${pk.note ? `<span class="note">${pk.note}</span>` : ""}
+      <h3>${esc(it.n)}</h3>
+      ${it.say ? `<span class="say">say ${it.say}</span>` : ""}
+      <p>${pk.blurb}</p>
+      <div class="row"><span class="price">${money(it.p)}</span><span data-ctl="${it.id}" data-wide="1">${control(it.id, true)}</span></div>
+    </div>
+  </article>`;
+}).join("");
+
+/* ---------- render: menu ---------- */
+$("#tabs").innerHTML = MENU.map(c => `<a href="#cat-${c.id}" data-tab="${c.id}">${c.name}</a>`).join("");
+$("#cats").innerHTML = MENU.map(c => `
+  <section class="cat" id="cat-${c.id}" aria-labelledby="h-${c.id}">
+    <div class="cat-head"><h3 id="h-${c.id}">${c.name}</h3>${c.note ? `<p>${esc(c.note)}</p>` : ""}</div>
+    <div class="items">
+      ${c.items.map(i => `
+        <div class="item${i.img ? "" : " noimg"}" data-id="${i.id}">
+          ${i.img ? `<div class="thumb">${photo(i.img, 200, i.n)}</div>` : ""}
+          <div>
+            <h4>${esc(i.n)}${i.say ? `<span class="say">${i.say}</span>` : ""}</h4>
+            ${i.d ? `<p class="desc">${esc(i.d)}</p>` : ""}
+            ${i.x ? `<p class="explain">${esc(i.x)}</p>` : ""}
+          </div>
+          <div class="end"><span class="price">${money(i.p)}</span><span data-ctl="${i.id}">${control(i.id)}</span></div>
+        </div>`).join("")}
+    </div>
+  </section>`).join("");
+
+/* ---------- search ----------
+   Matches the dish name, what's in it, the plain-English line and common English words,
+   so "sausage" finds calabresa and "steak" finds picanha. Accents don't matter. */
+const fold = t => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const INDEX = {};
+Object.values(ITEMS).forEach(i => { INDEX[i.id] = fold([i.n, i.d, i.x, i.say, ALSO[i.id]].join(" ")); });
+const qInput = $("#q"), qInfo = $("#qInfo"), qClear = $("#qClear"), noMatch = $("#noMatch");
+function runSearch(){
+  const raw = qInput.value.trim(), words = fold(raw).split(/\s+/).filter(Boolean);
+  const menuEl = $("#menu");
+  qClear.hidden = !raw;
+  if (!words.length){
+    menuEl.classList.remove("searching");
+    document.querySelectorAll(".item,.cat").forEach(el => el.hidden = false);
+    tabLinks.forEach(a => a.hidden = false);
+    qInfo.textContent = ""; noMatch.hidden = true; return;
+  }
+  menuEl.classList.add("searching");
+  let hits = 0;
+  document.querySelectorAll(".item").forEach(el => {
+    const ok = words.every(w => INDEX[el.dataset.id].includes(w));
+    el.hidden = !ok; if (ok) hits++;
+  });
+  document.querySelectorAll(".cat").forEach(c => {
+    const any = c.querySelector(".item:not([hidden])");
+    c.hidden = !any;
+    const tab = tabLinks.find(a => a.dataset.tab === c.id.replace("cat-",""));
+    if (tab) tab.hidden = !any;
+  });
+  qInfo.textContent = hits ? `${hits} ${hits === 1 ? "dish matches" : "dishes match"} “${raw}”` : "";
+  noMatch.hidden = !!hits;
+  spy();
+  if (!hits) noMatch.innerHTML = `<p>Nothing on the menu matches “${esc(raw)}”.</p>
+    <p>Try a simpler word like chicken, beef or cheese, or <a href="tel:+17819708515">call us at (781) 970-8515</a> and we'll help.</p>
+    <button type="button" data-clear-search>Show the whole menu</button>`;
+}
+function clearSearch(){ qInput.value = ""; runSearch(); qInput.focus(); }
+qInput.addEventListener("input", () => runSearch());
+qClear.addEventListener("click", clearSearch);
+/* jump the results into view on phones so people see them above the keyboard */
+qInput.addEventListener("keydown", e => { if (e.key === "Enter") { qInput.blur(); $("#tabs").scrollIntoView({block:"start"}); } });
+
+/* ---------- hear it ---------- */
+const CAN_SPEAK = "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+const SPEAK = {catupiry:"Catupiry", calabresa:"Calabresa", paulista:"Paulista", portuguesa:"Portuguesa", atum:"Atum",
+  lombinho:"Lombinho", bauru:"Bauru", nordestina:"Nordestina", picanhapz:"Picanha", picanhaplate:"Picanha",
+  esf6:"Esfiha", esf12:"Esfiha", esf24:"Esfiha", xtudo:"Xis tudo", xfrango:"Xis frango", pastel:"Pastel",
+  coxinha:"Coxinha", brigadeiro:"Brigadeiro", acai:"Açaí", pudim:"Pudim", guarana2:"Guaraná"};
+const hearBtn = word => CAN_SPEAK ? `<button type="button" class="hear" data-hear="${esc(word)}" aria-label="Hear how to say ${esc(word)}"><svg viewBox="0 0 24 24"><path d="M4 9.5 H7.5 L12 5.5 V18.5 L7.5 14.5 H4 Z"/><path class="w" d="M15.5 9.5 C 16.6 10.8, 16.6 13.2, 15.5 14.5"/><path class="w w2" d="M18.2 7 C 20.4 9.6, 20.4 14.4, 18.2 17"/></svg></button>` : "";
+let ptVoice = null;
+function pickVoice(){
+  const v = speechSynthesis.getVoices();
+  ptVoice = v.find(x => /^pt[-_]BR/i.test(x.lang)) || v.find(x => /^pt/i.test(x.lang)) || null;
+}
+if (CAN_SPEAK){ pickVoice(); speechSynthesis.addEventListener?.("voiceschanged", pickVoice); }
+function sayIt(btn){
+  speechSynthesis.cancel();
+  document.querySelectorAll(".hear.talking").forEach(b => b.classList.remove("talking"));
+  const u = new SpeechSynthesisUtterance(btn.dataset.hear);
+  u.lang = "pt-BR"; u.rate = .85; if (ptVoice) u.voice = ptVoice;
+  u.onend = u.onerror = () => btn.classList.remove("talking");
+  btn.classList.add("talking");
+  speechSynthesis.speak(u);
+}
+document.querySelectorAll(".item[data-id]").forEach(el => {
+  const w = SPEAK[el.dataset.id]; if (!w) return;
+  const sayEl = el.querySelector("h4 .say"); if (sayEl) sayEl.insertAdjacentHTML("afterend", hearBtn(w));
+});
+document.querySelectorAll("#picks .pick").forEach((el, i) => {
+  const w = SPEAK[PICKS[i].id]; const sayEl = el.querySelector(".say");
+  if (w && sayEl) sayEl.insertAdjacentHTML("afterend", hearBtn(w));
+});
+
+/* ---------- render: glossary ---------- */
+$("#glossary").innerHTML = WORDS.map(([w,s,m]) => `<div><dt>${w}${hearBtn(w)}<small>${s}</small></dt><dd>${m}</dd></div>`).join("");
+
+/* image fallback: if a remote photo fails, use a local one or drop the frame quietly */
+function imgFail(img){
+  if (img.dataset.fallback && img.src.indexOf(img.dataset.fallback) === -1) { img.src = img.dataset.fallback; return; }
+  const frame = img.closest(".thumb");
+  if (frame) { frame.closest(".item").classList.add("noimg"); frame.remove(); }
+  else img.style.visibility = "hidden";
+}
+document.querySelectorAll("img").forEach(img => { if (img.complete && img.naturalWidth === 0 && img.src) imgFail(img); });
+document.addEventListener("error", e => { if (e.target.tagName === "IMG") imgFail(e.target); }, true);
+
+/* ---------- category tabs ----------
+   Tapping a tab scrolls exactly to that section, under the sticky header and tab bar.
+   While you scroll, the tab for the section at the top of the screen is underlined. */
+const tabLinks = [...document.querySelectorAll("[data-tab]")];
+const tabBox = $("#tabs");
+const stickyH = () => $(".site-header").offsetHeight + $(".tabs").offsetHeight;
+const calm = matchMedia("(prefers-reduced-motion:reduce)").matches;
+let activeTab = null, spyLock = false, spyTimer;
+function setActive(id){
+  activeTab = id;
+  tabLinks.forEach(a => a.classList.toggle("on", a.dataset.tab === id));
+  const on = tabLinks.find(a => a.dataset.tab === id);
+  if (!on) return;
+  const r = on.getBoundingClientRect(), box = tabBox.getBoundingClientRect();
+  tabBox.scrollBy({left: r.left - box.left - (box.width - r.width) / 2, behavior: calm ? "instant" : "smooth"});
+}
+function spy(){
+  if (spyLock) return;
+  const line = stickyH() + 24;
+  let cur = null;
+  document.querySelectorAll(".cat:not([hidden])").forEach(c => { if (c.getBoundingClientRect().top <= line) cur = c; });
+  const id = cur ? cur.id.slice(4) : null;
+  if (id !== activeTab) setActive(id);
+}
+let spyQueued = false;
+addEventListener("scroll", () => { if (!spyQueued){ spyQueued = true; requestAnimationFrame(() => { spyQueued = false; spy(); }); } }, {passive:true});
+addEventListener("resize", spy);
+tabLinks.forEach(a => a.addEventListener("click", e => {
+  e.preventDefault();
+  const cat = document.getElementById("cat-" + a.dataset.tab); if (!cat) return;
+  setActive(a.dataset.tab);
+  goTo(cat);
+}));
+/* scroll to a section; when the scroll settles, nudge it into place in case photos above finished loading mid-scroll */
+function goTo(cat){
+  const target = () => Math.round(cat.getBoundingClientRect().top + scrollY - stickyH() + 8);
+  spyLock = true; clearTimeout(spyTimer);
+  window.scrollTo({top: target(), behavior: calm ? "instant" : "smooth"});
+  const done = () => {
+    removeEventListener("scrollend", done); clearTimeout(spyTimer);
+    const t = target(); if (Math.abs(t - scrollY) > 4) window.scrollTo({top: t, behavior: "instant"});
+    spyLock = false; spy();
+  };
+  if ("onscrollend" in window) addEventListener("scrollend", done);
+  spyTimer = setTimeout(done, 1600);
+}
+spy();
+
+/* ---------- time helpers (Worcester time) ---------- */
+const nowNY = () => new Date(new Date().toLocaleString("en-US", {timeZone:"America/New_York"}));
+function isOpen(){
+  const n = nowNY(), m = n.getHours()*60 + n.getMinutes();
+  return m >= SETTINGS.openHour*60 + SETTINGS.openMin && m < SETTINGS.closeHour*60 + SETTINGS.closeMin;
+}
+function clock(d){ let h = d.getHours(), m = d.getMinutes(); const ap = h >= 12 ? "pm" : "am"; h = h % 12 || 12; return `${h}:${String(m).padStart(2,"0")} ${ap}`; }
+/* A real clock time ("ready around 6:25 pm") instead of "20 to 30 minutes" */
+function readyLine(){
+  if (!isOpen()) return `We're closed right now. Your order will be scheduled for when we open at <strong>11 am</strong>.`;
+  const n = nowNY(), lo = mode === "pickup" ? 20 : 25, hi = mode === "pickup" ? 30 : 35;
+  const a = new Date(n.getTime() + lo*60000), b = new Date(n.getTime() + hi*60000);
+  return mode === "pickup"
+    ? `Ready at 143 Highland St around <strong>${clock(a)} to ${clock(b)}</strong>.`
+    : `At your door around <strong>${clock(a)} to ${clock(b)}</strong>.`;
+}
+
+/* ---------- open / closed ---------- */
+(function(){
+  const el = $("#openStatus");
+  const ring = `<svg viewBox="0 0 200 70" preserveAspectRatio="none" aria-hidden="true"><path class="doodle draw" pathLength="1" d="M150 9 C 108 1, 38 4, 14 23 C -3 38, 16 60, 72 63 C 132 66, 193 56, 195 33 C 197 15, 160 5, 118 7"/></svg>`;
+  el.innerHTML = isOpen() ? `<span class="circled">Open now${ring}</span>until 9:30 pm` : `<span class="circled">Closed${ring}</span>opens at 11 am`;
+  $("#yr").textContent = new Date().getFullYear();
+})();
+
+/* ---------- cart math ---------- */
+function totals(){
+  let count = 0, sub = 0;
+  cart.forEach(l => { count += l.q; sub += l.q * ITEMS[l.id].p; });
+  const fee = mode === "delivery" && count ? SETTINGS.deliveryFee : 0;
+  const tax = sub * SETTINGS.taxRate;
+  return {count, sub, fee, tax, total: sub + fee + tax};
+}
+function addLine(id, picks, q = 1, quiet){
+  const key = keyOf(id, picks), line = cart.find(l => l.key === key);
+  const first = !qtyOf(id);
+  if (line) line.q += q; else cart.push({key, id, picks: picks || [], q});
+  afterChange(id);
+  if (first && !quiet && !drawer.classList.contains("show")) toast(`${ITEMS[id].n} added`);
+}
+function changeLine(key, delta){
+  const line = cart.find(l => l.key === key); if (!line) return;
+  line.q += delta; if (line.q <= 0) cart = cart.filter(l => l !== line);
+  afterChange(line.id);
+}
+function afterChange(id){
+  const before = $("#cartCount").textContent;
+  save(); refreshControls(id); updateBadges();
+  if (+$("#cartCount").textContent > +before) { const c = $("#openCart"); c.classList.remove("bump"); void c.offsetWidth; c.classList.add("bump"); }
+  if (view === "cart" && drawer.classList.contains("show")) renderDrawer();
+}
+/* menu "+" : dishes with choices open the choice sheet, everything else adds straight away */
+function add(id){
+  const it = ITEMS[id];
+  if (it.opts) { openSheet(id); return; }
+  addLine(id);
+}
+function removeOne(id){
+  const lines = cart.filter(l => l.id === id); if (!lines.length) return;
+  changeLine(lines[lines.length - 1].key, -1);
+}
+
+function updateBadges(){
+  const t = totals();
+  $("#cartCount").textContent = t.count || "";
+  $("#orderBar").classList.toggle("show", t.count > 0);
+  document.body.classList.toggle("has-cart", t.count > 0);
+  $("#orderBarCount").textContent = `View order (${t.count} ${t.count === 1 ? "item" : "items"})`;
+  $("#orderBarTotal").textContent = money(t.sub);
+}
+
+let toastTimer;
+function toast(msg){
+  const el = $("#toast"); el.textContent = msg; el.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove("show"), 1800);
+}
+
+/* ---------- returning customers: one tap to reorder ---------- */
+function renderAgain(){
+  const box = $("#again");
+  if (!lastOrder || !lastOrder.lines || !lastOrder.lines.length) { box.hidden = true; return; }
+  const lines = lastOrder.lines.filter(l => ITEMS[l.id]);
+  const sum = lines.map(l => `${l.q > 1 ? l.q + " " : ""}${ITEMS[l.id].n}`).join(", ");
+  const sub = lines.reduce((n,l) => n + l.q * ITEMS[l.id].p, 0);
+  box.hidden = false;
+  box.innerHTML = `<p><strong>Welcome back. Same as last time?</strong>${esc(sum)}, ${money(sub)}</p>
+    <button class="btn" id="reorder">Add it to my order</button>`;
+}
+
+/* ---------- choice sheet (6 esfihas flavors) ---------- */
+const sheet = $("#sheet");
+function openSheet(id){
+  const it = ITEMS[id], o = it.opts;
+  sheet.dataset.id = id;
+  sheet.innerHTML = `<button class="close" data-close-sheet>Close</button>
+    <h2 id="sheetTitle">${esc(it.n)}</h2>
+    <p class="q">${o.q}. ${money(it.p)}</p>
+    <form id="sheetForm">${o.choices.map(c => `<label class="choice"><input type="checkbox" value="${esc(c)}"><span>${esc(c)}</span></label>`).join("")}</form>
+    <button class="btn" id="sheetAdd" disabled>Pick at least ${o.min} flavors</button>`;
+  sheet.classList.add("show"); scrim.classList.add("show"); sheet.setAttribute("aria-hidden","false");
+  setTimeout(() => sheet.querySelector("input").focus(), 60);
+}
+function closeSheet(){
+  sheet.classList.remove("show"); sheet.setAttribute("aria-hidden","true");
+  if (!drawer.classList.contains("show")) scrim.classList.remove("show");
+}
+sheet.addEventListener("change", () => {
+  const o = ITEMS[sheet.dataset.id].opts, boxes = [...sheet.querySelectorAll("input")];
+  const n = boxes.filter(b => b.checked).length;
+  boxes.forEach(b => { b.disabled = !b.checked && n >= o.max; });
+  const btn = $("#sheetAdd");
+  btn.disabled = n < o.min;
+  btn.textContent = n < o.min ? `Pick ${o.min - n} more` : `Add to order, ${money(ITEMS[sheet.dataset.id].p)}`;
+});
+
+/* ---------- drawer ---------- */
+const drawer = $("#drawer"), scrim = $("#scrim");
+let lastFocus = null;
+function openDrawer(){
+  lastFocus = document.activeElement;
+  view = "cart"; renderDrawer();
+  drawer.classList.add("show"); scrim.classList.add("show");
+  drawer.setAttribute("aria-hidden","false"); document.body.style.overflow = "hidden"; document.body.classList.add("drawer-open");
+  setTimeout(() => $("#closeCart").focus(), 50);
+}
+function closeDrawer(){
+  drawer.classList.remove("show"); scrim.classList.remove("show");
+  drawer.setAttribute("aria-hidden","true"); document.body.style.overflow = ""; document.body.classList.remove("drawer-open");
+  if (view === "done") view = "cart";
+  if (lastFocus) lastFocus.focus();
+}
+
+function modeToggle(){
+  return `<div class="mode" role="group" aria-label="Pickup or delivery">
+    <button data-mode="pickup" aria-pressed="${mode === "pickup"}">Pickup</button>
+    <button data-mode="delivery" aria-pressed="${mode === "delivery"}">Delivery</button>
+  </div>
+  <p class="eta">${readyLine()}</p>`;
+}
+function totalsHtml(t){
+  return `<div class="totals">
+    <div><span>Subtotal</span><span>${money(t.sub)}</span></div>
+    ${mode === "delivery" ? `<div><span>Delivery</span><span>${money(t.fee)}</span></div>` : ""}
+    <div><span>Meals tax</span><span>${money(t.tax)}</span></div>
+    <div class="grand"><span>Total</span><span>${money(t.total)}</span></div>
+  </div>`;
+}
+/* Pizza night in Brazil ends with a Guaraná and a sweet pizza. Offer only what's missing. */
+function addonHtml(){
+  const hasDrink = cart.some(l => ITEMS[l.id].cat === "drinks");
+  const hasSweet = cart.some(l => ITEMS[l.id].cat === "sweet");
+  const offers = [];
+  if (!hasDrink) offers.push(["guarana2", "Brazil's soda, made for pizza"]);
+  if (!hasSweet) offers.push(["brigadeiro", "Chocolate fudge pizza for the table"]);
+  if (!offers.length) return "";
+  return `<div class="addon"><h3>Make it a Brazilian pizza night</h3>
+    <p>In Brazil, pizza comes with a Guaraná and ends with a sweet pizza.</p>
+    ${offers.map(([id, why]) => `<div class="opt"><span>${esc(ITEMS[id].n)}, ${money(ITEMS[id].p)}<small>${why}</small></span>
+      <button class="add" data-add="${id}" aria-label="Add ${esc(ITEMS[id].n)}">+</button></div>`).join("")}
+  </div>`;
+}
+
+function renderDrawer(){
+  const body = $("#drawerBody"), foot = $("#drawerFoot"), t = totals();
+  $("#drawerTitle").textContent = view === "checkout" ? "Checkout" : view === "done" ? "Order placed" : "Your order";
+
+  if (view === "cart"){
+    if (!t.count){
+      body.innerHTML = `${modeToggle()}<div class="empty"><p>Nothing here yet. The chicken with catupiry pizza is a good place to start.</p>
+        <button class="btn" data-add="catupiry">Add chicken with catupiry, ${money(ITEMS.catupiry.p)}</button></div>`;
+      foot.innerHTML = ""; foot.style.display = "none"; return;
+    }
+    foot.style.display = "";
+    body.innerHTML = modeToggle() + cart.map(l => {
+      const it = ITEMS[l.id];
+      return `<div class="line"><span class="n">${esc(it.n)}</span><span class="price">${money(it.p * l.q)}</span>
+        ${l.picks.length ? `<span class="opts">${esc(l.picks.join(", "))}</span>` : ""}
+        <span class="say" style="font-style:normal">${money(it.p)} each</span>
+        <span class="stepper" role="group" aria-label="${esc(it.n)} quantity">
+          <button data-line-dec="${esc(l.key)}" aria-label="Remove one ${esc(it.n)}">&minus;</button><output>${l.q}</output>
+          <button data-line-inc="${esc(l.key)}" aria-label="Add one more ${esc(it.n)}">+</button></span></div>`;
+    }).join("") + addonHtml();
+    foot.innerHTML = totalsHtml(t) + `<button class="btn" id="toCheckout">Go to checkout</button>
+      <span class="callit">Rather call it in? <a href="tel:+17819708515">(781) 970-8515</a></span>`;
+  }
+
+  if (view === "checkout"){
+    foot.style.display = "";
+    body.innerHTML = `<button class="back" data-view="cart">Back to your order</button>
+      ${modeToggle()}
+      <form class="form" id="checkoutForm" novalidate>
+        <label>Name<input name="name" autocomplete="name" required></label>
+        <label>Phone<input name="phone" type="tel" autocomplete="tel" required><span class="hint">We'll text you when it's ready.</span></label>
+        ${mode === "delivery" ? `<label>Delivery address<input name="address" autocomplete="street-address" required></label>
+        <label>Apartment, floor, door code<input name="apt" autocomplete="address-line2"></label>` : ""}
+        <label>Notes for the kitchen<textarea name="notes" rows="2" placeholder="No olives, extra catupiry, and so on"></textarea></label>
+        <fieldset><legend>Payment</legend>
+          <label class="radio"><input type="radio" name="pay" value="card" checked> Pay by card now</label>
+          <label class="radio"><input type="radio" name="pay" value="store"> Pay when I ${mode === "pickup" ? "pick up" : "get it"}</label>
+          <!-- SWAP: card fields mount here (Square or Stripe) in the live build. -->
+        </fieldset>
+        <p class="err" id="formErr" role="alert"></p>
+      </form>`;
+    foot.innerHTML = totalsHtml(t) + `<button class="btn" id="placeOrder">Place order, ${money(t.total)}</button>`;
+  }
+
+  if (view === "done"){
+    foot.style.display = "none";
+    const num = Math.floor(1000 + Math.random()*9000);
+    body.innerHTML = `<div class="done">
+      <h3>Thanks, we've got it.</h3>
+      <p>Order number <strong>${num}</strong>.</p>
+      <p>${readyLine()} We'll text you when it's ${mode === "pickup" ? "ready" : "on the way"}.</p>
+      <p>Next time, your order will be waiting at the top of this page so you can reorder in one tap.</p>
+      <p>Questions? Call <a href="tel:+17819708515">(781) 970-8515</a>.</p>
+      <button class="btn" id="doneClose">Back to the menu</button>
+    </div>`;
+  }
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", e => {
+  const t = e.target;
+  const a = t.closest("[data-add]"), d = t.closest("[data-dec]");
+  const li = t.closest("[data-line-inc]"), ld = t.closest("[data-line-dec]");
+  const m = t.closest("[data-mode]"), v = t.closest("[data-view]");
+  if (t.closest("[data-close-sheet]")) { closeSheet(); return; }
+  if (t.closest("[data-clear-search]")) { clearSearch(); return; }
+  const hb = t.closest("[data-hear]"); if (hb) { sayIt(hb); return; }
+  if (t.id === "sheetAdd"){
+    const picks = [...sheet.querySelectorAll("input:checked")].map(b => b.value);
+    addLine(sheet.dataset.id, picks); closeSheet(); return;
+  }
+  if (a){ add(a.dataset.add); return; }
+  if (d){ removeOne(d.dataset.dec); return; }
+  if (li){ changeLine(li.dataset.lineInc, 1); return; }
+  if (ld){ changeLine(ld.dataset.lineDec, -1); return; }
+  if (m){ mode = m.dataset.mode; save(); renderDrawer(); return; }
+  if (v){ view = v.dataset.view; renderDrawer(); return; }
+  if (t.id === "reorder"){
+    lastOrder.lines.filter(l => ITEMS[l.id]).forEach(l => addLine(l.id, l.picks, l.q, true));
+    if (lastOrder.mode) { mode = lastOrder.mode; save(); }
+    openDrawer(); return;
+  }
+  if (t.id === "toCheckout"){ view = "checkout"; renderDrawer(); $("#drawerBody").scrollTop = 0; return; }
+  if (t.id === "doneClose"){ closeDrawer(); return; }
+  if (t.id === "placeOrder"){
+    const f = $("#checkoutForm"), missing = [...f.querySelectorAll("[required]")].filter(i => !i.value.trim());
+    if (missing.length){
+      $("#formErr").textContent = "Add your " + missing.map(i => i.closest("label").childNodes[0].textContent.trim().toLowerCase()).join(" and ") + " to place the order.";
+      missing[0].focus(); return;
+    }
+    lastOrder = {lines: cart.map(l => ({id:l.id, picks:l.picks, q:l.q})), mode, at: Date.now()};
+    cart = []; save(); refreshAll(); updateBadges(); renderAgain();
+    view = "done"; renderDrawer();
+  }
+});
+$("#openCart").addEventListener("click", () => {
+  if (totals().count) openDrawer();
+  else { $("#menu").scrollIntoView({behavior:"smooth"}); setTimeout(() => qInput.focus({preventScroll:true}), 500); }
+});
+$("#orderBarBtn").addEventListener("click", openDrawer);
+$("#closeCart").addEventListener("click", closeDrawer);
+scrim.addEventListener("click", () => { if (sheet.classList.contains("show")) closeSheet(); else closeDrawer(); });
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  if (sheet.classList.contains("show")) closeSheet();
+  else if (drawer.classList.contains("show")) closeDrawer();
+});
+
+/* ---------- hero toys ---------- */
+(function(){
+  let i = 0;
+  document.querySelectorAll(".sign .l1, .sign .l2").forEach(line => {
+    const t = line.firstChild; if (!t || t.nodeType !== 3) return;
+    const frag = document.createDocumentFragment();
+    [...t.textContent].forEach(c => { const sp = document.createElement("span"); sp.className = "ch"; sp.style.setProperty("--i", i++); sp.textContent = c; frag.appendChild(sp); });
+    line.replaceChild(frag, t);
+  });
+  const sign = $(".sign"); sign.setAttribute("aria-label", "Bella Pizzeria");
+  setTimeout(() => sign.classList.add("wave"), 1500);
+  setInterval(() => { sign.classList.remove("wave"); void sign.offsetWidth; sign.classList.add("wave"); }, 9000);
+})();
+const FACTS = [
+  "São Paulo bakes close to a million pizzas a day.",
+  "Calabresa is Brazil's most ordered pizza. Ours is smoked, sliced thin.",
+  "In Brazil, sweet pizza for dessert is completely normal. Try the brigadeiro.",
+  "Guaraná with pizza is the Brazilian combo. Trust us.",
+  "Catupiry is so loved in Brazil that the brand name became the word for the cheese.",
+];
+let factI = 0, factTimer;
+const pie = $("#pie");
+pie.addEventListener("click", () => {
+  pie.classList.remove("spin"); void pie.offsetWidth; pie.classList.add("spin");
+  const note = $(".br-note"), span = $("#brNote");
+  note.classList.remove("fact"); void note.offsetWidth; note.classList.add("fact");
+  span.textContent = FACTS[factI++ % FACTS.length];
+  clearTimeout(factTimer);
+  factTimer = setTimeout(() => { note.classList.remove("fact"); span.textContent = "Brazilian style!"; }, 5000);
+});
+
+/* polaroids jump to their dish in the menu and flash it */
+document.querySelectorAll("[data-goto]").forEach(b => b.addEventListener("click", () => {
+  const el = document.querySelector(`.item[data-id="${b.dataset.goto}"]`); if (!el) return;
+  el.scrollIntoView({behavior:"smooth", block:"center"});
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+}));
+
+/* gentle depth on desktop pointers */
+const heroEl = $(".hero");
+if (matchMedia("(pointer:fine)").matches && !matchMedia("(prefers-reduced-motion:reduce)").matches){
+  heroEl.addEventListener("pointermove", e => {
+    const r = heroEl.getBoundingClientRect();
+    heroEl.style.setProperty("--mx", ((e.clientX - r.left) / r.width - .5).toFixed(3));
+    heroEl.style.setProperty("--my", ((e.clientY - r.top) / r.height - .5).toFixed(3));
+  });
+  heroEl.addEventListener("pointerleave", () => { heroEl.style.setProperty("--mx", 0); heroEl.style.setProperty("--my", 0); });
+}
+
+/* live note under the order button */
+(function(){
+  const n = nowNY(), ready = new Date(n.getTime() + 25*60000);
+  $("#ctaNote").textContent = isOpen() ? `Ready by about ${clock(ready)}` : "Closed now. Order ahead for 11 am";
+})();
+
+/* ---------- let the pizza pick ---------- */
+const PICK_POOL = [...MENU.find(c => c.id === "brazilian").items, ...MENU.find(c => c.id === "esfihas").items.slice(0,3)].map(i => i.id);
+let lastPick = null;
+$("#pickMe").addEventListener("click", () => {
+  const btn = $("#pickMe");
+  if (qInput.value) { qInput.value = ""; runSearch(); }
+  let id; do { id = PICK_POOL[Math.floor(Math.random() * PICK_POOL.length)]; } while (id === lastPick);
+  lastPick = id;
+  btn.classList.remove("rolling"); void btn.offsetWidth; btn.classList.add("rolling");
+  setTimeout(() => {
+    const el = document.querySelector(`.item[data-id="${id}"]`); if (!el) return;
+    el.scrollIntoView({behavior: calm ? "instant" : "smooth", block: "center"});
+    el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+    toast(`The pizza picked: ${ITEMS[id].n}`);
+  }, calm ? 0 : 650);
+});
+
+/* ---------- call / text widget ---------- */
+new IntersectionObserver(([en]) => document.body.classList.toggle("past-hero", !en.isIntersecting), {threshold:0}).observe(heroEl);
+const helpBtn = $("#helpBtn"), helpCard = $("#helpCard");
+function setHelp(open){
+  helpCard.hidden = !open; helpBtn.setAttribute("aria-expanded", open);
+  if (open) $("#helpSub").textContent = isOpen() ? "We're open. Call or text and a real person at Bella answers." : "We're closed right now. Text us and we'll reply when we open at 11 am.";
+}
+helpBtn.addEventListener("click", () => setHelp(helpCard.hidden));
+document.addEventListener("click", e => { if (!helpCard.hidden && !e.target.closest("#help")) setHelp(false); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !helpCard.hidden) { setHelp(false); helpBtn.focus(); } });
+
+refreshAll();
+updateBadges();
+renderAgain();
+</script>
+</body>
+</html>
