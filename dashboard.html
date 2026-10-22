@@ -140,6 +140,23 @@ html[data-vt="tab-right"]::view-transition-new(root){animation:vt-in-r .38s var(
 @media (prefers-reduced-motion:reduce){.ht .swoosh path{stroke-dasharray:none}}
 main.wrap{padding-top:64px}
 @media (max-width:640px){main.wrap{padding-top:44px}.ht .pie{width:1.45em}}
+
+.brand{display:flex;align-items:center;gap:6px}
+.hpie{position:relative;border:0;background:none;padding:0;width:58px;height:58px;cursor:pointer;line-height:0;flex:none}
+.hpie img{width:100%;height:100%;object-fit:contain;display:block;transition:transform .2s}
+.hpie:hover img{transform:rotate(-8deg) scale(1.06)}
+.hpie.spin img{animation:pspin .9s cubic-bezier(.3,.6,.2,1)}
+.hpie .steam{position:absolute;left:34%;top:-4px;width:20px;height:11px;pointer-events:none}
+.hpie .steam svg{width:100%;height:100%;overflow:visible}
+.hpie .steam path{fill:none;stroke:#fff;stroke-width:4;stroke-linecap:round;opacity:0}
+@media (prefers-reduced-motion:no-preference){
+  .hpie{animation:pdrop .7s cubic-bezier(.3,1.4,.5,1) .2s both}
+  .hpie img{animation:prock 4.5s ease-in-out 1.4s infinite}
+  .hpie.spin img{animation:pspin .9s cubic-bezier(.3,.6,.2,1)}
+  .hpie .steam path{animation:psteam 2.6s ease-in-out 1s infinite}
+  .hpie .steam path+path{animation-delay:1.6s}
+}
+@media (max-width:640px){.hpie{width:46px;height:46px}.top .wrap{padding-top:8px}}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -402,7 +419,7 @@ main{padding-top:88px}
 
 <header class="top">
   <div class="wrap">
-    <a class="wordmark" href="index.html" title="Open your website"><b>Bella Pizzeria</b><span>Your dashboard</span></a>
+    <div class="brand"><a class="wordmark" href="index.html" title="Open your website"><b>Bella Pizzeria</b><span>Your dashboard</span></a><button type="button" class="hpie" aria-label="Spin the pizza" title="Tap me"><span class="steam" aria-hidden="true"><svg viewBox="0 0 90 50"><path d="M18 46 C 10 36, 26 30, 18 18 C 12 10, 22 6, 20 2"/><path d="M45 46 C 37 34, 53 28, 45 16 C 39 8, 49 4, 47 0"/></svg></span><img src="images/pizza-doodle.png" alt=""></button></div>
     <nav class="tabs" role="tablist" aria-label="Dashboard"><span class="slider" aria-hidden="true"></span>
       <button role="tab" id="t-orders" aria-controls="orders" aria-selected="true">Orders<span class="badge" id="openCount"></span></button>
       <button role="tab" id="t-money" aria-controls="money" aria-selected="false">Money</button>
@@ -544,7 +561,7 @@ main{padding-top:88px}
 <script>
 /* SWAP: the owner's first name makes the greeting personal ("Boa noite, Marcos!"). */
 
-document.addEventListener("click",e=>{const p=e.target.closest(".ht .pie");if(!p)return;p.classList.remove("spin");void p.offsetWidth;p.classList.add("spin");setTimeout(()=>p.classList.remove("spin"),950)});
+document.addEventListener("click",e=>{const p=e.target.closest(".ht .pie, .hpie");if(!p)return;p.classList.remove("spin");void p.offsetWidth;p.classList.add("spin");setTimeout(()=>p.classList.remove("spin"),950)});
 const OWNER = "";
 
 /* Menu copied from the website so names and prices match.
