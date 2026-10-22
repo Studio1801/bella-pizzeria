@@ -223,6 +223,80 @@ main.wrap{padding-top:44px}
 @keyframes tkout{40%{opacity:0;transform:translateY(-18px) scale(.96)}100%{opacity:0;transform:translateY(-18px) scale(.96);flex-basis:0;margin-right:-16px}}
 @media (prefers-reduced-motion:no-preference){.tk{animation:tkin .5s var(--ease) both;animation-delay:calc(var(--i) * 60ms)}@keyframes tkin{from{opacity:0;transform:translateX(30px)}}}
 @media (max-width:640px){.tk{flex-basis:84%}.rail{gap:12px}.tk-due{font-size:30px}}
+
+/* ---------- tickets v2: progress ring, cleaner content, finishing moment ---------- */
+.rail{padding-top:10px;padding-bottom:22px;margin-bottom:6px}
+.rail.fade-r{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 70px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 70px),transparent)}
+.rail.fade-l.fade-r{-webkit-mask-image:linear-gradient(90deg,transparent,#000 40px,#000 calc(100% - 70px),transparent);mask-image:linear-gradient(90deg,transparent,#000 40px,#000 calc(100% - 70px),transparent)}
+.rail.fade-l:not(.fade-r){-webkit-mask-image:linear-gradient(90deg,transparent,#000 40px);mask-image:linear-gradient(90deg,transparent,#000 40px)}
+.tk{flex-basis:320px;border-radius:24px;transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--lift,0px));transition:transform .35s var(--ease),box-shadow .35s var(--ease),opacity .3s}
+.tk:hover{--lift:-4px;transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--lift))}
+.tk-top{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;padding:16px 18px;background:var(--note);position:relative}
+.ring{position:relative;width:60px;height:60px;display:grid;place-items:center;flex:none}
+.ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:5}
+.ring .trk{stroke:rgba(42,24,35,.1)}
+.ring .bar{stroke:var(--ink);stroke-linecap:round;stroke-dasharray:157.1;stroke-dashoffset:var(--off);transition:stroke-dashoffset 1s var(--ease)}
+.ring .num{font-size:21px;font-weight:800;letter-spacing:-.5px}
+.tk.soon .ring .bar{stroke:var(--red)}.tk.soon .ring .num{color:var(--red)}
+.tk.late .tk-top{background:var(--red);color:#fff}
+.tk.late .ring .trk{stroke:rgba(255,255,255,.25)}.tk.late .ring .bar{stroke:#fff}
+.tk-when b{display:block;font-size:15px;font-weight:800}
+.tk-when span{display:block;font-size:13px;font-weight:600;opacity:.7;margin-top:2px}
+.tk-kind{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:800;padding:7px 11px 7px 9px;border-radius:999px;background:#fff;color:var(--ink);align-self:start}
+.tk.late .tk-kind{background:rgba(255,255,255,.18);color:#fff}
+.tk-kind svg,.tk-call svg,.tk-addr svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tk-who{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.tk-num{margin:1px 0 0;font-size:13px;font-weight:700;color:var(--faint)}
+.tk-call{width:40px;height:40px;border-radius:50%;background:var(--note);color:var(--ink);display:grid;place-items:center;flex:none;transition:background .2s,color .2s,transform .2s var(--ease)}
+.tk-call:hover{background:var(--ink);color:#fff;transform:scale(1.06)}
+.tk-call svg{width:18px;height:18px}
+.tk-addr{display:flex;align-items:center;gap:6px;margin:8px 0 0}
+.tk-food{margin-top:16px;gap:10px}
+.tk-food li{grid-template-columns:34px 1fr;font-size:16.5px;font-weight:600}
+.tk-food .q{background:none;height:auto;place-items:start;color:var(--red);font-size:16px}
+.tk-pay{border-top:1px dashed #E2D8DC}
+.chip{font-size:12.5px;font-weight:800;padding:5px 10px;border-radius:999px;font-style:normal}
+.chip.ok{background:var(--note);color:var(--muted)}
+.chip.due{background:#FBEAE7;color:var(--red)}
+.tk-done{position:relative;overflow:hidden;height:52px;padding:0}
+.tk-done .lbl{display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .35s var(--ease),opacity .25s}
+.tk-done .ok{position:absolute;inset:0;display:grid;place-items:center;opacity:0;transform:scale(.4)}
+.tk-done .ok svg{width:28px;height:28px;stroke-width:3.2;stroke-dasharray:24;stroke-dashoffset:24}
+.tk-done::before{content:"";position:absolute;inset:0;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease)}
+.tk.late .tk-done::before{background:var(--ink)}
+.tk-done:hover .lbl{transform:translateX(3px)}
+.tk.finishing .tk-done::before{transform:scaleX(1)}
+.tk.finishing .tk-done .lbl{transform:translateY(-140%);opacity:0}
+.tk.finishing .tk-done .ok{opacity:1;transform:none;transition:opacity .2s .2s,transform .4s cubic-bezier(.3,1.6,.5,1) .2s}
+.tk.finishing .tk-done .ok svg{stroke-dashoffset:0;transition:stroke-dashoffset .35s ease-out .35s}
+.tk.finishing{--lift:-6px}
+.tk.leaving{animation:tkout2 .5s cubic-bezier(.5,0,.2,1) forwards}
+@keyframes tkout2{0%{opacity:1}45%{opacity:0;transform:perspective(900px) translateY(-40px) scale(.94) rotate(-2deg)}100%{opacity:0;transform:perspective(900px) translateY(-40px) scale(.94);flex-basis:0;margin-right:-16px;padding:0}}
+.dots{display:flex;justify-content:center;gap:7px;margin:0 0 30px;min-height:8px}
+.dots button{width:8px;height:8px;border-radius:999px;border:0;padding:0;background:#DDD3D7;transition:width .35s var(--ease),background .3s}
+.dots button.on{width:26px;background:var(--ink)}
+.all-done{display:flex;align-items:center;gap:12px}
+.all-done svg{width:26px;height:26px;fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:24;animation:drawck .5s ease-out .2s forwards}
+@keyframes drawck{to{stroke-dashoffset:0}}
+.toast.act{pointer-events:auto;display:flex;align-items:center;gap:14px;padding:8px 8px 8px 20px}
+.t-undo{border:0;background:rgba(255,255,255,.14);color:#fff;font-weight:800;border-radius:999px;padding:8px 14px;font-size:15px}
+.t-undo:hover{background:rgba(255,255,255,.26)}
+@media (prefers-reduced-motion:no-preference){
+  .tk{animation:none}
+  .tk.fresh{animation:tkin2 .7s cubic-bezier(.2,.9,.25,1.15) both;animation-delay:calc(var(--i) * 80ms + 80ms)}
+  @keyframes tkin2{from{opacity:0;transform:perspective(900px) translateX(60px) translateY(14px) rotateY(-10deg) scale(.96)}}
+  .tk.fresh .ring .bar{animation:ringin 1.1s var(--ease) both;animation-delay:calc(var(--i) * 80ms + 350ms)}
+  @keyframes ringin{from{stroke-dashoffset:157.1}}
+  .tk.fresh .tk-food li,.tk.fresh .tk-note{animation:rise .5s var(--ease) both;animation-delay:calc(var(--i) * 80ms + 420ms)}
+  .tk.fresh .tk-food li:nth-child(2){animation-delay:calc(var(--i) * 80ms + 480ms)}
+  .tk.fresh .tk-food li:nth-child(3){animation-delay:calc(var(--i) * 80ms + 540ms)}
+  .tk.fresh .tk-note{animation-delay:calc(var(--i) * 80ms + 600ms)}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}}
+  .tk.late .tk-top::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);background-size:250% 100%;animation:sheen 3.2s ease-in-out infinite}
+  @keyframes sheen{from{background-position:120% 0}to{background-position:-130% 0}}
+}
+@media (max-width:640px){.tk{flex-basis:86%}.rail{align-items:flex-start}.tk-top{gap:12px;padding:14px 16px}}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -753,7 +827,12 @@ const store = {
   set(k, v){ try { localStorage.setItem("bella-dash-" + k, JSON.stringify(v)); return true; } catch(e){ return false; } },
 };
 let toastT;
-function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2200); }
+function undoToast(m, num){
+  const t = $("#toast"); t.innerHTML = `${esc(m)} <button class="t-undo" type="button">Undo</button>`; t.classList.add("show","act");
+  t.querySelector(".t-undo").onclick = () => { setStatus(num, "open"); t.classList.remove("show","act"); renderOrders(); };
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show","act"), 5000);
+}
+function toast(m){ const t = $("#toast"); t.classList.remove("act"); t.textContent = m; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), 2200); }
 const photoSrc = img => !img ? "" : (img.startsWith("data:") || img.includes("/")) ? img : `https://slice-menu-assets-prod.imgix.net/112568/${img}?auto=format&fit=crop&w=220&h=220`;
 const CAMERA = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>`;
 const CHECK = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
@@ -929,38 +1008,70 @@ const fmtShort = d => d.toLocaleDateString("en-US", {month:"short", day:"numeric
 const calmMotion = matchMedia("(prefers-reduced-motion:reduce)").matches;
 
 /* ---------- right now: what's waiting, most urgent first ---------- */
+const ICON = {
+  pickup:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>`,
+  delivery:`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6.5" cy="17" r="2.5"/><circle cx="17.5" cy="17" r="2.5"/><path d="M9 17h6l-2-7h-3M15 10h3l2.5 5M4 11h5"/></svg>`,
+  phone:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5h3l1.5 4-2 1.3a11 11 0 0 0 6.1 6.1l1.3-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></svg>`,
+  pin:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>`,
+};
+const RING = 2 * Math.PI * 25;
+let seenNums = null;
 function renderNow(){
   const M = byId(), open = openToday().sort((a,b) => due(a) - due(b)), now = nowNY();
   const head = n => `<div class="sechead"><p class="h2">Right now${n ? ` <span class="cnt">${n}</span>` : ""}</p>${n > 1 ? `<button class="arrow" data-slide="-1" aria-label="Previous order"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button class="arrow" data-slide="1" aria-label="Next order"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>` : ""}</div>`;
-  if (!open.length){ $("#nowWrap").innerHTML = head(0) + `<div class="calm">Nothing waiting. New orders appear here with a ding.</div>`; return; }
-  const keep = $("#rail") ? $("#rail").scrollLeft : 0;
+  if (!open.length){ seenNums = new Set(); $("#nowWrap").innerHTML = head(0) + `<div class="calm all-done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>All caught up. New orders slide in here with a ding.</div>`; return; }
+  const keep = $("#rail") ? $("#rail").scrollLeft : 0, first = !seenNums;
+  let k = 0;
   $("#nowWrap").innerHTML = head(open.length) + `<div class="rail" id="rail">${open.map((o, i) => {
-    const mins = Math.round((due(o) - now) / 60000), late = mins < 0, soon = !late && mins <= 5;
-    const total = o.sub * 1.07 + (o.kind === "delivery" ? 3.99 : 0), ready = clock(new Date(due(o)));
-    return `<article class="tk${late ? " late" : soon ? " soon" : ""}" data-order="${o.num}" style="--i:${i}">
+    const left = Math.round((due(o) - now) / 60000), late = left < 0, soon = !late && left <= 5;
+    const spent = Math.min(1, Math.max(0, (now - o.at) / (ETA[o.kind] * 60000)));
+    const total = o.sub * 1.07 + (o.kind === "delivery" ? 3.99 : 0), when = clock(new Date(due(o)));
+    const fresh = first || !seenNums.has(o.num);
+    return `<article class="tk${late ? " late" : soon ? " soon" : ""}${fresh ? " fresh" : ""}" data-order="${o.num}" style="--i:${fresh ? k++ : 0}">
       <div class="tk-top">
-        <span class="tk-due num">${late ? -mins : Math.max(mins, 0)}<small>${late ? "min late" : mins <= 0 ? "due now" : "min left"}</small></span>
-        <span class="tk-kind">${o.kind === "pickup" ? "Pickup" : "Delivery"}<small>${o.kind === "pickup" ? "Ready" : "Due"} ${ready}</small></span>
+        <div class="ring"><svg viewBox="0 0 60 60" aria-hidden="true"><circle class="trk" cx="30" cy="30" r="25"/><circle class="bar" cx="30" cy="30" r="25" style="--off:${(RING * (1 - spent)).toFixed(1)}"/></svg>
+          <span class="num">${late ? "+" + -left : Math.max(left, 0)}</span></div>
+        <div class="tk-when"><b>${late ? "Late" : left <= 0 ? "Due now" : "min left"}</b><span>${o.kind === "pickup" ? "Ready" : "Due"} ${when}</span></div>
+        <span class="tk-kind">${ICON[o.kind]}${o.kind === "pickup" ? "Pickup" : "Delivery"}</span>
       </div>
       <div class="tk-body">
-        <p class="tk-name">${esc(o.name)}</p>
-        ${o.addr ? `<p class="tk-addr">${esc(o.addr)}</p>` : ""}
-        <ul class="tk-food">${o.lines.map(l => `<li><span class="q num">${l.q}</span><span>${esc(M[l.id]?.n || l.id)}${l.picks ? `<small>${esc(l.picks.join(", "))}</small>` : ""}</span></li>`).join("")}</ul>
+        <div class="tk-who"><div><p class="tk-name">${esc(o.name)}</p><p class="tk-num">#${o.num}</p></div>
+          ${o.phone ? `<a class="tk-call" href="tel:${o.phone.replace(/\D/g,"")}" aria-label="Call ${esc(o.name)}" data-nogo>${ICON.phone}</a>` : ""}</div>
+        ${o.addr ? `<p class="tk-addr">${ICON.pin}${esc(o.addr)}</p>` : ""}
+        <ul class="tk-food">${o.lines.map(l => `<li><span class="q num">${l.q}×</span><span>${esc((M[l.id]?.n || l.id).replace(/ Pizza$/, ""))}${l.picks ? `<small>${esc(l.picks.join(", "))}</small>` : ""}</span></li>`).join("")}</ul>
         ${o.note ? `<p class="tk-note"><b>Note</b>${esc(o.note)}</p>` : ""}
       </div>
       <div class="tk-foot">
-        <span class="tk-pay"><b class="num">${money(total)}</b>${o.paid ? "Paid online" : `<em>Collect payment</em>`}</span>
-        <button class="tk-done" data-finish="${o.num}">${CHECK}${o.kind === "pickup" ? "Picked up" : "Delivered"}</button>
+        <div class="tk-pay"><b class="num">${money(total)}</b>${o.paid ? `<span class="chip ok">Paid</span>` : `<span class="chip due">Collect cash</span>`}</div>
+        <button class="tk-done" data-finish="${o.num}"><span class="lbl">${o.kind === "pickup" ? "Picked up" : "Delivered"}</span><span class="ok" aria-hidden="true">${CHECK}</span></button>
       </div>
-    </article>`; }).join("")}</div>`;
+    </article>`; }).join("")}</div>
+    <div class="dots" id="dots">${open.length > 1 ? open.map((o, i) => `<button data-dot="${i}" aria-label="Order ${i + 1}"></button>`).join("") : ""}</div>`;
+  seenNums = new Set(open.map(o => o.num));
   $("#rail").scrollLeft = keep; railArrows();
 }
 function railArrows(){
   const r = $("#rail"); if (!r) return;
-  const a = document.querySelectorAll("[data-slide]"); if (!a.length) return;
-  a[0].disabled = r.scrollLeft < 8; a[1].disabled = r.scrollLeft + r.clientWidth > r.scrollWidth - 8;
-  r.classList.toggle("more", r.scrollLeft + r.clientWidth < r.scrollWidth - 8);
+  const a = document.querySelectorAll("[data-slide]");
+  const atStart = r.scrollLeft < 8, atEnd = r.scrollLeft + r.clientWidth > r.scrollWidth - 8;
+  if (a.length){ a[0].disabled = atStart; a[1].disabled = atEnd; }
+  r.classList.toggle("fade-r", !atEnd); r.classList.toggle("fade-l", !atStart);
+  const card = r.querySelector(".tk"), step = card ? card.offsetWidth + 16 : 1;
+  const idx = atEnd ? r.children.length - 1 : Math.round(r.scrollLeft / step);
+  document.querySelectorAll("[data-dot]").forEach((d, i) => d.classList.toggle("on", i === idx));
 }
+/* a slight tilt toward the pointer, like picking up a ticket */
+$("#nowWrap").addEventListener("pointermove", e => {
+  const c = e.target.closest(".tk"); if (!c || e.pointerType !== "mouse" || calmMotion) return;
+  const b = c.getBoundingClientRect();
+  c.style.setProperty("--ry", (((e.clientX - b.left) / b.width - .5) * 5).toFixed(2) + "deg");
+  c.style.setProperty("--rx", (((e.clientY - b.top) / b.height - .5) * -4).toFixed(2) + "deg");
+});
+$("#nowWrap").addEventListener("pointerout", e => { const c = e.target.closest(".tk"); if (c && !c.contains(e.relatedTarget)){ c.style.removeProperty("--rx"); c.style.removeProperty("--ry"); } });
+$("#nowWrap").addEventListener("click", e => {
+  const d = e.target.closest("[data-dot]"); if (!d) return;
+  const r = $("#rail"), c = r.children[+d.dataset.dot]; if (c) r.scrollTo({left: c.offsetLeft - r.firstElementChild.offsetLeft, behavior: calmMotion ? "auto" : "smooth"});
+});
 $("#nowWrap").addEventListener("scroll", railArrows, true);
 $("#nowWrap").addEventListener("click", e => {
   const s = e.target.closest("[data-slide]"); if (!s) return;
@@ -1068,7 +1179,7 @@ $("#panel").addEventListener("click", e => {
   const st = e.target.closest("[data-step]"); if (st) { stepDay(+st.dataset.step); return; }
   const r = e.target.closest("[data-order]"); if (r) openOrder(+r.dataset.order);
 });
-$("#nowWrap").addEventListener("click", e => { if (e.target.closest("[data-finish],[data-slide]")) return; const r = e.target.closest("[data-order]"); if (r) openOrder(+r.dataset.order); });
+$("#nowWrap").addEventListener("click", e => { if (e.target.closest("[data-finish],[data-slide],[data-dot],[data-nogo]")) return; const r = e.target.closest("[data-order]"); if (r) openOrder(+r.dataset.order); });
 setInterval(() => { if (!curDay && $("#orders").hidden === false) renderNow(); }, 30000);
 
 /* tap a row: everything about the order */
@@ -1095,10 +1206,10 @@ document.addEventListener("click", e => {
   const o = findOrder(+f.dataset.finish); if (!o) return;
   setStatus(o.num, "done");
   // SYNC: tell the customer (pickup: "thanks", delivery: "it's at your door").
-  toast(o.kind === "pickup" ? `${o.name.split(" ")[0]} picked up` : `${o.name.split(" ")[0]}'s order delivered`);
+  undoToast(o.kind === "pickup" ? `${o.name.split(" ")[0]} picked up` : `${o.name.split(" ")[0]}'s order delivered`, o.num);
   closeOrder();
   const row = document.querySelector(`.tk[data-order="${o.num}"]`);
-  if (row && !calmMotion){ row.classList.add("leaving"); setTimeout(renderOrders, 420); }
+  if (row && !calmMotion){ row.classList.add("finishing"); setTimeout(() => row.classList.add("leaving"), 650); setTimeout(renderOrders, 1150); }
   else renderOrders();
 });
 
