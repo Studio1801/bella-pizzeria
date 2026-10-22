@@ -185,6 +185,44 @@ main.wrap{padding-top:44px}
   .tabs button{justify-content:center;padding:9px 0;font-size:15px}
   main.wrap{padding-top:28px}
 }
+
+/* ---------- right now: order tickets you slide through ---------- */
+.sechead .cnt{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 7px;border-radius:999px;background:var(--red);color:#fff;font-size:12.5px;margin-left:6px;vertical-align:1px}
+.rail{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-left:18px;margin:0 -18px 34px;padding:4px 18px 18px;scrollbar-width:none;align-items:stretch;cursor:grab}
+.rail::-webkit-scrollbar{display:none}
+.rail.dragging{cursor:grabbing;scroll-snap-type:none;user-select:none}
+.rail.dragging .tk{pointer-events:none}
+.tk{flex:0 0 310px;scroll-snap-align:start;background:#fff;border-radius:22px;box-shadow:0 1px 2px rgba(42,24,35,.06),0 8px 24px rgba(42,24,35,.07);display:flex;flex-direction:column;overflow:hidden;cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s var(--ease)}
+.tk:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(42,24,35,.06),0 16px 32px rgba(42,24,35,.11)}
+.tk-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px 20px 16px;background:var(--note)}
+.tk.late .tk-top{background:var(--red);color:#fff}
+.tk-due{font-size:34px;font-weight:800;letter-spacing:-1px;line-height:1}
+.tk-due small{display:block;font-size:13px;font-weight:700;letter-spacing:0;margin-top:4px;opacity:.75}
+.tk.soon .tk-due{color:var(--red)}
+.tk-kind{text-align:right;font-weight:800;font-size:15px;line-height:1.2}
+.tk-kind small{display:block;font-weight:600;font-size:13px;opacity:.7;margin-top:3px}
+.tk-body{padding:16px 20px 4px;flex:1}
+.tk-name{margin:0;font-size:20px;font-weight:800;letter-spacing:-.2px}
+.tk-addr{margin:2px 0 0;color:var(--muted);font-size:14.5px;font-weight:500}
+.tk-food{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.tk-food li{display:grid;grid-template-columns:26px 1fr;gap:8px;font-size:16px;line-height:1.3;font-weight:500}
+.tk-food .q{display:grid;place-items:center;height:24px;border-radius:8px;background:var(--note);font-weight:800;font-size:14px}
+.tk-food small{display:block;color:var(--muted);font-size:13.5px}
+.tk-note{margin:14px 0 0;padding:11px 14px;border-radius:14px;background:#FBEAE7;color:var(--ink);font-size:15px;font-weight:600;line-height:1.35}
+.tk-note b{display:block;font-family:var(--mark);font-weight:400;color:var(--red);font-size:15px;margin-bottom:2px}
+.tk-foot{padding:14px 20px 20px;display:grid;gap:12px}
+.tk-pay{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;font-weight:600;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+.tk-pay b{font-size:19px;color:var(--ink)}
+.tk-pay em{font-style:normal;color:var(--red);font-weight:800}
+.tk-done{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:14px;background:var(--ink);color:#fff;font-weight:800;font-size:16px;padding:14px;transition:transform .2s var(--ease),background-color .2s}
+.tk.late .tk-done{background:var(--red)}
+.tk-done:hover{transform:translateY(-1px)}
+.tk-done:active{transform:scale(.97)}
+.tk-done svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.tk.leaving{animation:tkout .42s var(--ease) forwards;pointer-events:none}
+@keyframes tkout{40%{opacity:0;transform:translateY(-18px) scale(.96)}100%{opacity:0;transform:translateY(-18px) scale(.96);flex-basis:0;margin-right:-16px}}
+@media (prefers-reduced-motion:no-preference){.tk{animation:tkin .5s var(--ease) both;animation-delay:calc(var(--i) * 60ms)}@keyframes tkin{from{opacity:0;transform:translateX(30px)}}}
+@media (max-width:640px){.tk{flex-basis:84%}.rail{gap:12px}.tk-due{font-size:30px}}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -804,7 +842,7 @@ function buildHistory(){
 let history = buildHistory();
 
 /* today's live queue: the last few orders are still being worked on */
-let live = store.get("live3", null);
+let live = store.get("live4", null);
 const todayKey = dayKey(nowNY());
 if (!live || live.day !== todayKey){
   const today = history.filter(o => dayKey(new Date(o.at)) === todayKey);
@@ -820,17 +858,16 @@ if (!live || live.day !== todayKey){
     o.at = n.getTime() - minsAgo[i] * 60000;         // keep the queue fresh whenever the demo is opened
     let k = i; while (used.has(o.name)) o.name = NAMES[(NAMES.indexOf(o.name) + ++k) % NAMES.length];
     used.add(o.name);
+    o.note = o.note || ["","","Extra catupiry please, it's for my daughter","","Ring the side door, baby sleeping","Cut in squares"][i];
   });
-  live = {day: todayKey, orders: queue.map(o => ({num:o.num, status:o.status, at:o.at, name:o.name})), extra: tail.length >= 4 ? [] : queue};
-  store.set("live3", live);
+  live = {day: todayKey, orders: queue.map(o => ({num:o.num, status:o.status, at:o.at, name:o.name, note:o.note})), extra: tail.length >= 4 ? [] : queue};
+  store.set("live4", live);
 }
 function liveOrders(){
   const all = [...history, ...live.extra];
-  return live.orders.map(s => { const o = all.find(x => x.num === s.num); if (!o) return null; Object.assign(o, {status:s.status}); if (s.at) o.at = s.at; if (s.name) o.name = s.name; return o; }).filter(Boolean);
+  return live.orders.map(s => { const o = all.find(x => x.num === s.num); if (!o) return null; Object.assign(o, {status:s.status}); if (s.at) o.at = s.at; if (s.name) o.name = s.name; if (s.note) o.note = s.note; return o; }).filter(Boolean);
 }
 const ETA = {pickup:25, delivery:35};
-
-
 
 /* ---------- greeting ---------- */
 function greet(){
@@ -864,7 +901,7 @@ let manual = store.get("manual", []);
 const allOrders = () => [...history, ...live.extra, ...manual];
 function setStatus(num, status){
   const s = live.orders.find(x => x.num === num);
-  if (s) { s.status = status; store.set("live3", live); }
+  if (s) { s.status = status; store.set("live4", live); }
   const m = manual.find(x => x.num === num);
   if (m) { m.status = status; store.set("manual", manual); }
 }
@@ -894,16 +931,49 @@ const calmMotion = matchMedia("(prefers-reduced-motion:reduce)").matches;
 /* ---------- right now: what's waiting, most urgent first ---------- */
 function renderNow(){
   const M = byId(), open = openToday().sort((a,b) => due(a) - due(b)), now = nowNY();
-  if (!open.length){ $("#nowWrap").innerHTML = `<p class="h2" style="margin-bottom:12px">Right now</p><div class="calm">Nothing waiting. New orders appear here with a ding.</div>`; return; }
-  $("#nowWrap").innerHTML = `<p class="h2" style="margin-bottom:12px">Right now</p><div class="now-list">${open.map(o => {
-    const mins = Math.round((due(o) - now) / 60000), late = mins < 0;
-    return `<div class="w${late ? " late" : ""}" data-order="${o.num}">
-      <span class="due num">${late ? -mins : Math.max(mins, 0)}<small>${late ? "min late" : mins <= 0 ? "due now" : "min left"}</small></span>
-      <span class="who2"><b>${esc(o.name)}</b><span class="k">${o.kind === "pickup" ? "Pickup" : "Delivery"}</span><span class="it">${esc(shortItems(o, M))}</span></span>
-      <span class="amt num">${money(o.sub)}</span>
-      <button class="tick" data-finish="${o.num}" aria-label="${o.kind === "pickup" ? "Picked up" : "Delivered"}">${CHECK}</button>
-    </div>`; }).join("")}</div>`;
+  const head = n => `<div class="sechead"><p class="h2">Right now${n ? ` <span class="cnt">${n}</span>` : ""}</p>${n > 1 ? `<button class="arrow" data-slide="-1" aria-label="Previous order"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button class="arrow" data-slide="1" aria-label="Next order"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>` : ""}</div>`;
+  if (!open.length){ $("#nowWrap").innerHTML = head(0) + `<div class="calm">Nothing waiting. New orders appear here with a ding.</div>`; return; }
+  const keep = $("#rail") ? $("#rail").scrollLeft : 0;
+  $("#nowWrap").innerHTML = head(open.length) + `<div class="rail" id="rail">${open.map((o, i) => {
+    const mins = Math.round((due(o) - now) / 60000), late = mins < 0, soon = !late && mins <= 5;
+    const total = o.sub * 1.07 + (o.kind === "delivery" ? 3.99 : 0), ready = clock(new Date(due(o)));
+    return `<article class="tk${late ? " late" : soon ? " soon" : ""}" data-order="${o.num}" style="--i:${i}">
+      <div class="tk-top">
+        <span class="tk-due num">${late ? -mins : Math.max(mins, 0)}<small>${late ? "min late" : mins <= 0 ? "due now" : "min left"}</small></span>
+        <span class="tk-kind">${o.kind === "pickup" ? "Pickup" : "Delivery"}<small>${o.kind === "pickup" ? "Ready" : "Due"} ${ready}</small></span>
+      </div>
+      <div class="tk-body">
+        <p class="tk-name">${esc(o.name)}</p>
+        ${o.addr ? `<p class="tk-addr">${esc(o.addr)}</p>` : ""}
+        <ul class="tk-food">${o.lines.map(l => `<li><span class="q num">${l.q}</span><span>${esc(M[l.id]?.n || l.id)}${l.picks ? `<small>${esc(l.picks.join(", "))}</small>` : ""}</span></li>`).join("")}</ul>
+        ${o.note ? `<p class="tk-note"><b>Note</b>${esc(o.note)}</p>` : ""}
+      </div>
+      <div class="tk-foot">
+        <span class="tk-pay"><b class="num">${money(total)}</b>${o.paid ? "Paid online" : `<em>Collect payment</em>`}</span>
+        <button class="tk-done" data-finish="${o.num}">${CHECK}${o.kind === "pickup" ? "Picked up" : "Delivered"}</button>
+      </div>
+    </article>`; }).join("")}</div>`;
+  $("#rail").scrollLeft = keep; railArrows();
 }
+function railArrows(){
+  const r = $("#rail"); if (!r) return;
+  const a = document.querySelectorAll("[data-slide]"); if (!a.length) return;
+  a[0].disabled = r.scrollLeft < 8; a[1].disabled = r.scrollLeft + r.clientWidth > r.scrollWidth - 8;
+  r.classList.toggle("more", r.scrollLeft + r.clientWidth < r.scrollWidth - 8);
+}
+$("#nowWrap").addEventListener("scroll", railArrows, true);
+$("#nowWrap").addEventListener("click", e => {
+  const s = e.target.closest("[data-slide]"); if (!s) return;
+  const r = $("#rail"), card = r.querySelector(".tk"); const step = card ? card.offsetWidth + 16 : 320;
+  r.scrollBy({left: +s.dataset.slide * step, behavior: calmMotion ? "auto" : "smooth"});
+});
+/* drag the cards sideways with a mouse too (fingers and trackpads already swipe) */
+(() => { let down = null, moved = false;
+  $("#nowWrap").addEventListener("pointerdown", e => { const r = e.target.closest("#rail"); if (!r || e.pointerType !== "mouse" || e.target.closest("button")) return; down = {x:e.clientX, s:r.scrollLeft, r}; moved = false; });
+  addEventListener("pointermove", e => { if (!down) return; const dx = e.clientX - down.x; if (Math.abs(dx) > 5){ moved = true; down.r.classList.add("dragging"); } if (moved) down.r.scrollLeft = down.s - dx; });
+  addEventListener("pointerup", () => { if (down) down.r.classList.remove("dragging"); down = null; });
+  $("#nowWrap").addEventListener("click", e => { if (moved){ e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+})();
 
 /* ---------- the week ---------- */
 function renderWeek(){
@@ -998,7 +1068,7 @@ $("#panel").addEventListener("click", e => {
   const st = e.target.closest("[data-step]"); if (st) { stepDay(+st.dataset.step); return; }
   const r = e.target.closest("[data-order]"); if (r) openOrder(+r.dataset.order);
 });
-$("#nowWrap").addEventListener("click", e => { if (e.target.closest("[data-finish]")) return; const r = e.target.closest("[data-order]"); if (r) openOrder(+r.dataset.order); });
+$("#nowWrap").addEventListener("click", e => { if (e.target.closest("[data-finish],[data-slide]")) return; const r = e.target.closest("[data-order]"); if (r) openOrder(+r.dataset.order); });
 setInterval(() => { if (!curDay && $("#orders").hidden === false) renderNow(); }, 30000);
 
 /* tap a row: everything about the order */
@@ -1027,8 +1097,8 @@ document.addEventListener("click", e => {
   // SYNC: tell the customer (pickup: "thanks", delivery: "it's at your door").
   toast(o.kind === "pickup" ? `${o.name.split(" ")[0]} picked up` : `${o.name.split(" ")[0]}'s order delivered`);
   closeOrder();
-  const row = document.querySelector(`.w[data-order="${o.num}"]`);
-  if (row && !calmMotion){ row.classList.add("leaving"); setTimeout(renderOrders, 360); }
+  const row = document.querySelector(`.tk[data-order="${o.num}"]`);
+  if (row && !calmMotion){ row.classList.add("leaving"); setTimeout(renderOrders, 420); }
   else renderOrders();
 });
 
@@ -1100,7 +1170,7 @@ function ding(){
 }
 $("#testOrder").addEventListener("click", () => {
   const o = makeOrder(rng(Date.now() % 100000), nowNY(), 5000 + live.extra.length + Math.floor(Math.random()*400));
-  o.status = "open"; live.extra.push(o); live.orders.push({num:o.num, status:"open"}); store.set("live3", live);
+  o.status = "open"; live.extra.push(o); live.orders.push({num:o.num, status:"open"}); store.set("live4", live);
   weekOffset = 0; renderOrders(); ding();
   toast(`New ${o.kind} order from ${o.name.split(" ")[0]}`);
 });
