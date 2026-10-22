@@ -645,6 +645,14 @@ body.chat-open .help{display:none}
   .item .thumb{width:78px;height:78px}
   .hero .actions .btn{padding:14px 22px}
 }
+
+.chat-ch button.on{background:var(--red);color:#fff}
+.chat-ch button.off{border-color:#E3D9DD;color:var(--faint);cursor:default}
+.chat-ch button.off:hover{background:#fff;color:var(--faint)}
+.chat-ch button span{pointer-events:none}
+.cm.seen{animation:none}
+.chat-in input{min-width:0}
+@media (max-width:600px){.chat{height:100dvh}.chat-ch{max-height:38dvh}}
 </style>
 </head>
 <body>
@@ -820,7 +828,7 @@ body.chat-open .help{display:none}
   <div class="chat-body" id="chatBody" aria-live="polite"></div>
   <div class="chat-ch" id="chatChoices"></div>
   <form class="chat-in" id="chatForm" autocomplete="off">
-    <input id="chatText" placeholder="Type a message" aria-label="Message">
+    <input id="chatText" placeholder="Type a message" aria-label="Message" maxlength="500" enterkeyhint="send">
     <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l16-8-6 16-2.5-6.5z"/></svg></button>
   </form>
 </section>
@@ -1562,118 +1570,249 @@ renderAgain();
 
 /* ============================================================
    CHAT: tap-to-answer ordering, questions go straight to the shop
+   SYNC: messages and chat orders live in this browser's storage so the dashboard (same site)
+   sees them instantly. In production swap chatLoad/chatSave for a real-time backend.
    ============================================================ */
 const CHAT_KEY = "bella-chat-v1";
-const chatLoad = () => { try { return JSON.parse(localStorage.getItem(CHAT_KEY)) || {threads:[]}; } catch(e){ return {threads:[]}; } };
-const chatSave = d => { try { localStorage.setItem(CHAT_KEY, JSON.stringify(d)); } catch(e){} };
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
+const chatLoad = () => { const d = lsGet(CHAT_KEY, null); return d && Array.isArray(d.threads) ? d : {threads:[]}; };
+const chatSave = d => lsSet(CHAT_KEY, d);
 let chatMe = null; try { chatMe = localStorage.getItem("bella-chat-me"); } catch(e){}
 if (!chatMe){ chatMe = "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); try { localStorage.setItem("bella-chat-me", chatMe); } catch(e){} }
-let F = {step:"start", cart:[], kind:"pickup"}, chatPending = null, chatAcked = false;
-try { const f = JSON.parse(localStorage.getItem("bella-chat-flow")); if (f) F = f; } catch(e){}
-const saveFlow = () => { try { localStorage.setItem("bella-chat-flow", JSON.stringify(F)); } catch(e){} };
+const FRESH = () => ({step:"start", cart:[], kind:"pickup", acked:false, name:"", phone:"", addr:""});
+let F = Object.assign(FRESH(), lsGet("bella-chat-flow", {}));
+if (!Array.isArray(F.cart)) F.cart = [];
+F.cart = F.cart.filter(l => ITEMS[l.id]);
+let chatPending = false, chatTimer = null, flavorSel = [];
+const saveFlow = () => lsSet("bella-chat-flow", F);
 const myThread = () => chatLoad().threads.find(t => t.id === chatMe);
+/* a flow saved from an older visit that no longer has a conversation behind it starts over cleanly */
+if (!myThread() && F.step !== "start"){ const keep = {name:F.name, phone:F.phone, addr:F.addr}; F = Object.assign(FRESH(), keep); saveFlow(); }
 const GREET = "Oi! Welcome to Bella. Tap an answer below or just type.\nWhat can we help with?";
 function chatPush(from, text, extra){
   const d = chatLoad(); let t = d.threads.find(x => x.id === chatMe);
-  if (!t){ t = {id:chatMe, name:"", phone:"", started:Date.now(), msgs:[{from:"bot", text:GREET, at:Date.now()}], unreadOwner:0, unreadGuest:0}; d.threads.unshift(t); }
+  if (!t){ t = {id:chatMe, name:F.name || "", phone:F.phone || "", started:Date.now(), msgs:[{from:"bot", text:GREET, at:Date.now()}], unreadOwner:0, unreadGuest:0}; d.threads.unshift(t); }
   t.msgs.push({from, text, at:Date.now(), ...(extra || {})});
   if (from === "guest" && !(extra && extra.tap)) t.unreadOwner = (t.unreadOwner || 0) + 1;
   t.updated = Date.now(); d.threads.sort((a, b) => (b.updated || 0) - (a.updated || 0));
   chatSave(d);
 }
 function chatPatch(fields){ const d = chatLoad(), t = d.threads.find(x => x.id === chatMe); if (t){ Object.assign(t, fields); chatSave(d); } }
-const CATS_CHAT = () => MENU.map(c => [c.id, c.name]);
+/* the dashboard can mark dishes sold out and pause online orders; chat respects both */
+const soldOut = () => { const m = lsGet("bella-dash-menu", null); return new Set(Array.isArray(m) ? m.filter(i => i && i.on === false).map(i => i.id) : []); };
+const takingOrders = () => lsGet("bella-dash-taking", true) !== false;
+const POPULAR_CHAT = ["catupiry", "calabresa", "nordestina", "house", "esf6", "pepperoni"];
+const short = n => n.replace(/ Pizza$/, "");
 const cartText = () => F.cart.map(l => `${l.q} × ${ITEMS[l.id].n}${l.picks ? ` (${l.picks.join(", ")})` : ""}`).join("\n");
 const cartSub = () => F.cart.reduce((x, l) => x + l.q * ITEMS[l.id].p, 0);
+const cartCount = () => F.cart.reduce((x, l) => x + l.q, 0);
+const fmtPhone = p => { const d = p.replace(/\D/g, "").replace(/^1(?=\d{10}$)/, ""); return d.length === 10 ? `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}` : p; };
+const titleCase = t => t.trim().replace(/\s+/g, " ").split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+/* when the kitchen is closed, chat orders are scheduled for opening time */
+function readyAt(kind){
+  const n = nowNY(), mins = kind === "pickup" ? 25 : 35;
+  if (isOpen()) return {at:n, ready:new Date(n.getTime() + mins * 60000), later:false};
+  const o = new Date(n); o.setHours(SETTINGS.openHour, SETTINGS.openMin, 0, 0);
+  if (o <= n) o.setDate(o.getDate() + 1);
+  return {at:o, ready:new Date(o.getTime() + mins * 60000), later:true, day:o.getDate() !== n.getDate() ? "tomorrow" : "today"};
+}
+function dishChoices(ids){
+  const so = soldOut();
+  return ids.filter(id => ITEMS[id]).map(id => so.has(id) ? null : ["dish:" + id, short(ITEMS[id].n), "", money(ITEMS[id].p)]).filter(Boolean);
+}
 function choicesFor(step){
-  const back = ["__back", "Back", "ghost"];
+  const home = ["__home", "Start over", "ghost"];
   switch (step){
     case "start": return [["order","Order food"],["ask","Ask a question"],["allergy","Allergies"],["big","Big order or catering"],["person","Talk to a person"]];
-    case "cat": return [...CATS_CHAT().map(([id, n]) => ["cat:" + id, n]), ...(F.cart.length ? [["__review","See my order","ghost"]] : []), ["__home","Start over","ghost"]];
-    case "dish": { const c = MENU.find(x => x.id === F.cat); return [...c.items.map(i => ["dish:" + i.id, i.n.replace(/ Pizza$/, ""), "", money(i.p)]), ["__cats","Back","ghost"]]; }
-    case "flavor": return [...ITEMS[F.dish].opts.choices.map(c => ["fl:" + c, c]), ["fl:Mix of everything","Mix of everything"]];
-    case "qty": return [["q:1","1"],["q:2","2"],["q:3","3"],["q:4","4"]];
-    case "more": return [["__cats","Add something else"],["__kind","That's everything"]];
-    case "kind": return [["k:pickup","Pickup","",`ready in ~${SETTINGS.pickupMins || 25} min`],["k:delivery","Delivery","",`+${money(SETTINGS.deliveryFee)}`]];
-    case "notes": return [["n:","No notes"],["n:Extra napkins please","Extra napkins"],["n:Cut in squares","Cut in squares"]];
-    case "confirm": return [["__place","Place order"],["__cats","Add more"],["__home","Start over","ghost"]];
+    case "cat": return [["cat:__pop","Most popular"], ...MENU.map(c => ["cat:" + c.id, c.name]), ...(F.cart.length ? [["__kind",`Done, check out (${cartCount()})`,"ghost"]] : []), home];
+    case "dish": {
+      const ids = F.cat === "__pop" ? POPULAR_CHAT : F.cat === "__match" ? (F.matches || []) : (MENU.find(x => x.id === F.cat)?.items || []).map(i => i.id);
+      return [...dishChoices(ids), ["__cats","Back","ghost"]];
+    }
+    case "flavor": { const o = ITEMS[F.dish]?.opts; if (!o) return [home];
+      return [...o.choices.map(c => ["fl:" + c, (flavorSel.includes(c) ? "✓ " : "") + c, flavorSel.includes(c) ? "on" : ""]), ["__fldone", flavorSel.length >= o.min ? `Done (${flavorSel.length})` : `Pick ${o.min - flavorSel.length} more`, flavorSel.length >= o.min ? "" : "off"], ["__cats","Back","ghost"]]; }
+    case "qty": return [["q:1","1"],["q:2","2"],["q:3","3"],["q:4","4"],["q:5","5"],["__cats","Back","ghost"]];
+    case "more": return [["__cats","Add something else"],["__kind","That's everything"],["__edit","Change something","ghost"]];
+    case "kind": return [["k:pickup","Pickup","",`~25 min`],["k:delivery","Delivery","",`+${money(SETTINGS.deliveryFee)}`],["__cats","Add more food","ghost"]];
+    case "addr": return F.addr ? [["a:same", "Same as last time", "", F.addr], home] : [home];
+    case "name": case "phone": return [home];
+    case "me": return [["__keepme", "Yes, that's me"], ["__newme", "Change my details", "ghost"]];
+    case "notes": return [["n:","No notes"],["n:Extra napkins please","Extra napkins"],["n:Cut in squares","Cut in squares"],["n:Well done crust","Well done"]];
+    case "confirm": return [["__place","Place order"],["__edit","Change something"],["__cats","Add more","ghost"],home];
+    case "edit": return [...F.cart.map((l, k) => ["rm:" + k, `Remove ${l.q} × ${short(ITEMS[l.id].n)}`]), ...(F.cart.length ? [["__kind","Looks good now"]] : []), ["__cats","Add food","ghost"]];
     case "done": return [["order","Order something else"],["ask","Ask a question"]];
     case "allergy": return [["al:Gluten","Gluten"],["al:Dairy","Dairy"],["al:Nuts","Nuts"],["al:Eggs","Eggs"],["al:Something else","Something else"]];
+    case "free": return [["__home","Order food instead","ghost"]];
     default: return [];
   }
 }
 function renderChat(){
-  const t = myThread(), body = $("#chatBody");
+  const t = myThread(), body = $("#chatBody"), atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 80;
   const msgs = t ? t.msgs : [{from:"bot", text:GREET}];
-  body.innerHTML = msgs.map(m => `<div class="cm ${m.from}${m.sum ? " sum" : ""}">${m.from === "bella" ? `<span class="who">Bella Pizzeria</span>` : ""}${esc(m.text)}</div>`).join("") + (chatPending ? `<div class="typing"><i></i><i></i><i></i></div>` : "");
-  $("#chatChoices").innerHTML = chatPending ? "" : choicesFor(F.step).map(([v, l, cls, sub]) => `<button type="button" data-cv="${esc(v)}" class="${cls || ""}">${esc(l)}${sub ? `<small>${esc(sub)}</small>` : ""}</button>`).join("");
-  const ph = {addr:"Type your street address", name:"Type your first name", phone:"Type your phone number", free:"Type your message", notes:"Or type a note"}[F.step];
+  const prev = +(body.dataset.n || 0);
+  body.innerHTML = msgs.map((m, k) => `<div class="cm ${m.from}${m.sum ? " sum" : ""}${k < prev ? " seen" : ""}">${m.from === "bella" ? `<span class="who">Bella Pizzeria</span>` : ""}${esc(m.text)}</div>`).join("") + (chatPending ? `<div class="typing" aria-label="Bella is typing"><i></i><i></i><i></i></div>` : "");
+  body.dataset.n = msgs.length;
+  $("#chatChoices").innerHTML = chatPending ? "" : choicesFor(F.step).map(([v, l, cls, sub]) => `<button type="button" data-cv="${esc(v)}" class="${cls || ""}"${cls === "off" ? " aria-disabled=\"true\"" : ""}><span>${esc(l)}</span>${sub ? `<small>${esc(sub)}</small>` : ""}</button>`).join("");
+  const ph = {addr:"Type your street address", name:"Type your name", phone:"Type your phone number", free:"Type your message", notes:"Or type a note", qty:"Or type a number", cat:"Or type a dish, like catupiry", dish:"Or type a dish name"}[F.step];
   $("#chatText").placeholder = ph || "Type a message";
-  body.scrollTop = body.scrollHeight;
-  if (t && t.unreadGuest && !$("#chat").hidden) chatPatch({unreadGuest:0});
-  $("#helpDot").hidden = !(t && t.unreadGuest);
+  $("#chatText").inputMode = F.step === "phone" || F.step === "qty" ? (F.step === "phone" ? "tel" : "numeric") : "text";
+  if (atBottom || msgs.length !== prev || chatPending) body.scrollTop = body.scrollHeight;
+  const open = !$("#chat").hidden;
+  if (t && t.unreadGuest && open) chatPatch({unreadGuest:0});
+  $("#helpDot").hidden = !(t && t.unreadGuest && !open);
 }
 /* the bot "types" for a beat so it feels like a conversation, not a form */
 function bot(text, step, extra){
   chatPending = true; renderChat();
-  setTimeout(() => { chatPending = null; F.step = step; saveFlow(); chatPush("bot", text, extra); renderChat(); }, 520);
+  clearTimeout(chatTimer);
+  chatTimer = setTimeout(() => { chatPending = false; F.step = step; saveFlow(); chatPush("bot", text, extra); renderChat(); }, 480);
+}
+const askCats = (lead) => bot(`${lead ? lead + "\n" : ""}What are you in the mood for?`, "cat");
+function goCheckout(){
+  if (!F.cart.length){ askCats("Your order is empty."); return; }
+  bot(`So far:\n${cartText()}\n${money(cartSub())}\n\nPickup or delivery?`, "kind");
+}
+function afterKind(){
+  if (F.kind === "delivery"){ bot(F.addr ? `Deliver to ${F.addr}?` : "What's the street address?", "addr"); return; }
+  askWho();
+}
+function askWho(){
+  if (F.name && F.phone){ bot(`Is this still you?\n${F.name}, ${F.phone}`, "me"); return; }
+  bot("What's your name?", "name");
+}
+function pickDish(id){
+  const it = ITEMS[id]; if (!it){ askCats(); return; }
+  if (soldOut().has(id)){ bot(`Sorry, ${it.n} is sold out right now. Want something else?`, "cat"); return; }
+  F.dish = id; flavorSel = [];
+  if (it.opts){ bot(`${it.n}, ${money(it.p)}.\n${it.opts.q}.`, "flavor"); return; }
+  bot(`${it.n}, ${money(it.p)}.${it.x ? "\n" + it.x : ""}\nHow many?`, "qty");
+}
+function addToCart(q){
+  if (!F.dish || !ITEMS[F.dish]){ askCats(); return; }
+  q = Math.max(1, Math.min(20, q | 0));
+  const picks = F.picks && F.picks.length ? F.picks : null;
+  const same = F.cart.find(l => l.id === F.dish && JSON.stringify(l.picks || null) === JSON.stringify(picks));
+  if (same) same.q += q; else F.cart.push({id:F.dish, q, ...(picks ? {picks} : {})});
+  F.picks = null;
+  bot(`Added ${q} × ${ITEMS[F.dish].n}.\n\nSo far:\n${cartText()}\n${money(cartSub())}\n\nAnything else?`, "more");
 }
 function chatAnswer(v, label){
-  if (v.startsWith("__") || /^(order|ask|allergy|big|person)$/.test(v) || v.includes(":")) chatPush("guest", label, {tap:true});
-  if (v === "order" || v === "__cats"){ if (v === "order") F.cart = []; bot("What are you in the mood for?", "cat"); return; }
-  if (v === "__home"){ F = {step:"start", cart:[], kind:"pickup"}; bot("No problem. What can we help with?", "start"); return; }
-  if (v === "__back"){ bot("What are you in the mood for?", "cat"); return; }
-  if (v.startsWith("cat:")){ F.cat = v.slice(4); const c = MENU.find(x => x.id === F.cat); bot(`${c.name}. Which one?${c.note ? "\n" + c.note : ""}`, "dish"); return; }
-  if (v.startsWith("dish:")){ F.dish = v.slice(5); const it = ITEMS[F.dish]; if (it.opts){ bot(`${it.n}. Which flavor?`, "flavor"); } else bot(`${it.n}, ${money(it.p)}.${it.x ? "\n" + it.x : ""}\nHow many?`, "qty"); return; }
-  if (v.startsWith("fl:")){ F.picks = [v.slice(3)]; bot("How many?", "qty"); return; }
-  if (v.startsWith("q:")){ const q = +v.slice(2); F.cart.push({id:F.dish, q, ...(F.picks ? {picks:F.picks} : {})}); F.picks = null;
-    bot(`Added ${q} × ${ITEMS[F.dish].n}.\n\nSo far:\n${cartText()}\n${money(cartSub())}\n\nAnything else?`, "more"); return; }
-  if (v === "__kind" || v === "__review"){ bot("Pickup or delivery?", "kind"); return; }
-  if (v.startsWith("k:")){ F.kind = v.slice(2); if (F.kind === "delivery") bot("What's the address?", "addr"); else bot("Great. What's your first name?", "name"); return; }
+  if (v === "__fldone"){
+    const o = ITEMS[F.dish]?.opts; if (!o || flavorSel.length < o.min) return;
+    chatPush("guest", flavorSel.join(", "), {tap:true}); F.picks = flavorSel.slice(); flavorSel = []; bot("How many?", "qty"); return;
+  }
+  if (v.startsWith("fl:")){ /* flavors toggle in place, no message until Done */
+    const c = v.slice(3), o = ITEMS[F.dish]?.opts; if (!o) return;
+    if (flavorSel.includes(c)) flavorSel = flavorSel.filter(x => x !== c); else if (flavorSel.length < o.max) flavorSel.push(c); else { flavorSel.shift(); flavorSel.push(c); }
+    renderChat(); return;
+  }
+  chatPush("guest", label, {tap:true});
+  if (v === "order"){
+    if (!takingOrders()){ bot("We've paused online orders for a little while. Call us at (781) 970-8515 and we'll take it by phone, or ask us anything here.", "start"); return; }
+    F.cart = []; askCats(); return;
+  }
+  if (v === "__cats"){ askCats(); return; }
+  if (v === "__home"){ const keep = {name:F.name, phone:F.phone, addr:F.addr, acked:F.acked}; F = Object.assign(FRESH(), keep); bot("No problem. What can we help with?", "start"); return; }
+  if (v.startsWith("cat:")){
+    F.cat = v.slice(4);
+    if (F.cat === "__pop"){ bot("Our most ordered dishes:", "dish"); return; }
+    const c = MENU.find(x => x.id === F.cat); if (!c){ askCats(); return; }
+    bot(`${c.name}. Which one?${c.note ? "\n" + c.note : ""}`, "dish"); return;
+  }
+  if (v.startsWith("dish:")){ pickDish(v.slice(5)); return; }
+  if (v.startsWith("q:")){ addToCart(+v.slice(2)); return; }
+  if (v === "__kind"){ goCheckout(); return; }
+  if (v === "__edit"){ bot(F.cart.length ? "What should we change?" : "Your order is empty.", F.cart.length ? "edit" : "cat"); return; }
+  if (v.startsWith("rm:")){
+    const k = +v.slice(3), l = F.cart[k]; if (l){ F.cart.splice(k, 1); }
+    if (!F.cart.length){ askCats("Removed. Your order is empty now."); return; }
+    bot(`Removed.\n\nSo far:\n${cartText()}\n${money(cartSub())}`, "edit"); return;
+  }
+  if (v.startsWith("k:")){ F.kind = v.slice(2); afterKind(); return; }
+  if (v === "a:same"){ askWho(); return; }
+  if (v === "__keepme"){ bot("Any notes for the kitchen?", "notes"); return; }
+  if (v === "__newme"){ F.name = ""; F.phone = ""; bot("What's your name?", "name"); return; }
   if (v.startsWith("n:")){ F.note = v.slice(2); summary(); return; }
   if (v === "__place"){ placeChatOrder(); return; }
   if (v === "ask"){ F.mode = "ask"; bot("Sure. Type your question and someone at Bella will answer right here.", "free"); return; }
-  if (v === "big"){ F.mode = "big"; bot("Love it. Tell us how many people, the day and time, and what you're thinking. We'll reply here with a price.", "free"); return; }
+  if (v === "big"){ F.mode = "big"; chatPatch({tag:"Big order"}); bot("Love it. Tell us how many people, the day and time, and what you're thinking. We'll reply here with a price.", "free"); return; }
   if (v === "person"){ F.mode = "person"; bot(`Okay! Type your message and a real person will reply here.${isOpen() ? "" : "\nWe're closed right now, so it'll be when we open at 11 am."}`, "free"); return; }
   if (v === "allergy"){ bot("Which allergy should we know about?", "allergy"); return; }
-  if (v.startsWith("al:")){ F.mode = "allergy"; chatPatch({tag:"Allergy: " + v.slice(3)}); bot("Thanks for telling us. Type what you'd like to order and we'll check every ingredient with the kitchen before we make it.", "free"); return; }
-  if (v === "done"){ bot("What else can we do?", "start"); }
+  if (v.startsWith("al:")){ F.mode = "allergy"; F.allergy = v.slice(3); chatPatch({tag:"Allergy: " + v.slice(3)}); bot("Thanks for telling us. Type what you'd like to order and we'll check every ingredient with the kitchen before we make it.", "free"); return; }
 }
 function summary(){
-  const fee = F.kind === "delivery" ? SETTINGS.deliveryFee : 0, sub = cartSub(), tax = sub * SETTINGS.taxRate;
-  bot(`Here's your order:\n${cartText()}\n\nSubtotal ${money(sub)}\nTax ${money(tax)}${fee ? `\nDelivery ${money(fee)}` : ""}\nTotal ${money(sub + tax + fee)}\n\n${F.kind === "pickup" ? "Pickup" : "Delivery to " + F.addr} for ${F.name}${F.note ? `\nNote: ${F.note}` : ""}\nYou pay when you ${F.kind === "pickup" ? "pick up" : "get it"}.`, "confirm", {sum:true});
+  const fee = F.kind === "delivery" ? SETTINGS.deliveryFee : 0, sub = cartSub(), tax = sub * SETTINGS.taxRate, r = readyAt(F.kind);
+  bot(`Here's your order:\n${cartText()}\n\nSubtotal ${money(sub)}\nTax ${money(tax)}${fee ? `\nDelivery ${money(fee)}` : ""}\nTotal ${money(sub + tax + fee)}\n\n${F.kind === "pickup" ? "Pickup" : "Delivery to " + F.addr} for ${F.name}, ${F.phone}${F.note ? `\nNote: ${F.note}` : ""}${F.allergy ? `\nAllergy: ${F.allergy}` : ""}\n${r.later ? `We're closed now, so it'll be ready at ${clock(r.ready)} ${r.day}.` : `Ready around ${clock(r.ready)}.`}\nYou pay when you ${F.kind === "pickup" ? "pick up" : "get it"}.`, "confirm", {sum:true});
 }
 function placeChatOrder(){
-  const num = 6000 + Math.floor(Math.random() * 900), now = new Date(), mins = F.kind === "pickup" ? 25 : 35;
-  const o = {num, at:now.getTime(), kind:F.kind, lines:F.cart.map(l => ({id:l.id, q:l.q, ...(l.picks ? {picks:l.picks} : {})})), sub:cartSub(), name:F.name, phone:F.phone, addr:F.kind === "delivery" ? F.addr : "", note:F.note || "", paid:false, status:"open", via:"chat"};
-  try { const k = "bella-dash-manual", m = JSON.parse(localStorage.getItem(k)) || []; m.push(o); localStorage.setItem(k, JSON.stringify(m)); } catch(e){}
+  if (!F.cart.length){ askCats("Your order is empty."); return; }
+  if (!F.name || !F.phone){ askWho(); return; }
+  if (!takingOrders()){ bot("Sorry, we just paused online orders. Call us at (781) 970-8515 and we'll take it by phone.", "start"); return; }
+  const r = readyAt(F.kind), num = 6000 + Math.floor(Math.random() * 3000);
+  const note = [F.note, F.allergy ? `Allergy: ${F.allergy}` : ""].filter(Boolean).join(". ");
+  const o = {num, at:r.at.getTime(), kind:F.kind, lines:F.cart.map(l => ({id:l.id, q:l.q, ...(l.picks ? {picks:l.picks} : {})})), sub:cartSub(), name:F.name, phone:F.phone, addr:F.kind === "delivery" ? F.addr : "", note, paid:false, status:"open", via:"chat", thread:chatMe, ...(r.later ? {scheduled:true} : {})};
+  const m = lsGet("bella-dash-manual", []); m.push(o); lsSet("bella-dash-manual", m);
   /* SYNC: send o to the order system / POS here */
   const tt = myThread(); chatPatch({name:F.name, phone:F.phone, orderNum:num, unreadOwner:((tt && tt.unreadOwner) || 0) + 1});
-  const ready = clock(new Date(now.getTime() + mins * 60000));
-  F.cart = []; F.note = "";
-  bot(`Order #${num} is in! It'll be ${F.kind === "pickup" ? "ready" : "at your door"} around ${ready}.\nWe'll message you here if anything changes. Obrigado!`, "done");
+  F.cart = []; F.note = ""; F.allergy = "";
+  const when = r.later ? `ready at ${clock(r.ready)} ${r.day}, right after we open` : `${o.kind === "pickup" ? "ready" : "at your door"} around ${clock(r.ready)}`;
+  bot(`Order #${num} is in! It'll be ${when}.\n${o.kind === "pickup" ? "Pickup is at 143 Highland St." : "We'll call if the driver can't find you."}\nWe'll message you here if anything changes. Obrigado!`, "done");
+}
+/* typing works at every step: answers when we asked something, dish names find dishes, anything else goes to the shop */
+function findDishes(text){
+  const words = fold(text).split(/\s+/).filter(w => w.length > 2 && !/^(the|and|with|pizza|one|two|want|like|can|get|please|order|some|have)$/.test(w));
+  if (!words.length) return {list:[], oneName:false};
+  const so = soldOut();
+  const all = Object.keys(ITEMS).filter(id => !so.has(id) && words.every(w => INDEX[id].includes(w)));
+  /* names win: "catupiry" means the catupiry pizza, not every dish that has some on it */
+  const byName = all.filter(id => words.every(w => fold(ITEMS[id].n).includes(w)));
+  return {list:[...byName, ...all.filter(id => !byName.includes(id))].slice(0, 8), oneName:byName.length === 1};
 }
 function chatTyped(text){
   const st = F.step; chatPush("guest", text);
-  if (st === "addr"){ F.addr = text; bot("Got it. What's your first name?", "name"); return; }
-  if (st === "name"){ F.name = text.replace(/^\w/, c => c.toUpperCase()); chatPatch({name:F.name}); bot(`Nice to meet you, ${F.name}! What's your phone number? We'll only use it about this order.`, "phone"); return; }
-  if (st === "phone"){ if ((text.match(/\d/g) || []).length < 10){ bot("Hmm, that doesn't look like a full number. Can you send all 10 digits?", "phone"); return; } F.phone = text; chatPatch({phone:text}); bot("Any notes for the kitchen?", "notes"); return; }
-  if (st === "notes"){ F.note = text; summary(); return; }
-  if (!chatAcked){ chatAcked = true; bot(isOpen() ? "Got it! Someone from Bella will reply here in a few minutes." : "Got it! We're closed now, so we'll reply here when we open at 11 am.", st === "start" ? "start" : st); }
+  if (st === "addr"){ if (text.trim().length < 5){ bot("Can you send the full street address?", "addr"); return; } F.addr = text.trim(); askWho(); return; }
+  if (st === "name"){ F.name = titleCase(text).slice(0, 40); chatPatch({name:F.name}); bot(`Nice to meet you, ${F.name.split(" ")[0]}! What's your phone number? We only use it for this order.`, "phone"); return; }
+  if (st === "phone"){ const d = text.replace(/\D/g, ""); if (d.length < 10 || d.length > 11){ bot("Hmm, that doesn't look like a full number. Can you send all 10 digits?", "phone"); return; } F.phone = fmtPhone(text); chatPatch({phone:F.phone}); bot("Any notes for the kitchen?", "notes"); return; }
+  if (st === "notes"){ F.note = text.trim(); summary(); return; }
+  if (st === "qty" && /^\s*\d{1,2}\s*$/.test(text) && +text > 0){ addToCart(+text); return; }
+  if (["start", "cat", "dish", "more", "done"].includes(st)){
+    const fd = findDishes(text), hits = fd.list;
+    if (hits.length === 1 || fd.oneName){ if (!takingOrders()){ bot("We've paused online orders for a little while. Call us at (781) 970-8515 and we'll take it by phone.", "start"); return; } pickDish(hits[0]); return; }
+    if (hits.length > 1){ F.cat = "__match"; F.matches = hits; bot("Did you mean one of these?", "dish"); return; }
+  }
+  if (!F.acked){ F.acked = true; saveFlow(); bot(isOpen() ? "Got it! Someone from Bella will reply here in a few minutes." : "Got it! We're closed now, so we'll reply here when we open at 11 am.", st); return; }
+  saveFlow(); renderChat();
 }
+let lockY = 0;
 function openChat(){
   setHelp(false); $("#chat").hidden = false; document.body.classList.add("chat-open");
+  if (matchMedia("(max-width:600px)").matches){ lockY = scrollY; document.body.style.cssText += `;position:fixed;top:-${lockY}px;left:0;right:0`; }
   const st = $("#chatStatus"); st.classList.toggle("off", !isOpen()); st.lastChild.textContent = isOpen() ? "Usually replies in a few minutes" : "Closed now. We reply at 11 am";
-  renderChat(); if (matchMedia("(pointer:fine)").matches) $("#chatText").focus();
+  $("#chatBody").dataset.n = 0; renderChat();
+  if (matchMedia("(pointer:fine)").matches) $("#chatText").focus();
 }
-function closeChat(){ $("#chat").hidden = true; document.body.classList.remove("chat-open"); }
+function closeChat(){
+  $("#chat").hidden = true; document.body.classList.remove("chat-open");
+  if (document.body.style.position === "fixed"){ document.body.style.position = ""; document.body.style.top = ""; document.body.style.left = ""; document.body.style.right = ""; scrollTo({top:lockY, behavior:"instant"}); }
+  renderChat();
+}
 $("#chatGo").addEventListener("click", openChat);
 $("#chatX").addEventListener("click", closeChat);
-$("#chatChoices").addEventListener("click", e => { const b = e.target.closest("[data-cv]"); if (b && !chatPending) chatAnswer(b.dataset.cv, b.firstChild.textContent); });
-$("#chatForm").addEventListener("submit", e => { e.preventDefault(); const v = $("#chatText").value.trim(); if (!v || chatPending) return; $("#chatText").value = ""; chatTyped(v); renderChat(); });
+$("#chatChoices").addEventListener("click", e => {
+  const b = e.target.closest("[data-cv]"); if (!b || chatPending || b.getAttribute("aria-disabled") === "true") return;
+  chatAnswer(b.dataset.cv, b.querySelector("span").textContent.replace(/^✓ /, ""));
+});
+$("#chatForm").addEventListener("submit", e => { e.preventDefault(); const v = $("#chatText").value.trim(); if (!v || chatPending) return; $("#chatText").value = ""; chatTyped(v.slice(0, 500)); });
 document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#chat").hidden) closeChat(); });
-/* replies from the shop show up live */
-addEventListener("storage", e => { if (e.key === CHAT_KEY) renderChat(); });
+/* replies from the shop show up live; a little toast if the chat is closed */
+addEventListener("storage", e => {
+  if (e.key !== CHAT_KEY) return;
+  const t = myThread(), was = +($("#chatBody").dataset.n || 0);
+  renderChat();
+  const last = t && t.msgs[t.msgs.length - 1];
+  if (last && last.from === "bella" && $("#chat").hidden && t.msgs.length > was) toast("Bella replied. Tap the chat button to read it.");
+});
 renderChat();
 
 /* ---------- phone polish ---------- */

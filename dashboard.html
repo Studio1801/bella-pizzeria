@@ -828,6 +828,12 @@ section#chat{max-width:none}
   .tk-kind{grid-column:1/-1;justify-self:start;order:-1}
 }
 @supports not (height:100dvh){@media (max-width:640px){.cx{height:calc(100vh - 230px)}#chat.thread-open .cx{height:calc(100vh - 180px)}}}
+
+.ring .num.sm{font-size:15px;letter-spacing:-.3px}
+.tk-who > div{flex:1;min-width:0}
+.tk-chat{margin-left:0;border:0;cursor:pointer;padding:0}
+.cx-ord{border:0;font:inherit;font-size:11.5px;font-weight:800;padding:3px 8px;border-radius:999px;background:var(--ink);color:#fff;cursor:pointer}
+.cx-hm em{font-style:normal;font-size:12.5px;color:var(--muted);font-weight:600}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -1578,6 +1584,7 @@ const ICON = {
   pickup:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>`,
   delivery:`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6.5" cy="17" r="2.5"/><circle cx="17.5" cy="17" r="2.5"/><path d="M9 17h6l-2-7h-3M15 10h3l2.5 5M4 11h5"/></svg>`,
   phone:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5h3l1.5 4-2 1.3a11 11 0 0 0 6.1 6.1l1.3-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z"/></svg>`,
+  chat:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5C4 4.7 4.7 4 5.5 4h13c.8 0 1.5.7 1.5 1.5V15c0 .8-.7 1.5-1.5 1.5H9.5L5 20v-3.5h-.5C3.7 16.5 4 15.8 4 15z"/></svg>`,
   pin:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>`,
 };
 const RING = 2 * Math.PI * 25;
@@ -1589,20 +1596,20 @@ function renderNow(){
   const keep = $("#rail") ? $("#rail").scrollLeft : 0, first = !seenNums;
   let k = 0;
   $("#nowWrap").innerHTML = head(open.length) + `<div class="rail" id="rail">${open.map((o, i) => {
-    const left = Math.round((due(o) - now) / 60000), late = left < 0, soon = !late && left <= 5;
+    const left = Math.round((due(o) - now) / 60000), late = left < 0, soon = !late && left <= 5, later = left > 90;
     const spent = Math.min(1, Math.max(0, (now - o.at) / (ETA[o.kind] * 60000)));
     const total = o.sub * 1.07 + (o.kind === "delivery" ? 3.99 : 0), when = clock(new Date(due(o)));
     const fresh = first || !seenNums.has(o.num);
     return `<article class="tk${late ? " late" : soon ? " soon" : ""}${fresh ? " fresh" : ""}" data-order="${o.num}" style="--i:${fresh ? k++ : 0}">
       <div class="tk-top">
         <div class="ring"><svg viewBox="0 0 60 60" aria-hidden="true"><circle class="trk" cx="30" cy="30" r="25"/><circle class="bar" cx="30" cy="30" r="25" style="--off:${(RING * (1 - spent)).toFixed(1)}"/></svg>
-          <span class="num">${late ? "+" + -left : Math.max(left, 0)}</span></div>
-        <div class="tk-when"><b>${late ? "Late" : left <= 0 ? "Due now" : "min left"}</b><span>${o.kind === "pickup" ? "Ready" : "Due"} ${when}</span></div>
+          <span class="num${later ? " sm" : ""}">${later ? when.replace(/\s?[ap]m/, "") : late ? "+" + -left : Math.max(left, 0)}</span></div>
+        <div class="tk-when"><b>${later ? "Scheduled" : late ? "Late" : left <= 0 ? "Due now" : "min left"}</b><span>${o.kind === "pickup" ? "Ready" : "Due"} ${when}</span></div>
         <span class="tk-kind">${ICON[o.kind]}${o.kind === "pickup" ? "Pickup" : "Delivery"}</span>
       </div>
       <div class="tk-body">
         <div class="tk-who"><div><p class="tk-name">${esc(o.name)}</p><p class="tk-num">#${o.num}${o.via === "chat" ? ` <span class="via">via chat</span>` : ""}</p></div>
-          ${o.phone ? `<a class="tk-call" href="tel:${o.phone.replace(/\D/g,"")}" aria-label="Call ${esc(o.name)}" data-nogo>${ICON.phone}</a>` : ""}</div>
+          ${o.phone ? `<a class="tk-call" href="tel:${o.phone.replace(/\D/g,"")}" aria-label="Call ${esc(o.name)}" data-nogo>${ICON.phone}</a>` : ""}${o.thread ? `<button class="tk-call tk-chat" data-openchat="${esc(o.thread)}" aria-label="Open chat with ${esc(o.name)}" data-nogo>${ICON.chat}</button>` : ""}</div>
         ${o.addr ? `<p class="tk-addr">${ICON.pin}${esc(o.addr)}</p>` : ""}
         <ul class="tk-food">${o.lines.map(l => `<li><span class="q num">${l.q}×</span><span>${esc((M[l.id]?.n || l.id).replace(/ Pizza$/, ""))}${l.picks ? `<small>${esc(l.picks.join(", "))}</small>` : ""}</span></li>`).join("")}</ul>
         ${o.note ? `<p class="tk-note"><b>Note</b>${esc(o.note)}</p>` : ""}
@@ -2187,19 +2194,20 @@ function renderChat(){
   const t = ts.find(x => x.id === chatSel);
   if (!t){ $("#cxThread").innerHTML = `<div class="cx-none"><p>Pick a conversation</p></div>`; return; }
   if (t.unreadOwner){ const dd = chatLoad(), tt = dd.threads.find(x => x.id === t.id); tt.unreadOwner = 0; chatSave(dd); t.unreadOwner = 0; renderChatBadge(); }
-  const box = $("#cxThread"), keepDraft = $("#cxText") ? $("#cxText").value : "";
+  const box = $("#cxThread"), keepDraft = $("#cxText") ? $("#cxText").value : "", hadFocus = document.activeElement && document.activeElement.id === "cxText", caret = hadFocus ? $("#cxText").selectionStart : 0, oldMs = $("#cxMsgs"), nearBottom = !oldMs || oldMs.scrollHeight - oldMs.scrollTop - oldMs.clientHeight < 120, oldTop = oldMs ? oldMs.scrollTop : 0, sameThread = box.dataset.th === t.id;
   box.innerHTML = `<header class="cx-h">
       <button class="cx-back" data-cxback aria-label="All conversations"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
       <span class="av">${esc((t.name || "W G").split(" ").map(x => x[0]).join("").slice(0, 2))}</span>
-      <div class="cx-hm"><b>${esc(t.name || "Website guest")}</b><span>${t.tag ? `<i class="warn">${esc(t.tag)}</i>` : ""}${t.orderNum ? `<i>Order #${t.orderNum}</i>` : ""}${t.name ? "" : "Hasn't shared a name yet"}</span></div>
+      <div class="cx-hm"><b>${esc(t.name || "Website guest")}</b><span>${t.tag ? `<i class="warn">${esc(t.tag)}</i>` : ""}${t.orderNum ? `<button class="cx-ord" data-showorder="${t.orderNum}">Order #${t.orderNum}</button>` : ""}${t.phone ? `<em>${esc(t.phone)}</em>` : ""}${t.name ? "" : "Hasn't shared a name yet"}</span></div>
       ${t.phone ? `<a class="tk-call" href="tel:${t.phone.replace(/\D/g, "")}" aria-label="Call ${esc(t.name)}">${ICON.phone}</a>` : ""}
     </header>
     <div class="cx-msgs" id="cxMsgs">${t.msgs.map((m, i) => `<div class="cb ${m.from}${i >= (lastSeen[t.id] ?? t.msgs.length) ? " new" : ""}">${m.from === "bot" ? `<span class="cb-l">Auto reply</span>` : ""}${esc(m.text)}<time>${clock(new Date(m.at))}</time></div>`).join("")}</div>
     <div class="cx-quick">${QUICK_REPLIES.map(q => `<button data-qr="${esc(q)}">${esc(q)}</button>`).join("")}</div>
     <form class="cx-in" id="cxForm" autocomplete="off"><input id="cxText" placeholder="Reply to ${esc((t.name || "them").split(" ")[0])}" aria-label="Reply"><button aria-label="Send"><svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.5-6.5z"/></svg></button></form>`;
-  $("#cxText").value = keepDraft;
+  $("#cxText").value = sameThread ? keepDraft : ""; box.dataset.th = t.id;
+  if (hadFocus && sameThread){ $("#cxText").focus(); $("#cxText").setSelectionRange(caret, caret); }
   lastSeen[t.id] = t.msgs.length;
-  const ms = $("#cxMsgs"); ms.scrollTop = ms.scrollHeight;
+  const ms = $("#cxMsgs"); ms.scrollTop = (!sameThread || nearBottom) ? ms.scrollHeight : oldTop;
 }
 function renderChatBadge(){ const u = chatLoad().threads.reduce((x, t) => x + (t.unreadOwner || 0), 0); $("#chatCount").textContent = u || ""; }
 function sendReply(text){
@@ -2217,15 +2225,29 @@ $("#cxThread").addEventListener("submit", e => { e.preventDefault(); sendReply($
 addEventListener("storage", e => {
   if (e.key === CHAT_KEY){
     const before = +($("#chatCount").textContent || 0); renderChat(); renderChatBadge();
-    const now = +($("#chatCount").textContent || 0); if (now > before && curTab !== "chat") toast("New message on the website");
+    const now = +($("#chatCount").textContent || 0); if (now > before){ ding(); if (curTab !== "chat") toast("New message on the website"); }
   }
   if (e.key === "bella-dash-manual"){
     const had = manual.length; manual = store.get("manual", []);
-    if (manual.length > had){ const o = manual[manual.length - 1]; toast(`New order from ${o.name.split(" ")[0]}${o.via === "chat" ? " in chat" : ""}`); }
+    if (manual.length > had){ ding(); const o = manual[manual.length - 1]; toast(`New order from ${o.name.split(" ")[0]}${o.via === "chat" ? " in chat" : ""}`); }
     renderOrders();
   }
 });
 renderChatBadge();
+
+/* from a chat order's ticket, jump straight to that conversation */
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-openchat]"); if (!b) return;
+  e.stopPropagation(); chatSel = b.dataset.openchat; showTab("chat");
+}, true);
+$("#cxThread").addEventListener("click", e => { const b = e.target.closest("[data-showorder]"); if (b) openOrder(+b.dataset.showorder); });
+/* a soft two-note ding when a customer writes or orders (browsers allow sound after the first tap on the page) */
+let audioCtx = null;
+addEventListener("pointerdown", () => { try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }, {once:true});
+function ding(){
+  if (!audioCtx) return;
+  try { const t = audioCtx.currentTime; [880, 1320].forEach((f, i) => { const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = "sine"; o.frequency.value = f; g.gain.setValueAtTime(0, t + i * .14); g.gain.linearRampToValueAtTime(.18, t + i * .14 + .02); g.gain.exponentialRampToValueAtTime(.001, t + i * .14 + .35); o.connect(g).connect(audioCtx.destination); o.start(t + i * .14); o.stop(t + i * .14 + .4); }); } catch(e){}
+}
 </script>
 </body>
 </html>
