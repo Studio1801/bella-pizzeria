@@ -181,7 +181,7 @@ main.wrap{padding-top:44px}
   .top .wrap{height:auto;padding-top:12px;padding-bottom:12px;row-gap:12px}
   .wordmark b{font-size:18px}
   .wordmark span{font-size:13px;padding-left:12px}
-  .tabs{margin-left:0;order:3;flex:1 0 100%;display:grid;grid-template-columns:repeat(3,1fr)}
+  .tabs{margin-left:0;order:3;flex:1 0 100%;display:grid;grid-template-columns:repeat(4,1fr)}
   .tabs button{justify-content:center;padding:9px 0;font-size:15px}
   main.wrap{padding-top:28px}
 }
@@ -341,7 +341,7 @@ main.wrap{padding-top:40px}
   .clock{display:none}
   .live{margin-left:auto;padding:5px 5px 5px 12px;font-size:13px}
   #liveLbl{display:inline}
-  .tabs{order:3;flex:1 0 100%;display:grid;grid-template-columns:repeat(3,1fr);height:46px;gap:0}
+  .tabs{order:3;flex:1 0 100%;display:grid;grid-template-columns:repeat(4,1fr);height:46px;gap:0}
   .tabs button{justify-content:center;font-size:15px}
   .mono{width:36px;height:36px;font-size:21px}
   .bt b{font-size:16px}
@@ -689,6 +689,64 @@ section#site{max-width:none}
   .m-two-b{grid-template-columns:1fr}
   .wk-bars{height:150px;gap:6px}
 }
+
+/* ---------- chat tab ---------- */
+section#chat{max-width:none}
+.via{display:inline-block;margin-left:6px;font-size:11.5px;font-weight:800;color:var(--red);background:#FBEAE7;padding:2px 8px;border-radius:999px;vertical-align:1px}
+.cx{display:grid;grid-template-columns:340px minmax(0,1fr);gap:0;background:#fff;border-radius:26px;overflow:hidden;height:min(680px,calc(100vh - 290px));min-height:460px;box-shadow:0 1px 2px rgba(42,24,35,.05),0 14px 36px -18px rgba(42,24,35,.18)}
+.cx-list{border-right:1px solid var(--line);overflow-y:auto;padding:12px}
+.cx-lh{display:flex;justify-content:space-between;margin:6px 8px 10px;font-size:13.5px;font-weight:800;color:var(--muted)}
+.cx-it{all:unset;box-sizing:border-box;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;padding:12px;border-radius:16px;cursor:pointer;transition:background .2s}
+.cx-it:hover{background:#F8F3F4}
+.cx-it.on{background:var(--note)}
+.cx-it .av{width:44px;height:44px}
+.cx-top{display:flex;justify-content:space-between;gap:8px}
+.cx-top b{font-size:15.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cx-top time{font-size:12.5px;font-weight:700;color:var(--faint);flex:none}
+.cx-pv{display:block;font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.cx-it.unread .cx-pv{color:var(--ink);font-weight:700}
+.cx-tags,.cx-hm span{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.cx-tags i,.cx-hm i{font-style:normal;font-size:11.5px;font-weight:800;padding:3px 8px;border-radius:999px;background:var(--note);color:var(--ink)}
+.cx-tags i.warn,.cx-hm i.warn{background:#FBEAE7;color:var(--red)}
+.cx-n{min-width:22px;height:22px;border-radius:999px;background:var(--red);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;padding:0 6px}
+.cx-empty{margin:20px 10px;color:var(--muted);font-weight:600;font-size:14.5px;line-height:1.5}
+.cx-thread{display:flex;flex-direction:column;min-width:0;background:#FBF8F6}
+.cx-none{flex:1;display:grid;place-items:center;color:var(--faint);font-weight:700}
+.cx-h{display:flex;align-items:center;gap:12px;padding:14px 18px;background:#fff;border-bottom:1px solid var(--line)}
+.cx-hm{flex:1;min-width:0}
+.cx-hm b{display:block;font-size:16.5px;font-weight:800}
+.cx-hm span{margin-top:3px;font-size:13px;color:var(--muted);font-weight:600;align-items:center}
+.cx-back{display:none;width:38px;height:38px;border-radius:50%;border:0;background:var(--note);place-items:center}
+.cx-back svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.cx-msgs{flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:8px}
+.cb{max-width:70%;padding:10px 14px 8px;border-radius:18px;font-size:15px;line-height:1.4;white-space:pre-line;position:relative}
+.cb time{display:block;font-size:11px;font-weight:600;opacity:.55;margin-top:3px}
+.cb.guest{align-self:flex-start;background:#fff;border-bottom-left-radius:6px;box-shadow:0 1px 2px rgba(42,24,35,.08)}
+.cb.bot{align-self:flex-end;background:transparent;color:var(--muted);border:1.5px dashed #DDD3D7;border-bottom-right-radius:6px;font-size:14px}
+.cb-l{display:block;font-size:11.5px;font-weight:800;color:var(--faint);margin-bottom:2px}
+.cb.bella{align-self:flex-end;background:var(--red);color:#fff;border-bottom-right-radius:6px}
+.cx-quick{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:10px 18px 4px}
+.cx-quick::-webkit-scrollbar{display:none}
+.cx-quick button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-size:13.5px;font-weight:700;color:var(--ink);transition:background .2s,color .2s,border-color .2s}
+.cx-quick button:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cx-in{display:flex;gap:10px;padding:10px 18px 16px}
+.cx-in input{flex:1;height:50px;border-radius:999px;border:0;background:#fff;padding:0 20px;font:inherit;font-size:16px;box-shadow:0 1px 3px rgba(42,24,35,.1);outline:0}
+.cx-in input:focus{box-shadow:0 0 0 2px var(--ink)}
+.cx-in button{width:50px;height:50px;border-radius:50%;border:0;background:var(--red);color:#fff;display:grid;place-items:center;flex:none}
+.cx-in button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linejoin:round}
+.cx{grid-template-rows:minmax(0,1fr)}
+.cx-list,.cx-thread{min-height:0}
+@media (prefers-reduced-motion:no-preference){.cb.new{animation:rowin .35s var(--ease) both}}
+@media (max-width:860px){
+  .cx{grid-template-columns:1fr;height:calc(100vh - 270px)}
+  .cx.open .cx-list{display:none}
+  .cx:not(.open) .cx-thread{display:none}
+  .cx-back{display:grid}
+  .cx-msgs{padding:16px 14px}
+  .cb{max-width:84%}
+  .cx-quick{padding:8px 12px 2px}
+  .cx-in{padding:8px 12px 12px}
+}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -954,6 +1012,7 @@ main{padding-top:88px}
     <a class="brand3" href="index.html" title="Open your website"><svg class="slice" viewBox="0 0 44 44" aria-hidden="true"><path class="sl-body" d="M22 41 C 19 36, 8 17, 5 11 C 15 4, 29 4, 39 11 C 36 17, 25 36, 22 41 Z"/><path class="sl-crust" d="M5 11 C 15 4, 29 4, 39 11"/><circle class="sl-dot" cx="16" cy="16" r="3"/><circle class="sl-dot" cx="27.5" cy="17" r="3.4"/><circle class="sl-dot" cx="21.5" cy="27" r="2.6"/></svg><span class="bt"><b>Bella Pizzeria<svg class="bt-line" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M3 8 C 50 2, 120 2, 197 7"/></svg></b><small>Your dashboard</small></span></a>
     <nav class="tabs" role="tablist" aria-label="Dashboard"><span class="slider" aria-hidden="true"></span>
       <button role="tab" id="t-orders" aria-controls="orders" aria-selected="true">Orders<span class="badge" id="openCount"></span></button>
+      <button role="tab" id="t-chat" aria-controls="chat" aria-selected="false">Chat<span class="badge" id="chatCount"></span></button>
       <button role="tab" id="t-money" aria-controls="money" aria-selected="false">Insights</button>
       <button role="tab" id="t-site" aria-controls="site" aria-selected="false">Menu</button>
     </nav>
@@ -991,6 +1050,18 @@ main{padding-top:88px}
 
   <div class="panel" id="panel" hidden></div>
   <p class="test">These are sample orders. <button class="link" id="testOrder">Send a test order</button></p>
+</section>
+
+<!-- ================= CHAT ================= -->
+<section id="chat" role="tabpanel" aria-labelledby="t-chat" hidden>
+  <div class="head">
+    <p class="hello"><span class="ht"><span>Chat</span><svg class="swoosh" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M6 24 C 90 8, 230 4, 394 16"/><path pathLength="1" d="M30 34 C 120 22, 250 20, 340 30"/></svg></span></p>
+    <p class="say">Customers message you from the website. <span class="soft">Your reply shows up on their screen right away.</span></p>
+  </div>
+  <div class="cx" id="cx">
+    <aside class="cx-list" id="cxList"></aside>
+    <div class="cx-thread" id="cxThread"></div>
+  </div>
 </section>
 
 <!-- ================= MONEY ================= -->
@@ -1254,7 +1325,7 @@ const CATS = MENU.map(c => ({id:c.id, name:c.name}));
 const byId = () => Object.fromEntries(items.map(i => [i.id, i]));
 
 /* ---------- tabs ---------- */
-const TABS = ["orders","money","site"];
+const TABS = ["orders","chat","money","site"];
 function moveSlider(){
   const on = document.querySelector('.tabs [aria-selected="true"]'), sl = $(".tabs .slider"); if (!on || !sl) return;
   const w = on.offsetWidth + 4; sl.style.width = on.offsetWidth + "px"; sl.style.transform = `translateX(${on.offsetLeft}px)`;
@@ -1265,6 +1336,7 @@ function showTab(id, instant){
   const apply = () => {
     TABS.forEach(t => { $("#" + t).hidden = t !== id; $(`[aria-controls="${t}"]`).setAttribute("aria-selected", t === id); });
     if (id === "money") renderMoney();
+    if (id === "chat") renderChat();
     if (id === "site") renderDishes();
     curTab = id; store.set("tab", id); scrollTo(0, 0); moveSlider();
   };
@@ -1332,13 +1404,13 @@ function buildHistory(){
 let history = buildHistory();
 
 /* today's live queue: the last few orders are still being worked on */
-let live = store.get("live4", null);
+let live = store.get("live5", null);
 const todayKey = dayKey(nowNY());
 if (!live || live.day !== todayKey){
   const today = history.filter(o => dayKey(new Date(o.at)) === todayKey);
   const tail = today.slice(-6);
   // if it's before opening there's nothing today yet, so stage a believable queue anyway
-  const queue = tail.length >= 4 ? tail : (() => { const r = rng(7), n = nowNY(); return [0,1,2,3,4,5].map(i => makeOrder(r, new Date(n.getTime() - (34 - i*6) * 60000), 4000 + i)); })();
+  const queue = tail.length >= 4 ? tail : (() => { const r = rng(7), n = nowNY(); return [0,1,2,3,4,5].map(i => makeOrder(r, new Date(n.getTime() - (34 - i*6) * 60000), 9000 + i)); })();
   const states = ["done","done","open","open","open","open"], minsAgo = [41, 27, 19, 12, 5, 2];
   const n = nowNY(), used = new Set();
   queue.forEach((o, i) => {
@@ -1351,7 +1423,7 @@ if (!live || live.day !== todayKey){
     o.note = o.note || ["","","Extra catupiry please, it's for my daughter","","Ring the side door, baby sleeping","Cut in squares"][i];
   });
   live = {day: todayKey, orders: queue.map(o => ({num:o.num, status:o.status, at:o.at, name:o.name, note:o.note})), extra: tail.length >= 4 ? [] : queue};
-  store.set("live4", live);
+  store.set("live5", live);
 }
 function liveOrders(){
   const all = [...history, ...live.extra];
@@ -1391,12 +1463,13 @@ let manual = store.get("manual", []);
 const allOrders = () => [...history, ...live.extra, ...manual];
 function setStatus(num, status){
   const s = live.orders.find(x => x.num === num);
-  if (s) { s.status = status; store.set("live4", live); }
+  if (s) { s.status = status; store.set("live5", live); }
   const m = manual.find(x => x.num === num);
   if (m) { m.status = status; store.set("manual", manual); }
 }
 const todayKeyNow = () => dayKey(nowNY());
-function openToday(){ liveOrders(); return allOrders().filter(o => o.status === "open" && dayKey(new Date(o.at)) === todayKeyNow()); }
+/* waiting orders: anything still open from the last 12 hours, so the queue survives midnight */
+function openToday(){ liveOrders(); const cut = Date.now() - 12 * 3600000, seen = new Set(); return allOrders().filter(o => o.status === "open" && o.at > cut && !seen.has(o.num) && seen.add(o.num)); }
 
 function renderOrders(){
   greet();
@@ -1446,7 +1519,7 @@ function renderNow(){
         <span class="tk-kind">${ICON[o.kind]}${o.kind === "pickup" ? "Pickup" : "Delivery"}</span>
       </div>
       <div class="tk-body">
-        <div class="tk-who"><div><p class="tk-name">${esc(o.name)}</p><p class="tk-num">#${o.num}</p></div>
+        <div class="tk-who"><div><p class="tk-name">${esc(o.name)}</p><p class="tk-num">#${o.num}${o.via === "chat" ? ` <span class="via">via chat</span>` : ""}</p></div>
           ${o.phone ? `<a class="tk-call" href="tel:${o.phone.replace(/\D/g,"")}" aria-label="Call ${esc(o.name)}" data-nogo>${ICON.phone}</a>` : ""}</div>
         ${o.addr ? `<p class="tk-addr">${ICON.pin}${esc(o.addr)}</p>` : ""}
         <ul class="tk-food">${o.lines.map(l => `<li><span class="q num">${l.q}×</span><span>${esc((M[l.id]?.n || l.id).replace(/ Pizza$/, ""))}${l.picks ? `<small>${esc(l.picks.join(", "))}</small>` : ""}</span></li>`).join("")}</ul>
@@ -1721,7 +1794,7 @@ function ding(){
 }
 $("#testOrder").addEventListener("click", () => {
   const o = makeOrder(rng(Date.now() % 100000), nowNY(), 5000 + live.extra.length + Math.floor(Math.random()*400));
-  o.status = "open"; live.extra.push(o); live.orders.push({num:o.num, status:"open"}); store.set("live4", live);
+  o.status = "open"; live.extra.push(o); live.orders.push({num:o.num, status:"open"}); store.set("live5", live);
   weekOffset = 0; renderOrders(); ding();
   toast(`New ${o.kind} order from ${o.name.split(" ")[0]}`);
 });
@@ -1986,6 +2059,91 @@ setInterval(renderOrders, 60000);
 showTab(store.get("tab", "orders"), true);
 addEventListener("resize", moveSlider);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveSlider);
+
+/* ============================================================
+   CHAT. SYNC: kept in this browser's storage and shared live with the website (same site).
+   Swap chatLoad/chatSave for a real-time backend so it works across phones.
+   ============================================================ */
+const CHAT_KEY = "bella-chat-v1";
+const chatLoad = () => { try { return JSON.parse(localStorage.getItem(CHAT_KEY)) || {threads:[]}; } catch(e){ return {threads:[]}; } };
+const chatSave = d => { try { localStorage.setItem(CHAT_KEY, JSON.stringify(d)); } catch(e){} };
+let chatSel = null; const lastSeen = {};
+(function seedChat(){
+  const d = chatLoad(); if (d.threads.length || store.get("chatSeeded", false)) return;
+  const m = x => Date.now() - x * 60000, G = "Oi! Welcome to Bella. Tap an answer below or just type.\nWhat can we help with?";
+  d.threads = [
+    {id:"demo1", name:"Jess T.", phone:"(508) 555-0144", tag:"Allergy: Nuts", started:m(6), updated:m(2), unreadOwner:2, unreadGuest:0, msgs:[
+      {from:"bot", text:G, at:m(6)}, {from:"guest", text:"Allergies", at:m(6)}, {from:"bot", text:"Which allergy should we know about?", at:m(6)}, {from:"guest", text:"Nuts", at:m(5)},
+      {from:"bot", text:"Thanks for telling us. Type what you'd like to order and we'll check every ingredient with the kitchen before we make it.", at:m(5)},
+      {from:"guest", text:"Hi! Does the Veggie pizza have anything with nuts? My son is allergic", at:m(3)}, {from:"guest", text:"Also is the brigadeiro safe?", at:m(2)}]},
+    {id:"demo2", name:"Lucas M.", phone:"(508) 555-0172", orderNum:6214, started:m(48), updated:m(31), unreadOwner:0, unreadGuest:0, msgs:[
+      {from:"bot", text:G, at:m(48)}, {from:"guest", text:"Order food", at:m(48)}, {from:"bot", text:"What are you in the mood for?", at:m(48)}, {from:"guest", text:"Brazilian pizzas", at:m(47)},
+      {from:"bot", text:"Brazilian pizzas. Which one?", at:m(47)}, {from:"guest", text:"Chicken with Catupiry", at:m(47)}, {from:"bot", text:"How many?", at:m(47)}, {from:"guest", text:"2", at:m(46)},
+      {from:"bot", text:"Order #6214 is in! It'll be ready around " + clock(new Date(m(21))) + ".\nWe'll message you here if anything changes. Obrigado!", at:m(44)},
+      {from:"guest", text:"can I add a guarana 2L?", at:m(36)}, {from:"bella", text:"Of course Lucas, added! Same pickup time.", at:m(31)}]},
+  ];
+  chatSave(d); store.set("chatSeeded", true);
+})();
+const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? "now" : m < 60 ? m + "m" : m < 1440 ? Math.round(m / 60) + "h" : Math.round(m / 1440) + "d"; };
+const QUICK_REPLIES = ["Yes, we can do that!", "Your order is ready for pickup.", "Your order is on the way!", "Sorry, we're out of that today.", "Let me check with the kitchen."];
+function renderChat(){
+  const d = chatLoad(), ts = d.threads.filter(t => t.msgs.some(x => x.from === "guest"));
+  const unread = ts.reduce((x, t) => x + (t.unreadOwner || 0), 0), b = $("#chatCount"), before = b.textContent;
+  b.textContent = unread || ""; if (before !== b.textContent && unread){ b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump"); }
+  if ($("#chat").hidden) return;
+  if (!chatSel && ts.length && matchMedia("(min-width:861px)").matches) chatSel = ts[0].id;
+  $("#cx").classList.toggle("open", !!chatSel);
+  $("#cxList").innerHTML = `<p class="cx-lh">Conversations <span>${ts.length}</span></p>` + (ts.map(t => {
+    const last = t.msgs[t.msgs.length - 1], nm = t.name || "Website guest", ini = nm.split(" ").map(x => x[0]).join("").slice(0, 2);
+    return `<button class="cx-it${t.id === chatSel ? " on" : ""}${t.unreadOwner ? " unread" : ""}" data-th="${t.id}">
+      <span class="av">${esc(ini)}</span>
+      <span class="cx-m"><span class="cx-top"><b>${esc(nm)}</b><time>${ago(t.updated || last.at)}</time></span>
+        <span class="cx-pv">${last.from === "bella" ? "You: " : ""}${esc(last.text.split("\n")[0])}</span>
+        ${t.orderNum || t.tag ? `<span class="cx-tags">${t.orderNum ? `<i>Order #${t.orderNum}</i>` : ""}${t.tag ? `<i class="warn">${esc(t.tag)}</i>` : ""}</span>` : ""}</span>
+      ${t.unreadOwner ? `<span class="cx-n">${t.unreadOwner}</span>` : ""}
+    </button>`; }).join("") || `<p class="cx-empty">No messages yet. When someone taps "Chat here" on your website, it shows up here.</p>`);
+  const t = ts.find(x => x.id === chatSel);
+  if (!t){ $("#cxThread").innerHTML = `<div class="cx-none"><p>Pick a conversation</p></div>`; return; }
+  if (t.unreadOwner){ const dd = chatLoad(), tt = dd.threads.find(x => x.id === t.id); tt.unreadOwner = 0; chatSave(dd); t.unreadOwner = 0; renderChatBadge(); }
+  const box = $("#cxThread"), keepDraft = $("#cxText") ? $("#cxText").value : "";
+  box.innerHTML = `<header class="cx-h">
+      <button class="cx-back" data-cxback aria-label="All conversations"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <span class="av">${esc((t.name || "W G").split(" ").map(x => x[0]).join("").slice(0, 2))}</span>
+      <div class="cx-hm"><b>${esc(t.name || "Website guest")}</b><span>${t.tag ? `<i class="warn">${esc(t.tag)}</i>` : ""}${t.orderNum ? `<i>Order #${t.orderNum}</i>` : ""}${t.name ? "" : "Hasn't shared a name yet"}</span></div>
+      ${t.phone ? `<a class="tk-call" href="tel:${t.phone.replace(/\D/g, "")}" aria-label="Call ${esc(t.name)}">${ICON.phone}</a>` : ""}
+    </header>
+    <div class="cx-msgs" id="cxMsgs">${t.msgs.map((m, i) => `<div class="cb ${m.from}${i >= (lastSeen[t.id] ?? t.msgs.length) ? " new" : ""}">${m.from === "bot" ? `<span class="cb-l">Auto reply</span>` : ""}${esc(m.text)}<time>${clock(new Date(m.at))}</time></div>`).join("")}</div>
+    <div class="cx-quick">${QUICK_REPLIES.map(q => `<button data-qr="${esc(q)}">${esc(q)}</button>`).join("")}</div>
+    <form class="cx-in" id="cxForm" autocomplete="off"><input id="cxText" placeholder="Reply to ${esc((t.name || "them").split(" ")[0])}" aria-label="Reply"><button aria-label="Send"><svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.5-6.5z"/></svg></button></form>`;
+  $("#cxText").value = keepDraft;
+  lastSeen[t.id] = t.msgs.length;
+  const ms = $("#cxMsgs"); ms.scrollTop = ms.scrollHeight;
+}
+function renderChatBadge(){ const u = chatLoad().threads.reduce((x, t) => x + (t.unreadOwner || 0), 0); $("#chatCount").textContent = u || ""; }
+function sendReply(text){
+  const d = chatLoad(), t = d.threads.find(x => x.id === chatSel); if (!t || !text.trim()) return;
+  t.msgs.push({from:"bella", text:text.trim(), at:Date.now()}); t.unreadGuest = (t.unreadGuest || 0) + 1; t.updated = Date.now();
+  d.threads.sort((a, b) => (b.updated || 0) - (a.updated || 0)); chatSave(d); $("#cxText") && ($("#cxText").value = ""); renderChat();
+}
+$("#cxList").addEventListener("click", e => { const b = e.target.closest("[data-th]"); if (!b) return; chatSel = b.dataset.th; renderChat(); if (matchMedia("(pointer:fine)").matches) $("#cxText")?.focus(); });
+$("#cxThread").addEventListener("click", e => {
+  if (e.target.closest("[data-cxback]")){ chatSel = null; renderChat(); return; }
+  const q = e.target.closest("[data-qr]"); if (q) sendReply(q.dataset.qr);
+});
+$("#cxThread").addEventListener("submit", e => { e.preventDefault(); sendReply($("#cxText").value); });
+/* live: new messages and chat orders arrive from the website */
+addEventListener("storage", e => {
+  if (e.key === CHAT_KEY){
+    const before = +($("#chatCount").textContent || 0); renderChat(); renderChatBadge();
+    const now = +($("#chatCount").textContent || 0); if (now > before && curTab !== "chat") toast("New message on the website");
+  }
+  if (e.key === "bella-dash-manual"){
+    const had = manual.length; manual = store.get("manual", []);
+    if (manual.length > had){ const o = manual[manual.length - 1]; toast(`New order from ${o.name.split(" ")[0]}${o.via === "chat" ? " in chat" : ""}`); }
+    renderOrders();
+  }
+});
+renderChatBadge();
 </script>
 </body>
 </html>
