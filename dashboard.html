@@ -410,6 +410,25 @@ main.wrap{padding-top:40px}
   .av{width:36px;height:36px}
   .r2-k{display:none}
 }
+
+/* brand v2: hand-lettered name and a clean slice mark */
+.slice{width:38px;height:38px;flex:none;overflow:visible;rotate:-10deg;transition:rotate .45s cubic-bezier(.3,1.6,.5,1),translate .3s var(--ease)}
+.sl-body{fill:var(--red)}
+.sl-crust{fill:none;stroke:#F2B33D;stroke-width:5.5;stroke-linecap:round}
+.sl-dot{fill:#FFE9E4;opacity:.92}
+.brand3:hover .slice{rotate:6deg;translate:0 -2px}
+.brand3{gap:11px}
+.bt b{position:relative;display:inline-block;font-family:var(--mark);font-weight:400;font-size:22px;letter-spacing:.6px;line-height:1;color:var(--ink);padding-bottom:5px}
+.bt-line{position:absolute;left:0;bottom:-2px;width:100%;height:7px;overflow:visible}
+.bt-line path{fill:none;stroke:#F2B33D;stroke-width:3.2;stroke-linecap:round}
+.bt small{font-size:12px;font-weight:600;color:var(--muted);margin-top:4px;letter-spacing:.1px}
+@media (prefers-reduced-motion:no-preference){
+  .bt-line path{stroke-dasharray:1;stroke-dashoffset:1;animation:blink .8s ease-out .3s forwards}
+  @keyframes blink{to{stroke-dashoffset:0}}
+  .slice{animation:slin .7s cubic-bezier(.3,1.5,.5,1) .1s both}
+  @keyframes slin{from{opacity:0;transform:translateY(-14px) rotate(-30deg)}}
+}
+@media (max-width:640px){.slice{width:30px;height:30px}.bt b{font-size:17px;letter-spacing:.3px}.bt small{display:none}.brand3{gap:9px}.live{font-size:12.5px;gap:7px;padding-left:10px}}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -672,7 +691,7 @@ main{padding-top:88px}
 
 <header class="top">
   <div class="wrap">
-    <a class="brand3" href="index.html" title="Open your website"><span class="mono" aria-hidden="true">B</span><span class="bt"><b>Bella Pizzeria</b><small>Owner dashboard</small></span></a>
+    <a class="brand3" href="index.html" title="Open your website"><svg class="slice" viewBox="0 0 44 44" aria-hidden="true"><path class="sl-body" d="M22 41 C 19 36, 8 17, 5 11 C 15 4, 29 4, 39 11 C 36 17, 25 36, 22 41 Z"/><path class="sl-crust" d="M5 11 C 15 4, 29 4, 39 11"/><circle class="sl-dot" cx="16" cy="16" r="3"/><circle class="sl-dot" cx="27.5" cy="17" r="3.4"/><circle class="sl-dot" cx="21.5" cy="27" r="2.6"/></svg><span class="bt"><b>Bella Pizzeria<svg class="bt-line" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M3 8 C 50 2, 120 2, 197 7"/></svg></b><small>Your dashboard</small></span></a>
     <nav class="tabs" role="tablist" aria-label="Dashboard"><span class="slider" aria-hidden="true"></span>
       <button role="tab" id="t-orders" aria-controls="orders" aria-selected="true">Orders<span class="badge" id="openCount"></span></button>
       <button role="tab" id="t-money" aria-controls="money" aria-selected="false">Money</button>
