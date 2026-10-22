@@ -429,6 +429,29 @@ main.wrap{padding-top:40px}
   @keyframes slin{from{opacity:0;transform:translateY(-14px) rotate(-30deg)}}
 }
 @media (max-width:640px){.slice{width:30px;height:30px}.bt b{font-size:17px;letter-spacing:.3px}.bt small{display:none}.brand3{gap:9px}.live{font-size:12.5px;gap:7px;padding-left:10px}}
+
+/* day rows v3: status, phone and notes right on the row */
+.r2{align-items:start}
+.av{margin-top:2px}
+.r2-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin-top:6px;font-size:13.5px;font-weight:600;color:var(--muted)}
+.r2-ph,.r2-ad{display:inline-flex;align-items:center;gap:5px;color:var(--muted);text-decoration:none}
+.r2-ph{color:var(--ink);font-weight:700;padding:3px 9px 3px 7px;margin:-3px 0;border-radius:999px;background:var(--note);transition:background .2s,color .2s}
+.r2-ph:hover{background:var(--ink);color:#fff}
+.r2-ph svg,.r2-ad svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.r2-note{display:block;margin-top:8px;padding:8px 12px;border-radius:12px;background:#FBEAE7;font-size:14px;font-weight:600;line-height:1.35;max-width:34em}
+.r2-note b{font-family:var(--mark);font-weight:400;color:var(--red);margin-right:8px;font-size:13.5px}
+.r2-end{align-items:flex-end;gap:8px}
+.stt{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;padding:5px 10px 5px 8px;border-radius:999px;white-space:nowrap}
+.stt svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.stt.done{background:var(--note);color:var(--muted)}
+.stt.wait{background:var(--red);color:#fff}
+.stt.wait .live-dot{background:#fff}
+.r2.waiting .r2-t{color:var(--red);font-weight:800}
+@media (max-width:640px){
+  .r2{grid-template-columns:36px minmax(0,1fr)}
+  .r2-end{grid-column:2;flex-direction:row-reverse;justify-content:space-between;align-items:center;margin-top:6px}
+  .r2-k{display:inline-flex}
+}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -1256,11 +1279,15 @@ function renderPanel(){
   const groups = []; list.forEach(o => { const h = new Date(due(o)).getHours(); let g = groups[groups.length - 1]; if (!g || g.h !== h){ g = {h, os:[]}; groups.push(g); } g.os.push(o); });
   let n = 0;
   const row = o => { const t = clock(new Date(due(o))), wait = o.status === "open", ini = o.name.split(" ").map(x => x[0]).join("").slice(0,2);
-    return `<button class="r2${wait ? " waiting" : ""}" data-order="${o.num}" style="--i:${n++}">
+    return `<div class="r2${wait ? " waiting" : ""}" role="button" tabindex="0" data-order="${o.num}" style="--i:${n++}">
       <span class="av" aria-hidden="true">${esc(ini)}</span>
-      <span class="r2-main"><span class="r2-top"><b>${esc(o.name)}</b><span class="r2-k">${ICON[o.kind]}${o.kind === "pickup" ? "Pickup" : "Delivery"}</span></span><span class="r2-it">${esc(shortItems(o, M))}</span></span>
-      <span class="r2-end"><span class="r2-p num">${money(o.sub)}</span><span class="r2-t num">${wait ? `<i class="live-dot"></i>Waiting` : t}</span></span>
-    </button>`; };
+      <span class="r2-main"><span class="r2-top"><b>${esc(o.name)}</b><span class="r2-k">${ICON[o.kind]}${o.kind === "pickup" ? "Pickup" : "Delivery"}</span></span>
+        <span class="r2-it">${esc(shortItems(o, M))}</span>
+        <span class="r2-meta"><span class="r2-t num">${t}</span>${o.phone ? `<a class="r2-ph num" href="tel:${o.phone.replace(/\D/g,"")}">${ICON.phone}${esc(o.phone)}</a>` : ""}${o.addr ? `<span class="r2-ad">${ICON.pin}${esc(o.addr)}</span>` : ""}</span>
+        ${o.note ? `<span class="r2-note"><b>Note</b>${esc(o.note)}</span>` : ""}
+      </span>
+      <span class="r2-end"><span class="r2-p num">${money(o.sub)}</span><span class="stt ${wait ? "wait" : "done"}">${wait ? `<i class="live-dot"></i>Waiting` : `${CHECK}${o.kind === "pickup" ? "Picked up" : "Delivered"}`}</span></span>
+    </div>`; };
   $("#panel").innerHTML = `<div class="ph2">
       <button class="back" data-back><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Week</button>
       <div class="pager"><button class="arrow" data-step="-1" aria-label="Day before"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><button class="arrow" data-step="1" aria-label="Day after" ${dayKey(next) > todayKeyNow() ? "disabled" : ""}><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button></div>
@@ -1333,8 +1360,10 @@ $("#week").addEventListener("click", e => { const c = e.target.closest(".day"); 
 $("#panel").addEventListener("click", e => {
   if (e.target.closest("[data-back]")) { zoomOut(); return; }
   const st = e.target.closest("[data-step]"); if (st) { stepDay(+st.dataset.step); return; }
+  if (e.target.closest("a")) return;
   const r = e.target.closest("[data-order]"); if (r) openOrder(+r.dataset.order);
 });
+$("#panel").addEventListener("keydown", e => { if (e.key !== "Enter" && e.key !== " ") return; const r = e.target.closest(".r2"); if (r && e.target === r){ e.preventDefault(); openOrder(+r.dataset.order); } });
 $("#nowWrap").addEventListener("click", e => { if (e.target.closest("[data-finish],[data-slide],[data-dot],[data-nogo]")) return; const r = e.target.closest("[data-order]"); if (r) openOrder(+r.dataset.order); });
 setInterval(() => { if (!curDay && $("#orders").hidden === false) renderNow(); }, 30000);
 
