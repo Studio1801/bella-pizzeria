@@ -618,6 +618,41 @@ section#site{max-width:none}
   .mc-nm{font-size:14.5px}
   .mc-av span:last-child{font-size:12.5px}
 }
+
+/* menu cards v3: square photo, price on the photo, edit appears on hover */
+.mcards{grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
+.mc{padding:10px 10px 14px;border-radius:24px;gap:0}
+.mc-frame{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:1/1;background:var(--note)}
+.mc-pic{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:absolute;inset:0;width:100%;height:100%;background:var(--note) center/cover no-repeat;border-radius:0;box-shadow:none;transition:transform .7s var(--ease)}
+.mc:hover .mc-pic{transform:scale(1.07);rotate:0deg}
+.mc .mc-pic:hover{transform:scale(1.07)}
+.mc-pic.empty{background:linear-gradient(145deg,#F6F0F2,#EDE3E7);color:var(--faint);font-size:13px;font-weight:700}
+.mc-pic.empty svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round}
+.mc-frame:has(.empty)::after{display:none}
+.mc-frame::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 55%,rgba(30,12,18,.38));opacity:.9}
+.mc-price{position:absolute;left:10px;bottom:10px;z-index:2;background:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--ink);font-size:15px;font-weight:800;padding:6px 12px;border-radius:999px;box-shadow:0 4px 12px -4px rgba(0,0,0,.3)}
+.mc-ed{position:absolute;right:10px;top:10px;z-index:2;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.94);color:var(--ink);display:grid;place-items:center;box-shadow:0 4px 12px -4px rgba(0,0,0,.35);opacity:0;transform:translateY(-6px) scale(.9);transition:opacity .25s,transform .35s cubic-bezier(.3,1.5,.5,1),background .2s,color .2s}
+.mc:hover .mc-ed,.mc-ed:focus-visible{opacity:1;transform:none}
+.mc-ed:hover{background:var(--ink);color:#fff}
+@media (hover:none){.mc-ed{opacity:1;transform:none}}
+.mc-tag{position:absolute;left:10px;top:10px;z-index:2;right:auto}
+.mc-info{padding:12px 6px 0;flex:1}
+.mc-cat{margin:0;font-size:12.5px;font-weight:700;color:var(--faint)}
+.mc-nm{margin:2px 0 0;font-size:16.5px;font-weight:800;line-height:1.25;letter-spacing:-.15px}
+.mc-av{margin:14px 6px 0;padding-top:12px}
+.mc.out .mc-pic{filter:grayscale(1);opacity:.55}
+.mc.out .mc-nm{color:var(--faint)}
+.mc.out .mc-price{opacity:.7}
+@media (max-width:640px){
+  .mcards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .mc{padding:8px 8px 12px;border-radius:20px}
+  .mc-frame{border-radius:14px}
+  .mc-price{font-size:13.5px;padding:5px 10px;left:7px;bottom:7px}
+  .mc-ed{width:34px;height:34px;right:7px;top:7px}
+  .mc-nm{font-size:14.5px}
+  .mc-info{padding:10px 4px 0}
+  .mc-av{margin:10px 4px 0;padding-top:10px}
+}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -1785,11 +1820,16 @@ function renderDishes(){
   const shown = items.filter(i => (menuCat === "all" || i.cat === menuCat) && match(i));
   const cat = id => CATS.find(c => c.id === id)?.name || "";
   $("#dishList").innerHTML = shown.map((i, k) => `<article class="mc${i.on ? "" : " out"}" style="--i:${Math.min(k, 16)}">
-      <button class="mc-pic" data-edit="${i.id}" aria-label="Change ${esc(i.n)}" ${i.img ? `style="background-image:url('${photoSrc(i.img)}')"` : ""}>${i.img ? "" : CAMERA}</button>
-      ${i.on ? "" : `<span class="mc-tag">Sold out</span>`}
-      <p class="mc-cat">${esc(cat(i.cat))}</p>
-      <p class="mc-nm">${esc(i.n)}</p>
-      <div class="mc-row"><b class="num">${money(+i.p)}</b><button class="mc-ed" data-edit="${i.id}" aria-label="Change ${esc(i.n)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button></div>
+      <div class="mc-frame">
+        <button class="mc-pic${i.img ? "" : " empty"}" data-edit="${i.id}" aria-label="Change ${esc(i.n)}" ${i.img ? `style="background-image:url('${photoSrc(i.img)}')"` : ""}>${i.img ? "" : `${CAMERA}<span>Add photo</span>`}</button>
+        <span class="mc-price num">${money(+i.p)}</span>
+        ${i.on ? "" : `<span class="mc-tag">Sold out</span>`}
+        <button class="mc-ed" data-edit="${i.id}" aria-label="Edit ${esc(i.n)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button>
+      </div>
+      <div class="mc-info">
+        <p class="mc-cat">${esc(cat(i.cat))}</p>
+        <p class="mc-nm">${esc(i.n)}</p>
+      </div>
       <label class="mc-av"><span class="switch"><input type="checkbox" data-toggle="${i.id}" ${i.on ? "checked" : ""} aria-label="${esc(i.n)} available"><span></span></span><span>${i.on ? "On the menu" : "Sold out"}</span></label>
     </article>`).join("") || `<p class="mc-none">No dish called "${esc(q)}".</p>`;
   const out = items.filter(i => !i.on), noPic = items.filter(i => !i.img).length;
