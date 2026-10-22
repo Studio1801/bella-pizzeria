@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bella Pizzeria | Brazilian pizza in Worcester, MA</title>
 <meta name="description" content="Brazilian-style pizza, esfihas, pastel and X-burgers on Highland Street in Worcester, MA. Order online for pickup or delivery.">
 <meta name="theme-color" content="#173F2E">
@@ -538,13 +538,113 @@ body.drawer-open .help{display:none}
 .chat-ch button.ghost{border-color:transparent;background:none;color:var(--muted)}
 .chat-ch button.ghost:hover{background:#F0EAEC;color:var(--ink)}
 .chat-in{display:flex;gap:8px;padding:10px 12px 12px;background:#fff;border-top:1px solid #EEE8EA}
-.chat-in input{flex:1;border:0;background:#F4EFF1;border-radius:999px;padding:0 16px;height:46px;font:inherit;font-size:16px;outline:0}
+.chat-in input{flex:1;min-width:0;border:0;background:#F4EFF1;border-radius:999px;padding:0 16px;height:46px;font:inherit;font-size:16px;outline:0}
 .chat-in input:focus{box-shadow:0 0 0 2px var(--ink) inset}
 .chat-in button{width:46px;height:46px;border-radius:50%;border:0;background:var(--red);color:#fff;display:grid;place-items:center;cursor:pointer;flex:none}
 .chat-in button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linejoin:round}
 body.chat-open .help{display:none}
 @media (max-width:600px){.chat{right:0;bottom:0;width:100%;height:100%;border-radius:0}}
 @media (prefers-reduced-motion:reduce){.chat:not([hidden]),.cm,.chat-ch button{animation:none}}
+
+/* ============================================================
+   PHONES. Everything below only changes small screens.
+   ============================================================ */
+.hstat{display:none}
+@media (max-width:860px){
+  /* header: a live open/closed chip where the name used to be */
+  .hstat{display:inline-flex;align-items:center;gap:8px;margin-right:auto;color:#fff;text-decoration:none;font-size:14px;font-weight:600;background:rgba(0,0,0,.14);padding:8px 13px 8px 11px;border-radius:999px;min-height:40px}
+  .hstat b{font-weight:700}
+  .hstat{gap:0 !important}
+  .hstat i{margin-right:8px}
+  .hstat{white-space:nowrap}
+  .hstat i{width:8px;height:8px;border-radius:50%;background:#7CE0A3;box-shadow:0 0 0 3px rgba(124,224,163,.25)}
+  .hstat.off i{background:#FFD3CC;box-shadow:none}
+  .site-header .nav{margin-left:0}
+
+  /* hero: name, then the food, then the button. Photos above the fold, words after */
+  .hero .wrap{display:flex;flex-direction:column;gap:0;padding-top:30px;padding-bottom:46px}
+  .hero .copy{display:contents}
+  .hero .sign{order:1}
+  .hero .br-note{order:2;margin-top:22px;margin-bottom:6px}
+  .hero-photos{order:3;max-width:none;width:calc(100% - 8px);aspect-ratio:1/.95;margin:18px auto 6px}
+  .hero-photos .main{left:18%;bottom:27%}
+  .hero-photos .side{width:40%;bottom:2%}
+  .photo-note{width:55%;right:0;bottom:0;font-size:17px;padding-left:4%}
+  .photo-note svg{left:-16%;top:-2px;width:52px}
+  .photo-note small{font-size:13px}
+  .hero .actions{order:4;margin-top:22px;gap:12px 22px}
+  .hero .actions .btn{padding:15px 28px;font-size:17px}
+  .hero .cta-note{order:5}
+  .hero .again{order:6}
+  .hero p.lede{order:7;margin:26px 0 0;font-size:17px;line-height:1.55}
+  .hero .facts{order:8;margin-top:22px;gap:12px 26px}
+
+  /* menu: an app-style list. One white card per section, thin lines between dishes,
+     descriptions clamped to two lines (tap to read all), photo on the right */
+  .menu{padding:44px 0 60px}
+  .cat{padding-top:30px}
+  .cat-head{margin-bottom:12px;gap:4px 12px}
+  .cat-head h3{font-size:25px}
+  .items{gap:0;background:#fff;border:1.5px solid #E8E0E4;border-radius:20px;padding:0 16px;overflow:hidden}
+  .item{grid-template-columns:minmax(0,1fr) 92px;grid-template-areas:"txt pic" "end pic";gap:0 14px;padding:16px 0;border:0;border-radius:0;border-bottom:1px solid var(--line);background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .item:last-child{border-bottom:0}
+  .item:hover{border-color:var(--line)}
+  .item.in-cart{background:none;border-color:var(--line)}
+  .item.in-cart h4::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:8px;vertical-align:2px}
+  .item.noimg{grid-template-columns:minmax(0,1fr);grid-template-areas:"txt" "end"}
+  .item > div:not(.thumb):not(.end){grid-area:txt;min-width:0}
+  .item .thumb{grid-area:pic;width:92px;height:92px;border-radius:14px;align-self:start}
+  .item .end{grid-area:end;margin-top:10px;justify-content:space-between;align-self:end}
+  .item h4{font-size:16.5px;line-height:1.3}
+  .item h4 .say{font-size:14px}
+  .item .desc,.item .explain{font-size:14.5px;line-height:1.45;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+  .item .explain{-webkit-line-clamp:1;margin-top:4px}
+  .item.open .desc,.item.open .explain{-webkit-line-clamp:unset;display:block}
+  .item .end .price{font-size:16.5px;font-weight:700}
+  .item .add{width:44px;height:44px}
+  .stepper{height:44px}
+  .stepper button{width:44px;height:44px}
+
+  /* the glossary becomes a row you swipe through */
+  .words{padding:56px 0}
+  .glossary{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -20px;padding:4px 20px 12px;scrollbar-width:none}
+  .glossary::-webkit-scrollbar{display:none}
+  .glossary > div{flex:0 0 78%;scroll-snap-align:start;background:#fff;border-radius:18px;padding:18px 18px 20px}
+  .glossary dt{font-size:26px}
+
+  /* bigger targets for thumbs */
+  .hear{position:relative}
+  .hear::after{content:"";position:absolute;inset:-8px}
+  .site-footer a,.visit a{display:inline-block;padding:8px 0}
+  .radio{min-height:48px}
+  .radio input{width:22px;height:22px}
+  .back{padding:10px 0;margin-bottom:4px}
+  .form input,.form select,.form textarea{font-size:16px;min-height:50px}
+  #q{font-size:16px}
+
+  /* floating chat button stays out of the way of add buttons */
+  body.in-menu .help{opacity:0;pointer-events:none;transform:translateY(20px)}
+  .help{transition:opacity .25s,transform .25s,bottom .25s}
+  .help{right:14px;bottom:calc(14px + env(safe-area-inset-bottom))}
+  body.has-cart .help{bottom:calc(88px + env(safe-area-inset-bottom))}
+
+  /* toasts drop in from the top so they never cover the order bar or a sheet button */
+  .toast{bottom:auto;top:calc(76px + env(safe-area-inset-top));transform:translate(-50%,-14px);max-width:calc(100% - 32px);white-space:normal;text-align:center}
+  .toast.show{transform:translate(-50%,0)}
+
+  /* respect the home bar on newer iPhones */
+  .order-bar{bottom:calc(12px + env(safe-area-inset-bottom))}
+  .drawer footer{padding-bottom:calc(22px + env(safe-area-inset-bottom))}
+  .chat-in{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+}
+@media (max-width:360px){.hstat span{display:none}}
+@media (max-width:380px){
+  .hstat{font-size:13px;padding:7px 11px 7px 9px}
+  .hero .sign{font-size:min(72px,19vw)}
+  .item{grid-template-columns:minmax(0,1fr) 78px}
+  .item .thumb{width:78px;height:78px}
+  .hero .actions .btn{padding:14px 22px}
+}
 </style>
 </head>
 <body>
@@ -553,6 +653,7 @@ body.chat-open .help{display:none}
 
 <header class="site-header">
   <div class="wrap">
+    <a class="hstat" id="hStat" href="#visit"><i></i><b></b><span></span></a>
     <nav class="nav" aria-label="Main">
       <a href="#menu" class="hide-sm">Menu</a>
       <a href="#story" class="hide-sm">Our story</a>
@@ -1574,6 +1675,21 @@ document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#chat"
 /* replies from the shop show up live */
 addEventListener("storage", e => { if (e.key === CHAT_KEY) renderChat(); });
 renderChat();
+
+/* ---------- phone polish ---------- */
+(() => {
+  const st = $("#hStat");
+  const paintStat = () => { const o = isOpen(); st.classList.toggle("off", !o); st.querySelector("b").textContent = o ? "Open now" : "Closed"; st.lastChild.textContent = o ? "\u00a0· till 9:30 pm" : "\u00a0· opens 11 am"; };
+  paintStat(); setInterval(paintStat, 60000);
+  /* tap a dish's words to read the full description (phones clamp them to keep the menu short) */
+  $("#cats").addEventListener("click", e => {
+    if (e.target.closest("button,a,input")) return;
+    const it = e.target.closest(".item"); if (it && matchMedia("(max-width:860px)").matches) it.classList.toggle("open");
+  });
+  /* the floating chat button hides while you're in the menu on a phone, so it never covers an add button */
+  const menu = document.querySelector("#menu");
+  if (menu) new IntersectionObserver(([en]) => document.body.classList.toggle("in-menu", en.isIntersecting), {rootMargin:"-40% 0px -40% 0px"}).observe(menu);
+})();
 </script>
 </body>
 </html>

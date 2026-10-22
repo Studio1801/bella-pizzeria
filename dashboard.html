@@ -730,7 +730,7 @@ section#chat{max-width:none}
 .cx-quick button{flex:none;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-size:13.5px;font-weight:700;color:var(--ink);transition:background .2s,color .2s,border-color .2s}
 .cx-quick button:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
 .cx-in{display:flex;gap:10px;padding:10px 18px 16px}
-.cx-in input{flex:1;height:50px;border-radius:999px;border:0;background:#fff;padding:0 20px;font:inherit;font-size:16px;box-shadow:0 1px 3px rgba(42,24,35,.1);outline:0}
+.cx-in input{flex:1;min-width:0;height:50px;border-radius:999px;border:0;background:#fff;padding:0 20px;font:inherit;font-size:16px;box-shadow:0 1px 3px rgba(42,24,35,.1);outline:0}
 .cx-in input:focus{box-shadow:0 0 0 2px var(--ink)}
 .cx-in button{width:50px;height:50px;border-radius:50%;border:0;background:var(--red);color:#fff;display:grid;place-items:center;flex:none}
 .cx-in button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linejoin:round}
@@ -747,6 +747,87 @@ section#chat{max-width:none}
   .cx-quick{padding:8px 12px 2px}
   .cx-in{padding:8px 12px 12px}
 }
+
+/* ============================================================
+   PHONES: dashboard polish. Only small screens.
+   ============================================================ */
+@media (max-width:640px){
+  body{-webkit-tap-highlight-color:transparent}
+  .top .wrap{padding-left:16px;padding-right:16px}
+  main.wrap{padding-left:16px;padding-right:16px;padding-top:22px}
+  .hello{font-size:30px}
+  .say{font-size:17.5px}
+  .o-head{margin-bottom:20px}
+  /* tickets: tighter so the whole ticket and its button fit on one screen */
+  .now-head{margin-bottom:2px}
+  .nh-t{font-size:20px}
+  .nh-s{display:none}
+  .pager{padding:3px}
+  .pager .arrow{width:38px;height:38px}
+  .rail{margin:0 -16px 4px;padding:8px 16px 16px;scroll-padding-left:16px;gap:10px}
+  .tk{flex-basis:88%;border-radius:22px}
+  .tk-top{padding:12px 14px;grid-template-columns:auto 1fr auto;gap:10px}
+  .ring{width:52px;height:52px}
+  .ring .num{font-size:18px}
+  .tk-when b{font-size:14px}
+  .tk-when span{font-size:12.5px}
+  .tk-kind{font-size:12.5px;padding:6px 10px 6px 8px}
+  .tk-body{padding:12px 16px 2px}
+  .tk-name{font-size:18px}
+  .tk-call{width:44px;height:44px}
+  .tk-food{margin-top:10px;gap:6px}
+  .tk-food li{font-size:15.5px}
+  .tk-note{margin-top:10px;padding:9px 12px;font-size:14px}
+  .tk-foot{padding:10px 16px 16px;gap:10px}
+  .tk-pay{padding-top:10px}
+  .tk-done{height:54px;font-size:17px}
+  .dots{margin-bottom:22px}
+  /* day view */
+  .ph2{margin-bottom:12px}
+  .hb span{font-size:12px}
+  /* chat: when a conversation is open, give it the whole screen */
+  #chat .say{display:none}
+  #chat.thread-open .head{display:none}
+  .cx{height:calc(100dvh - 190px);min-height:420px;border-radius:22px}
+  #chat.thread-open .cx{height:calc(100dvh - 140px)}
+  .cx-h{padding:10px 12px}
+  .cb{font-size:15.5px}
+  .cx-quick button{padding:9px 14px}
+  .cx-in input{height:48px}
+  /* menu: summary shrinks to a strip so the dishes show right away */
+  .ms-card{padding:16px 16px 14px;border-radius:20px}
+  .ms-big{margin:2px 0 10px}
+  .ms-big b{font-size:32px}
+  .ms-two,.ms-tip,.ms-link,.ms-k{display:none}
+  .ms-sec{margin-top:4px}
+  .ms-sec:has(.ms-none){display:none}
+  .ms-add{margin-top:10px;height:48px}
+  #site .say{font-size:16px}
+  .mcats{margin-top:2px}
+  /* insights */
+  .m-head{margin-bottom:18px}
+  .m-amt{letter-spacing:-1.5px}
+  .m-cmp{font-size:13.5px}
+  /* everything tappable is at least 44px */
+  .seg button,.kf button{min-height:44px}
+  .r2-ph{padding:6px 11px 6px 9px}
+  .ms-back{padding:10px 14px}
+}
+@media (max-width:360px){
+  #liveLbl{display:none !important}
+  .live{padding:4px 4px 4px 10px}
+  .slice{width:26px;height:26px}
+  .bt b{font-size:15.5px}
+  .hello{font-size:25px}
+  .say{font-size:16px}
+  .o-head .plus{padding:11px 14px;font-size:14.5px}
+  .seg button{padding:8px 11px;font-size:14px;white-space:nowrap}
+  .kf button{padding:8px 11px;font-size:13.5px;white-space:nowrap}
+  .tabs button{font-size:14px}
+  .tk-top{grid-template-columns:auto 1fr;}
+  .tk-kind{grid-column:1/-1;justify-self:start;order:-1}
+}
+@supports not (height:100dvh){@media (max-width:640px){.cx{height:calc(100vh - 230px)}#chat.thread-open .cx{height:calc(100vh - 180px)}}}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -876,7 +957,7 @@ main{padding-top:88px}
 @media (max-width:900px){
   .week{gap:5px}
   .day{min-height:96px;padding:10px 4px 9px;align-items:center;text-align:center;border-radius:14px}
-  .day .dw{font-size:11.5px}
+  .day .dw{font-size:12.5px}
   .day .dd{font-size:21px}
   .day .dn{font-size:13px}
   .day .ds{display:none}
@@ -890,7 +971,8 @@ main{padding-top:88px}
   .pt{order:3;flex:1 0 100%;margin-top:6px}
   .r{grid-template-columns:62px minmax(0,1fr) 22px;gap:10px}
   .r .p{display:none}
-  .o-head .plus{width:100%;justify-content:center}
+  .o-head{flex-wrap:nowrap;align-items:center}
+  .o-head .plus{width:auto;flex:none;padding:12px 16px;border-radius:999px;font-size:15px}
 }
 
 /* new order sheet */
@@ -1433,7 +1515,7 @@ const ETA = {pickup:25, delivery:35};
 
 /* ---------- greeting ---------- */
 function greet(){
-  const h = nowNY().getHours(), word = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+  const h = nowNY().getHours(), word = h < 5 ? "Boa noite" : h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
   $("#hello").textContent = OWNER ? `${word}, ${OWNER}!` : `${word}!`;
 }
 
@@ -1908,7 +1990,7 @@ function smooth(pts){
 }
 function lineChart(b, pb){
   const W = 1000, H = 260, pl = 8, pr = 8, pt = 18, pbm = 34, max = Math.max(...b.map(x => x.v), ...pb.map(x => x.v), 1);
-  const top = Math.ceil(max / niceStep(max)) * niceStep(max);
+  const mx = Math.max(max, 100), top = Math.ceil(mx / niceStep(mx)) * niceStep(mx);
   const X = i => pl + i * (W - pl - pr) / (b.length - 1), Y = v => pt + (1 - v / top) * (H - pt - pbm);
   const on = b.map((x, i) => [X(i), Y(x.v), x]).filter(p => !p[2].off), prevPts = pb.map((x, i) => [X(i), Y(x.v)]);
   const line = smooth(on.map(p => [p[0], p[1]])), last = on[on.length - 1];
@@ -2092,7 +2174,7 @@ function renderChat(){
   b.textContent = unread || ""; if (before !== b.textContent && unread){ b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump"); }
   if ($("#chat").hidden) return;
   if (!chatSel && ts.length && matchMedia("(min-width:861px)").matches) chatSel = ts[0].id;
-  $("#cx").classList.toggle("open", !!chatSel);
+  $("#cx").classList.toggle("open", !!chatSel); $("#chat").classList.toggle("thread-open", !!chatSel);
   $("#cxList").innerHTML = `<p class="cx-lh">Conversations <span>${ts.length}</span></p>` + (ts.map(t => {
     const last = t.msgs[t.msgs.length - 1], nm = t.name || "Website guest", ini = nm.split(" ").map(x => x[0]).join("").slice(0, 2);
     return `<button class="cx-it${t.id === chatSel ? " on" : ""}${t.unreadOwner ? " unread" : ""}" data-th="${t.id}">
