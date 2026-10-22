@@ -21,6 +21,14 @@ Static site. No build step. In Replit, use the HTML/CSS/JS template, upload ever
 - About text: placeholder, rewrite with the owner's real story.
 - Weekly hours, delivery fee (`SETTINGS.deliveryFee`), tax rate (`SETTINGS.taxRate`, 7% = MA 6.25% + 0.75% local).
 - Items without photos simply show no thumbnail. Add `img` to any item in `MENU` once you have a photo.
+- `SETTINGS.onlineDiscount` (10%): matches the "10% off online orders" Slice runs today. Confirm Bella wants to keep it.
+- `SETTINGS.promoCodes`: empty. Add codes like `{"PIZZANIGHT": 0.15}` for their special offers.
+- `SETTINGS.tips`: driver tip choices on delivery orders.
+- Sweet pizza fruit choices (Strawberry, Banana) are a guess. Slice only says "optional fruit".
+- "Pay when I pick up": Slice lists card payments only. Confirm Bella takes cash before launch.
+
+## Parity with the Slice site (checked Oct 2026)
+Everything on bellapizzeriama.com is here: all 91 dishes and prices, hours, address, phone, pickup 20 to 30 and delivery 20 to 35 minutes, 10% off online, curbside pickup, schedule-ahead ordering, Visa/Mastercard/Amex, fries or yuca on the plates, optional fruit on sweet pizzas, get directions, terms, privacy, do not sell my data and accessibility. Slice's app download links are left out on purpose.
 
 ## Next steps in Replit
 - Real payments: mount Square or Stripe card fields where the `SWAP` comment sits in the checkout form.
