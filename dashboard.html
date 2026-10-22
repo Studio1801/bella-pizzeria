@@ -653,6 +653,42 @@ section#site{max-width:none}
   .mc-info{padding:10px 4px 0}
   .mc-av{margin:10px 4px 0;padding-top:10px}
 }
+
+/* ---------- insights extras ---------- */
+.m-short{margin:2px 4px 16px;font-size:16px;font-weight:600;color:var(--muted)}
+.m-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.m-tiles div{background:#fff;border-radius:20px;padding:18px 20px;display:flex;flex-direction:column;gap:5px;box-shadow:0 1px 2px rgba(42,24,35,.05),0 10px 26px -18px rgba(42,24,35,.2)}
+.m-tiles .k{font-size:13.5px;font-weight:700;color:var(--muted)}
+.m-tiles b{font-size:25px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
+.m-tiles .s{font-size:13.5px;font-weight:600;color:var(--faint)}
+.m-two-b{grid-template-columns:1fr 1fr}
+.m-sub{margin:-8px 0 16px;color:var(--muted);font-size:14px;font-weight:600}
+.wk-bars{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;height:170px;align-items:end}
+.wb{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%}
+.wb .wc{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.wb .wc i{display:block;width:min(100%,34px);border-radius:999px;background:#E9E1E4;transition:background .2s}
+.wb.peak .wc i{background:var(--red)}
+.wb .wv{font-size:13.5px;font-weight:800}
+.wb .wn{font-size:12.5px;font-weight:700;color:var(--muted)}
+.pd-bar{height:10px;border-radius:10px;background:var(--note);overflow:hidden;margin:4px 0 18px}
+.pd-bar i{display:block;height:100%;background:var(--ink);border-radius:10px;transition:width .8s var(--ease)}
+.pd-r{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.pd-n{font-size:16px;font-weight:800}
+.pd-c{text-align:right;display:flex;flex-direction:column;gap:2px}
+.pd-c b{font-size:20px;font-weight:800}
+.pd-c small{font-size:13px;font-weight:600;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){
+  .m-tiles div{animation:rowin .5s var(--ease) both;animation-delay:calc(var(--i) * 60ms + 150ms)}
+  .wb .wc i{animation:wbg .7s var(--ease) both;animation-delay:calc(var(--i) * 45ms + 250ms);transform-origin:bottom}
+  @keyframes wbg{from{transform:scaleY(0)}}
+}
+@media (max-width:760px){
+  .m-tiles{grid-template-columns:1fr 1fr;gap:10px}
+  .m-tiles div{padding:14px 16px}
+  .m-tiles b{font-size:21px}
+  .m-two-b{grid-template-columns:1fr}
+  .wk-bars{height:150px;gap:6px}
+}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -918,7 +954,7 @@ main{padding-top:88px}
     <a class="brand3" href="index.html" title="Open your website"><svg class="slice" viewBox="0 0 44 44" aria-hidden="true"><path class="sl-body" d="M22 41 C 19 36, 8 17, 5 11 C 15 4, 29 4, 39 11 C 36 17, 25 36, 22 41 Z"/><path class="sl-crust" d="M5 11 C 15 4, 29 4, 39 11"/><circle class="sl-dot" cx="16" cy="16" r="3"/><circle class="sl-dot" cx="27.5" cy="17" r="3.4"/><circle class="sl-dot" cx="21.5" cy="27" r="2.6"/></svg><span class="bt"><b>Bella Pizzeria<svg class="bt-line" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M3 8 C 50 2, 120 2, 197 7"/></svg></b><small>Your dashboard</small></span></a>
     <nav class="tabs" role="tablist" aria-label="Dashboard"><span class="slider" aria-hidden="true"></span>
       <button role="tab" id="t-orders" aria-controls="orders" aria-selected="true">Orders<span class="badge" id="openCount"></span></button>
-      <button role="tab" id="t-money" aria-controls="money" aria-selected="false">Money</button>
+      <button role="tab" id="t-money" aria-controls="money" aria-selected="false">Insights</button>
       <button role="tab" id="t-site" aria-controls="site" aria-selected="false">Menu</button>
     </nav>
     <span class="clock" id="hdrClock"></span>
@@ -960,7 +996,7 @@ main{padding-top:88px}
 <!-- ================= MONEY ================= -->
 <section id="money" role="tabpanel" aria-labelledby="t-money" hidden>
   <div class="m-head">
-    <p class="hello"><span class="ht"><span>Your money</span><svg class="swoosh" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M6 24 C 90 8, 230 4, 394 16"/><path pathLength="1" d="M30 34 C 120 22, 250 20, 340 30"/></svg></span></p>
+    <p class="hello"><span class="ht"><span>Your insights</span><svg class="swoosh" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M6 24 C 90 8, 230 4, 394 16"/><path pathLength="1" d="M30 34 C 120 22, 250 20, 340 30"/></svg></span></p>
     <div class="seg" role="group" aria-label="Time period">
       <button data-range="1" aria-pressed="true">Today</button>
       <button data-range="7" aria-pressed="false">This week</button>
@@ -974,6 +1010,12 @@ main{padding-top:88px}
     </div>
     <div class="m-chart" id="chart"></div>
     <div class="m-stats" id="tiles"></div>
+  </div>
+  <p class="m-short" id="mShort"></p>
+  <div class="m-tiles" id="mTiles"></div>
+  <div class="m-two m-two-b">
+    <div class="m-card"><h2>Busiest days</h2><p class="m-sub">Orders per day, averaged over the last 4 weeks.</p><div class="wk-bars" id="wkBars"></div></div>
+    <div class="m-card"><h2>Pickup or delivery</h2><p class="m-sub" id="pdSub"></p><div id="pdBox"></div></div>
   </div>
   <div class="m-two">
     <div class="m-card"><h2>Best sellers</h2><ol class="m-best" id="best"></ol></div>
@@ -1750,6 +1792,37 @@ function renderMoney(){
 
   $("#kept").innerHTML = `<h2>Kept from Slice</h2><div class="kamt num" id="keptAmt">$0</div><p>Slice charges about $2.25 an order. ${plural(n, "order", "orders")} on your own site means that money stays with you.</p>`;
   countUp($("#keptAmt"), n * 2.25, v => money0(v));
+  renderMore(list, prev, start);
+}
+function renderMore(list, prev, start){
+  const n = list.length, sales = sum(list);
+  /* plain sentence */
+  const byDay = {}; list.forEach(o => { const k = dayKey(new Date(o.at)); byDay[k] = (byDay[k] || 0) + o.sub; });
+  const days = Object.entries(byDay).sort((a, b) => b[1] - a[1]);
+  const hrs = Array(24).fill(0); list.forEach(o => hrs[new Date(o.at).getHours()]++);
+  const peak = hrs.indexOf(Math.max(...hrs)), nPick = list.filter(o => o.kind === "pickup").length;
+  $("#mShort").textContent = n ? `${hr12(peak)} is your busiest hour${range > 1 ? "" : " today"}. ${Math.round(nPick / n * 100)}% of orders are pickup.` : "No orders yet in this period.";
+  /* four plain tiles */
+  const best = days[0], big = list.slice().sort((a, b) => b.sub - a.sub)[0], paid = list.filter(o => o.paid).length;
+  const items = list.reduce((x, o) => x + o.lines.reduce((y, l) => y + l.q, 0), 0);
+  const cash = list.filter(o => !o.paid).reduce((x, o) => x + o.sub, 0);
+  const T = [
+    range === 1 ? ["Orders per hour", n ? (n / Math.max(1, nowNY().getHours() - 10)).toFixed(1) : "0", "since opening"] : ["Best day", best ? keyToDate(best[0]).toLocaleDateString("en-US",{weekday:"short", month:"short", day:"numeric"}) : "None", best ? money0(best[1]) + " in sales" : ""],
+    ["Biggest order", big ? money(big.sub) : "None", big ? big.name : ""],
+    ["Paid online", n ? Math.round(paid / n * 100) + "%" : "0%", n - paid ? `${money0(cash)} paid at pickup` : "All paid online"],
+    ["Items per order", n ? (items / n).toFixed(1) : "0", `${items.toLocaleString()} items total`],
+  ];
+  $("#mTiles").innerHTML = T.map(([k, v, s], i) => `<div style="--i:${i}"><span class="k">${k}</span><b class="num">${esc(v)}</b><span class="s">${esc(s)}</span></div>`).join("");
+  /* busiest days: always the last 4 weeks so it means something */
+  const from = nowNY(); from.setHours(0,0,0,0); from.setDate(from.getDate() - 27);
+  const wd = Array(7).fill(0); allOrders().filter(o => o.at >= from.getTime()).forEach(o => { wd[(new Date(o.at).getDay() + 6) % 7]++; });
+  const avg = wd.map(v => v / 4), mx = Math.max(...avg, 1), top = avg.indexOf(Math.max(...avg)), names = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  $("#wkBars").innerHTML = avg.map((v, i) => `<div class="wb${i === top ? " peak" : ""}" style="--i:${i}"><span class="wv num">${Math.round(v)}</span><span class="wc"><i style="height:${Math.max(4, v / mx * 100).toFixed(0)}%"></i></span><span class="wn">${names[i]}</span></div>`).join("");
+  /* pickup vs delivery */
+  const P = list.filter(o => o.kind === "pickup"), D = list.filter(o => o.kind === "delivery"), sP = sum(P), sD = sum(D), pctS = sales ? Math.round(sP / sales * 100) : 0;
+  $("#pdSub").textContent = n ? `Pickup brings in ${pctS}% of your sales.` : "No orders yet.";
+  const row = (nm, L, sm) => `<div class="pd-r"><span class="pd-n">${nm}</span><span class="pd-c"><b class="num">${money0(sm)}</b><small>${plural(L.length, "order", "orders")} · ${money(L.length ? sm / L.length : 0)} each</small></span></div>`;
+  $("#pdBox").innerHTML = `<div class="pd-bar"><i style="width:${pctS}%"></i></div>${row("Pickup", P, sP)}${row("Delivery", D, sD)}`;
 }
 function smooth(pts){
   if (pts.length < 2) return pts.length ? `M${pts[0][0]},${pts[0][1]}` : "";
@@ -1767,10 +1840,10 @@ function lineChart(b, pb){
   const on = b.map((x, i) => [X(i), Y(x.v), x]).filter(p => !p[2].off), prevPts = pb.map((x, i) => [X(i), Y(x.v)]);
   const line = smooth(on.map(p => [p[0], p[1]])), last = on[on.length - 1];
   const area = on.length ? `${line} L${last[0]},${H - pbm} L${on[0][0]},${H - pbm} Z` : "";
-  const every = b.length > 12 ? Math.ceil(b.length / 6) : 1;
+  const every = b.length > 12 ? Math.ceil(b.length / 5) : 1;
   let g = "", lab = "";
   [0, .5, 1].forEach(f => { const y = Y(top * f); g += `<line class="grid" x1="0" x2="${W}" y1="${y}" y2="${y}"/>`; lab += `<span class="yl" style="top:${(y / H * 100).toFixed(2)}%">${money0(top * f)}</span>`; });
-  b.forEach((x, i) => { if (i % every === 0 || i === b.length - 1) lab += `<span class="xl${i === 0 ? " first" : i === b.length - 1 ? " last" : ""}" style="left:${(X(i) / W * 100).toFixed(2)}%">${x.label}</span>`; });
+  b.forEach((x, i) => { if (i % every === 0 && (i + every * 1.2 < b.length || i === 0) || i === b.length - 1) lab += `<span class="xl${i === 0 ? " first" : i === b.length - 1 ? " last" : ""}" style="left:${(X(i) / W * 100).toFixed(2)}%">${x.label}</span>`; });
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Sales chart" data-n="${b.length}">
     <defs><linearGradient id="mfill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#C94233" stop-opacity=".22"/><stop offset="1" stop-color="#C94233" stop-opacity="0"/></linearGradient></defs>
     ${g}<path class="prev" d="${smooth(prevPts)}" vector-effect="non-scaling-stroke"/>
