@@ -537,6 +537,87 @@ section#money{max-width:none}
   .m-two{grid-template-columns:1fr}
   .m-kept .kamt{font-size:46px}
 }
+
+/* ---------- menu tab v2: category chips, dish cards, a summary on the side ---------- */
+section#site{max-width:none}
+#site .saved-note{display:none}
+.mgrid{display:grid;grid-template-columns:minmax(0,1fr) 320px;min-width:0;gap:24px;align-items:start}
+.mtool .find{height:50px;border-radius:999px;box-shadow:0 1px 3px rgba(42,24,35,.07);margin-bottom:16px}
+.mtool .find:focus-within{border-color:var(--ink)}
+.mcats{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 14px;margin:0 -2px}
+.mcats::-webkit-scrollbar{display:none}
+.mcats button{flex:none;display:inline-flex;align-items:center;gap:9px;border:0;background:#fff;border-radius:999px;padding:6px 14px 6px 6px;font-weight:700;font-size:14.5px;color:var(--ink);box-shadow:0 1px 3px rgba(42,24,35,.07);transition:background .2s,color .2s,transform .2s var(--ease)}
+.mcats button:hover{transform:translateY(-1px)}
+.mcats button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.mcats small{font-size:12.5px;font-weight:700;opacity:.55}
+.ct{width:30px;height:30px;border-radius:50%;background:var(--note) center/cover;flex:none}
+.ct.all{display:grid;place-items:center;font-size:12px;font-weight:800;background:var(--red);color:#fff}
+.mcats button:not(:has(.ct)){padding-left:14px}
+.mcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}
+.mc{position:relative;background:#fff;border-radius:22px;padding:16px 16px 14px;box-shadow:0 1px 2px rgba(42,24,35,.05),0 10px 26px -16px rgba(42,24,35,.18);display:flex;flex-direction:column;transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.mc:hover{transform:translateY(-3px);box-shadow:0 2px 4px rgba(42,24,35,.06),0 18px 34px -16px rgba(42,24,35,.26)}
+.mc-pic{all:unset;cursor:pointer;display:grid;place-items:center;width:112px;height:112px;margin:2px auto 14px;border-radius:50%;background:var(--note) center/cover;box-shadow:0 10px 22px -10px rgba(42,24,35,.45);transition:transform .45s cubic-bezier(.3,1.4,.5,1)}
+.mc-pic svg{width:30px;height:30px;fill:none;stroke:var(--faint);stroke-width:1.8;stroke-linejoin:round}
+.mc:hover .mc-pic{transform:rotate(-8deg) scale(1.04)}
+.mc-pic:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.mc-tag{position:absolute;top:14px;right:14px;background:var(--red);color:#fff;font-size:12px;font-weight:800;padding:4px 10px;border-radius:999px}
+.mc-cat{margin:0;font-size:12.5px;font-weight:700;color:var(--faint)}
+.mc-nm{margin:3px 0 10px;font-size:16px;font-weight:800;line-height:1.25;flex:1}
+.mc-row{display:flex;justify-content:space-between;align-items:center}
+.mc-row b{font-size:17px;font-weight:800}
+.mc-ed{width:36px;height:36px;border-radius:50%;border:0;background:var(--note);color:var(--ink);display:grid;place-items:center;transition:background .2s,color .2s}
+.mc-ed:hover{background:var(--ink);color:#fff}
+.mc-ed svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mc-av{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:13.5px;font-weight:700;color:var(--muted);cursor:pointer}
+.mc-av .switch{width:40px;height:24px}
+.mc-av .switch span::after{width:18px;height:18px}
+.mc-av .switch input:checked+span{background:var(--ink)}
+.mc-av .switch input:checked+span::after{transform:translateX(16px)}
+.mc.out .mc-pic{filter:grayscale(1);opacity:.5}
+.mc.out .mc-nm,.mc.out .mc-row b{color:var(--faint)}
+.mc.out .mc-av{color:var(--red)}
+.mc-none{grid-column:1/-1;color:var(--muted);font-weight:600;padding:20px 4px}
+.mside{position:sticky;top:96px}
+.ms-card{background:#fff;border-radius:24px;padding:24px;box-shadow:0 1px 2px rgba(42,24,35,.05),0 14px 36px -18px rgba(42,24,35,.18)}
+.ms-k{margin:0;font-size:13.5px;font-weight:800;color:var(--muted)}
+.ms-big{display:flex;align-items:baseline;gap:10px;margin:6px 0 16px}
+.ms-big b{font-size:44px;font-weight:800;letter-spacing:-1.5px;line-height:1}
+.ms-big span{font-weight:600;color:var(--muted);font-size:14.5px}
+.ms-two{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ms-two div{padding:14px 0;display:flex;flex-direction:column;gap:2px}
+.ms-two div+div{border-left:1px solid var(--line);padding-left:18px}
+.ms-two b{font-size:22px;font-weight:800}
+.ms-two b.red{color:var(--red)}
+.ms-two span{font-size:13px;font-weight:600;color:var(--muted)}
+.ms-sec{margin-top:18px}
+.ms-h{margin:0 0 10px;font-size:14px;font-weight:800}
+.ms-out{list-style:none;margin:0;padding:0;display:grid;gap:8px;max-height:260px;overflow:auto}
+.ms-out li{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center}
+.ms-th{width:34px;height:34px;border-radius:50%;background:var(--note) center/cover;filter:grayscale(1)}
+.ms-n{font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ms-back{border:0;background:var(--note);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:800;color:var(--ink);transition:background .2s,color .2s}
+.ms-back:hover{background:var(--ink);color:#fff}
+.ms-none{margin:0;color:var(--muted);font-size:14px;font-weight:600;line-height:1.45}
+.ms-tip{margin:16px 0 0;padding:10px 12px;border-radius:12px;background:#FBEAE7;color:var(--red);font-size:13.5px;font-weight:700;line-height:1.4}
+.ms-add{width:100%;height:52px;margin-top:20px;border-radius:16px}
+.ms-add svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round}
+.ms-link{display:block;text-align:center;margin-top:12px;font-weight:700;color:var(--ink);font-size:14.5px}
+@media (prefers-reduced-motion:no-preference){
+  .mc{animation:rowin .45s var(--ease) both;animation-delay:calc(var(--i) * 25ms)}
+}
+@media (max-width:980px){
+  .mgrid{grid-template-columns:minmax(0,1fr)}
+  .mside{position:static;order:-1}
+  .ms-card{padding:18px}
+  .ms-out{max-height:none}
+}
+@media (max-width:640px){
+  .mcards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .mc{padding:12px 12px 10px;border-radius:18px}
+  .mc-pic{width:88px;height:88px;margin-bottom:10px}
+  .mc-nm{font-size:14.5px}
+  .mc-av span:last-child{font-size:12.5px}
+}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -878,10 +959,15 @@ main{padding-top:88px}
   </div>
   <p class="saved-note">For now, changes save on this phone or computer only. <a href="index.html" target="_blank" rel="noopener">See your website</a></p>
 
-  <div id="part-menu">
-    <label class="find"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><input id="mq" type="search" placeholder="Find a dish" aria-label="Find a dish"></label>
-    <div class="dishes" id="dishList"></div>
-    <div class="addbar"><button class="btn" id="addDish">Add a new dish</button></div>
+  <div id="part-menu" class="mgrid">
+    <div class="mleft">
+      <div class="mtool">
+        <label class="find"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><input id="mq" type="search" placeholder="Find a dish" autocomplete="off"></label>
+      </div>
+      <div class="mcats" id="mcats" role="group" aria-label="Category"></div>
+      <div class="mcards" id="dishList"></div>
+    </div>
+    <aside class="mside" id="mside"></aside>
   </div>
 
   <form class="form words" id="part-text" hidden>
@@ -1687,21 +1773,39 @@ document.querySelectorAll("[data-part]").forEach(b => b.addEventListener("click"
 }));
 $("#fCat").innerHTML = CATS.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("");
 function saveMenu(){ if (!store.set("menu", items)) toast("Couldn't save. Try a smaller photo."); }
+let menuCat = "all";
 function renderDishes(){
   const q = $("#mq").value.trim().toLowerCase();
-  const shown = items.filter(i => !q || (i.n + " " + (i.d||"")).toLowerCase().includes(q));
-  $("#dishList").innerHTML = CATS.map(c => {
-    const list = shown.filter(i => i.cat === c.id); if (!list.length) return "";
-    return `<div class="sec">${esc(c.name)}</div>` + list.map(i => `<div class="dish${i.on ? "" : " out"}">
-      <button class="pic" data-edit="${i.id}" style="border:0;padding:0;${i.img ? `background-image:url('${photoSrc(i.img)}')` : ""}" aria-label="Change ${esc(i.n)}">${i.img ? "" : CAMERA}</button>
-      <div><div class="nm">${esc(i.n)}</div><div class="pr num">${money(+i.p)}</div></div>
-      <div class="side">
-        <label class="avail"><span>${i.on ? "Available" : "Sold out"}</span><span class="switch"><input type="checkbox" data-toggle="${i.id}" ${i.on ? "checked" : ""} aria-label="${esc(i.n)} available"><span></span></span></label>
-        <button class="link" data-edit="${i.id}">Change</button>
-      </div>
-    </div>`).join("");
-  }).join("") || `<p style="color:var(--muted);padding:20px 0">No dish called "${esc(q)}".</p>`;
+  const match = i => !q || (i.n + " " + (i.d||"")).toLowerCase().includes(q);
+  const thumb = id => items.find(i => i.cat === id && i.img);
+  $("#mcats").innerHTML = [{id:"all", name:"All"}, ...CATS].map(c => {
+    const n = items.filter(i => (c.id === "all" || i.cat === c.id) && match(i)).length, t = c.id === "all" ? null : thumb(c.id);
+    return `<button data-mcat="${c.id}" aria-pressed="${menuCat === c.id}">${t ? `<span class="ct" style="background-image:url('${photoSrc(t.img)}')"></span>` : c.id === "all" ? `<span class="ct all">${items.length}</span>` : ""}<span>${esc(c.name.replace(/ & desserts$/, ""))}</span>${c.id === "all" ? "" : `<small>${n}</small>`}</button>`;
+  }).join("");
+  const shown = items.filter(i => (menuCat === "all" || i.cat === menuCat) && match(i));
+  const cat = id => CATS.find(c => c.id === id)?.name || "";
+  $("#dishList").innerHTML = shown.map((i, k) => `<article class="mc${i.on ? "" : " out"}" style="--i:${Math.min(k, 16)}">
+      <button class="mc-pic" data-edit="${i.id}" aria-label="Change ${esc(i.n)}" ${i.img ? `style="background-image:url('${photoSrc(i.img)}')"` : ""}>${i.img ? "" : CAMERA}</button>
+      ${i.on ? "" : `<span class="mc-tag">Sold out</span>`}
+      <p class="mc-cat">${esc(cat(i.cat))}</p>
+      <p class="mc-nm">${esc(i.n)}</p>
+      <div class="mc-row"><b class="num">${money(+i.p)}</b><button class="mc-ed" data-edit="${i.id}" aria-label="Change ${esc(i.n)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button></div>
+      <label class="mc-av"><span class="switch"><input type="checkbox" data-toggle="${i.id}" ${i.on ? "checked" : ""} aria-label="${esc(i.n)} available"><span></span></span><span>${i.on ? "On the menu" : "Sold out"}</span></label>
+    </article>`).join("") || `<p class="mc-none">No dish called "${esc(q)}".</p>`;
+  const out = items.filter(i => !i.on), noPic = items.filter(i => !i.img).length;
+  $("#mside").innerHTML = `<div class="ms-card">
+      <p class="ms-k">Your menu</p>
+      <div class="ms-big"><b class="num">${items.length}</b><span>dishes on your website</span></div>
+      <div class="ms-two"><div><b class="num">${items.length - out.length}</b><span>available</span></div><div><b class="num${out.length ? " red" : ""}">${out.length}</b><span>sold out</span></div></div>
+      <div class="ms-sec"><p class="ms-h">Sold out right now</p>${out.length ? `<ul class="ms-out">${out.map(i => `<li><span class="ms-th" ${i.img ? `style="background-image:url('${photoSrc(i.img)}')"` : ""}></span><span class="ms-n">${esc(i.n)}</span><button class="ms-back" data-back-on="${i.id}">Back on</button></li>`).join("")}</ul>` : `<p class="ms-none">Everything is available. Switch a dish off when you run out.</p>`}</div>
+      ${noPic ? `<p class="ms-tip">${plural(noPic, "dish has", "dishes have")} no photo yet. Dishes with photos sell better.</p>` : ""}
+      <button class="btn ms-add" id="addDish"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add a new dish</button>
+      <a class="ms-link" href="index.html" target="_blank" rel="noopener">See your website</a>
+    </div>`;
+  $("#addDish").onclick = () => openSheet({id:"new" + Date.now(), cat: menuCat === "all" ? "pizzas" : menuCat, on:true, _new:true});
 }
+$("#mcats").addEventListener("click", e => { const b = e.target.closest("[data-mcat]"); if (!b) return; menuCat = b.dataset.mcat; renderDishes(); });
+$("#mside").addEventListener("click", e => { const b = e.target.closest("[data-back-on]"); if (!b) return; const it = items.find(i => i.id === b.dataset.backOn); it.on = true; saveMenu(); renderDishes(); toast(`${it.n} is back on the menu`); });
 $("#mq").addEventListener("input", renderDishes);
 $("#dishList").addEventListener("change", e => {
   const t = e.target.closest("[data-toggle]"); if (!t) return;
@@ -1721,7 +1825,6 @@ function openSheet(it){
 function closeSheet(){ $("#sheet").hidden = true; $("#scrim").hidden = true; document.body.style.overflow = ""; editing = null; }
 function paintPic(){ const t = $("#fPic"); t.style.backgroundImage = draftImg ? `url('${photoSrc(draftImg)}')` : ""; t.innerHTML = draftImg ? "" : CAMERA; $("#fRemove").hidden = !draftImg; }
 $("#dishList").addEventListener("click", e => { const b = e.target.closest("[data-edit]"); if (b) openSheet(items.find(i => i.id === b.dataset.edit)); });
-$("#addDish").addEventListener("click", () => openSheet({id:"new" + Date.now(), cat:"pizzas", on:true, _new:true}));
 $("#sheetClose").addEventListener("click", closeSheet); $("#scrim").addEventListener("click", () => { if (!$("#nSheet").hidden) closeNew(); else closeSheet(); });
 document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if (!$("#pop").hidden) closeOrder(); else if (!$("#nSheet").hidden) closeNew(); else if (!$("#sheet").hidden) closeSheet(); else if (curDay) zoomOut(); });
 $("#fRemove").addEventListener("click", () => { draftImg = null; paintPic(); });
