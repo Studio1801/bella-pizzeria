@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bella Pizzeria | Brazilian pizza in Worcester, MA</title>
 <meta name="description" content="Brazilian-style pizza, esfihas, pastel and X-burgers on Highland Street in Worcester, MA. Order online for pickup or delivery.">
-<meta name="theme-color" content="#173F2E">
+<meta name="theme-color" content="#C94233">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -671,6 +672,44 @@ body.chat-open .help{display:none}
 .promo .link{background:none;border:0;padding:6px;text-decoration:underline;font:inherit;color:var(--muted);cursor:pointer}
 .btn.dir{display:inline-flex;margin-top:4px}
 .visit .btn.dir{background:#fff;color:var(--green)}
+
+/* ---------- phones, round 2 ---------- */
+.tl-more{display:none}
+.totals .tl-break{display:grid;gap:6px}
+@media (max-width:860px){
+  /* the drawer footer was eating half a small screen: show the total, tuck the breakdown behind one tap */
+  .drawer footer{padding:12px 20px calc(14px + env(safe-area-inset-bottom))}
+  .drawer .totals{gap:4px;font-size:14.5px;margin-bottom:10px}
+  .drawer .totals:not(.open) .tl-break{display:none}
+  .drawer .totals .tl-break{display:grid;gap:4px;padding-bottom:6px;border-bottom:1px dashed var(--line);margin-bottom:2px}
+  .drawer .totals .grand{margin-top:0}
+  .tl-more{display:block;border:0;background:none;padding:2px 0 0;margin:0;font:inherit;font-size:13.5px;color:var(--muted);text-align:left;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:28px}
+  .tl-more b{color:var(--green);font-weight:700;text-decoration:none;display:inline-block}
+  .drawer footer .btn{min-height:54px}
+  .drawer header{padding:16px 20px 10px}
+  .drawer .body{padding:0 20px 18px;overscroll-behavior:contain}
+  .callit{margin-top:8px}
+  /* bigger targets that were still small */
+  .hero .actions .textlink{padding:12px 0}
+  .site-header .nav a.hide-sm{padding:10px 6px}
+  /* touch screens: no sticky hover lifts after a tap */
+}
+@media (max-width:860px) and (max-height:720px){
+  /* short phones (iPhone SE / mini): keep "Order now" on the first screen */
+  .hero .wrap{padding-top:20px}
+  .hero .sign{font-size:min(19vw,64px)}
+  .hero .br-note{margin-top:14px;font-size:22px}
+  .hero-photos{aspect-ratio:1/.78;margin-top:10px}
+  .hero-photos .main{bottom:22%}
+  .hero .actions{margin-top:14px}
+}
+@media (hover:none){
+  .snap:hover,.snap:focus-visible{scale:1;box-shadow:none}
+  .item:hover{border-color:inherit}
+  .pie:hover img{transform:none}
+  .help-btn:hover{transform:none}
+}
+.chat-body,.chat-ch,.drawer .body,.sheet,.glossary,.picks,.tabs .inner{overscroll-behavior:contain}
 </style>
 </head>
 <body>
@@ -740,7 +779,7 @@ body.chat-open .help{display:none}
     <div class="start" id="start">
       <div class="start-head">
         <h3>New here? Start with these four.</h3>
-        <button type="button" class="pick-me" id="pickMe"><img class="pm-icon" src="images/pizza-doodle-red.png" alt="">Can't decide? Let the pizza pick</button>
+        <button type="button" class="pick-me" id="pickMe"><img class="pm-icon" src="images/pizza-doodle-red.png" alt="" loading="lazy">Can't decide? Let the pizza pick</button>
         <span class="swipe">Swipe for more</span>
       </div>
       <div class="picks" id="picks"></div>
@@ -1275,6 +1314,7 @@ function addLine(id, picks, q = 1, quiet){
   const key = keyOf(id, picks), line = cart.find(l => l.key === key);
   const first = !qtyOf(id);
   if (line) line.q += q; else cart.push({key, id, picks: picks || [], q});
+  try { if (navigator.vibrate && matchMedia("(pointer:coarse)").matches) navigator.vibrate(8); } catch(e){}
   afterChange(id);
   if (first && !quiet && !drawer.classList.contains("show")) toast(`${ITEMS[id].n} added`);
 }
@@ -1338,6 +1378,19 @@ function renderAgain(){
 
 /* ---------- choice sheet (6 esfihas flavors) ---------- */
 const sheet = $("#sheet");
+/* phones: the back button closes whatever is open (sheet, order, chat) instead of leaving the site,
+   and the page behind an open panel doesn't scroll on iPhone */
+const OV = {stack:[], skip:0, fromPop:false};
+function ovPush(n){ if (OV.stack[OV.stack.length - 1] === n) return; OV.stack.push(n); try { history.pushState({ov:n}, ""); } catch(e){} }
+function ovGone(n){ if (OV.fromPop) return; const i = OV.stack.lastIndexOf(n); if (i < 0) return; OV.stack.splice(i, 1); OV.skip++; history.back(); }
+addEventListener("popstate", () => {
+  if (OV.skip){ OV.skip--; return; }
+  const n = OV.stack.pop(); if (!n) return;
+  OV.fromPop = true; try { ({drawer:closeDrawer, sheet:closeSheet, chat:closeChat})[n](); } finally { OV.fromPop = false; }
+});
+let bodyLockY = null;
+function lockBody(){ if (bodyLockY !== null || !matchMedia("(max-width:860px)").matches) return; bodyLockY = scrollY; Object.assign(document.body.style, {position:"fixed", top:`-${bodyLockY}px`, left:"0", right:"0", width:"100%"}); }
+function unlockBody(){ if (bodyLockY === null) return; Object.assign(document.body.style, {position:"", top:"", left:"", right:"", width:""}); scrollTo({top:bodyLockY, behavior:"instant"}); bodyLockY = null; }
 function openSheet(id){
   const it = ITEMS[id], o = it.opts;
   sheet.dataset.id = id;
@@ -1347,11 +1400,14 @@ function openSheet(id){
     <form id="sheetForm">${o.choices.map(c => `<label class="choice"><input type="${o.max === 1 ? "radio" : "checkbox"}" name="opt" value="${esc(c)}"><span>${esc(c)}</span></label>`).join("")}</form>
     <button class="btn" id="sheetAdd" ${o.min ? "disabled" : ""}>${o.min ? `Pick ${o.min === 1 ? "one" : "at least " + o.min + " " + (o.unit || "flavor") + "s"}` : `Add to order, ${money(it.p)}`}</button>`;
   sheet.classList.add("show"); scrim.classList.add("show"); sheet.setAttribute("aria-hidden","false");
-  setTimeout(() => sheet.querySelector("input").focus(), 60);
+  lockBody(); ovPush("sheet");
+  if (matchMedia("(pointer:fine)").matches) setTimeout(() => sheet.querySelector("input").focus(), 60);
 }
 function closeSheet(){
+  const was = sheet.classList.contains("show");
   sheet.classList.remove("show"); sheet.setAttribute("aria-hidden","true");
-  if (!drawer.classList.contains("show")) scrim.classList.remove("show");
+  if (!drawer.classList.contains("show")){ scrim.classList.remove("show"); unlockBody(); }
+  if (was) ovGone("sheet");
 }
 sheet.addEventListener("change", () => {
   const o = ITEMS[sheet.dataset.id].opts, boxes = [...sheet.querySelectorAll("input")];
@@ -1387,16 +1443,20 @@ const drawer = $("#drawer"), scrim = $("#scrim");
 let lastFocus = null;
 function openDrawer(){
   lastFocus = document.activeElement;
-  view = "cart"; renderDrawer();
+  view = "cart"; renderDrawer(); $("#toast").classList.remove("show");
   drawer.classList.add("show"); scrim.classList.add("show");
   drawer.setAttribute("aria-hidden","false"); document.body.style.overflow = "hidden"; document.body.classList.add("drawer-open");
-  setTimeout(() => $("#closeCart").focus(), 50);
+  lockBody(); ovPush("drawer");
+  setTimeout(() => $("#closeCart").focus({preventScroll:true}), 50);
 }
 function closeDrawer(){
+  const was = drawer.classList.contains("show");
   drawer.classList.remove("show"); scrim.classList.remove("show");
   drawer.setAttribute("aria-hidden","true"); document.body.style.overflow = ""; document.body.classList.remove("drawer-open");
   if (view === "done") view = "cart";
-  if (lastFocus) lastFocus.focus();
+  unlockBody();
+  if (lastFocus && matchMedia("(pointer:fine)").matches) lastFocus.focus({preventScroll:true});
+  if (was) ovGone("drawer");
 }
 
 function modeToggle(){
@@ -1406,15 +1466,20 @@ function modeToggle(){
   </div>
   <p class="eta">${readyLine()}</p>`;
 }
+let totalsOpen = false;
 function totalsHtml(t){
-  return `<div class="totals">
+  const saved = t.off + t.promoOff;
+  return `<div class="totals${totalsOpen ? " open" : ""}">
+    <div class="tl-break">
     <div><span>Subtotal</span><span>${money(t.sub)}</span></div>
     ${t.off ? `<div class="save"><span>Online order discount, ${Math.round(SETTINGS.onlineDiscount * 100)}% off</span><span>&minus;${money(t.off)}</span></div>` : ""}
     ${t.promoOff ? `<div class="save"><span>Code ${esc(promo.code)}</span><span>&minus;${money(t.promoOff)}</span></div>` : ""}
-    ${t.tip ? `<div><span>Driver tip</span><span>${money(t.tip)}</span></div>` : ""}
     ${mode === "delivery" ? `<div><span>Delivery</span><span>${money(t.fee)}</span></div>` : ""}
     <div><span>Meals tax</span><span>${money(t.tax)}</span></div>
+    ${t.tip ? `<div><span>Driver tip</span><span>${money(t.tip)}</span></div>` : ""}
+    </div>
     <div class="grand"><span>Total</span><span>${money(t.total)}</span></div>
+    <button type="button" class="tl-more" data-totals aria-expanded="${totalsOpen}">${saved ? `<b>You save ${money(saved)}</b> · ` : ""}${totalsOpen ? "Hide details" : "Tax and fees, see details"}</button>
   </div>`;
 }
 /* Pizza night in Brazil ends with a Guaraná and a sweet pizza. Offer only what's missing. */
@@ -1505,6 +1570,7 @@ document.addEventListener("click", e => {
   const li = t.closest("[data-line-inc]"), ld = t.closest("[data-line-dec]");
   const m = t.closest("[data-mode]"), v = t.closest("[data-view]");
   if (t.closest("[data-close-sheet]")) { closeSheet(); return; }
+  if (t.closest("[data-totals]")) { totalsOpen = !totalsOpen; const box = t.closest(".totals"); box.classList.toggle("open", totalsOpen); const b = t.closest("[data-totals]"); b.setAttribute("aria-expanded", totalsOpen); b.lastChild.textContent = totalsOpen ? "Hide details" : "Tax and fees, see details"; return; }
   if (t.closest("[data-clear-search]")) { clearSearch(); return; }
   const hb = t.closest("[data-hear]"); if (hb) { sayIt(hb); return; }
   if (t.id === "sheetAdd"){
@@ -1879,15 +1945,17 @@ function chatTyped(text){
 let lockY = 0;
 function openChat(){
   setHelp(false); $("#chat").hidden = false; document.body.classList.add("chat-open");
-  if (matchMedia("(max-width:600px)").matches){ lockY = scrollY; document.body.style.cssText += `;position:fixed;top:-${lockY}px;left:0;right:0`; }
+  if (matchMedia("(max-width:600px)").matches) lockBody();
+  ovPush("chat");
   const st = $("#chatStatus"); st.classList.toggle("off", !isOpen()); st.lastChild.textContent = isOpen() ? "Usually replies in a few minutes" : "Closed now. We reply at 11 am";
   $("#chatBody").dataset.n = 0; renderChat();
   if (matchMedia("(pointer:fine)").matches) $("#chatText").focus();
 }
 function closeChat(){
+  const was = !$("#chat").hidden;
   $("#chat").hidden = true; document.body.classList.remove("chat-open");
-  if (document.body.style.position === "fixed"){ document.body.style.position = ""; document.body.style.top = ""; document.body.style.left = ""; document.body.style.right = ""; scrollTo({top:lockY, behavior:"instant"}); }
-  renderChat();
+  unlockBody(); renderChat();
+  if (was) ovGone("chat");
 }
 $("#chatGo").addEventListener("click", openChat);
 $("#chatX").addEventListener("click", closeChat);

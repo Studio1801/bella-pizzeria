@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Bella Dashboard</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#C94233">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bella">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -436,7 +442,6 @@ main.wrap{padding-top:40px}
 .r2-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin-top:6px;font-size:13.5px;font-weight:600;color:var(--muted)}
 .r2-ph,.r2-ad{display:inline-flex;align-items:center;gap:5px;color:var(--muted);text-decoration:none}
 .r2-ph{color:var(--ink);font-weight:700;padding:3px 9px 3px 7px;margin:-3px 0;border-radius:999px;background:var(--note);transition:background .2s,color .2s}
-.r2-ph:hover{background:var(--ink);color:#fff}
 .r2-ph svg,.r2-ad svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .r2-note{display:block;margin-top:8px;padding:8px 12px;border-radius:12px;background:#FBEAE7;font-size:14px;font-weight:600;line-height:1.35;max-width:34em}
 .r2-note b{font-family:var(--mark);font-weight:400;color:var(--red);margin-right:8px;font-size:13.5px}
@@ -835,6 +840,34 @@ section#chat{max-width:none}
 .tk-chat{margin-left:0;border:0;cursor:pointer;padding:0}
 .cx-ord{border:0;font:inherit;font-size:11.5px;font-weight:800;padding:3px 8px;border-radius:999px;background:var(--ink);color:#fff;cursor:pointer}
 .cx-hm em{font-style:normal;font-size:12.5px;color:var(--muted);font-weight:600}
+
+/* ---------- phones, round 2 ---------- */
+@media (max-width:640px){
+  .dots{gap:4px}
+  .dots button{position:relative}
+  .dots button::after{content:"";position:absolute;inset:-14px -6px}
+  .pager .arrow,.arrow{width:44px;height:44px}
+  .cx-back{width:44px;height:44px}
+  .cx-tags i,.cx-hm i,.cx-ord,.cb-l,.via{font-size:12px}
+  .cb time{font-size:12px}
+  .test .link,#csv{display:inline-block;padding:10px 0}
+  .mc-ed{width:40px;height:40px}
+  .top .wrap{padding-top:max(10px, env(safe-area-inset-top))}
+}
+.rail,.cx-msgs,.cx-list,.sheet .body,#nSheet .body,.mcats,.cx-quick{overscroll-behavior:contain}
+@media (hover:none){
+  .tk:hover,.mc:hover{transform:none}
+  .mc:hover .mc-pic{transform:none}
+  .tabs button:hover{opacity:.85}
+}
+
+.a2hs{display:flex;align-items:center;gap:12px;background:#fff;border-radius:18px;padding:14px 14px 14px 16px;margin:-6px 0 18px;box-shadow:0 1px 2px rgba(42,24,35,.06),0 8px 22px -14px rgba(42,24,35,.25)}
+.a2hs[hidden]{display:none}
+.a2hs > div{flex:1;min-width:0;display:grid;gap:2px}
+.a2hs b{font-size:15px;font-weight:800}
+.a2hs span{font-size:13.5px;color:var(--muted);font-weight:500;line-height:1.35}
+.a2hs .btn{padding:10px 16px;border-radius:999px;font-size:14.5px}
+.a2hs-x{border:0;background:none;color:var(--muted);font:inherit;font-size:13.5px;font-weight:700;padding:10px 4px;cursor:pointer}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -1123,6 +1156,7 @@ main{padding-top:88px}
     </div>
     <button class="btn plus" id="newOrder"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New order</button>
   </div>
+  <div class="a2hs" id="a2hs" hidden><div><b>Put Bella on your home screen</b><span id="a2hsHow"></span></div><button class="btn" id="a2hsGo" hidden>Install</button><button class="a2hs-x" id="a2hsX" aria-label="Not now">Not now</button></div>
   <p class="paused" id="pausedNote" hidden>Online orders are off. Your website asks customers to call you instead. Turn the switch back on when you're ready.</p>
 
   <div id="nowWrap"></div>
@@ -1420,6 +1454,19 @@ function moveSlider(){
   const w = on.offsetWidth + 4; sl.style.width = on.offsetWidth + "px"; sl.style.transform = `translateX(${on.offsetLeft}px)`;
 }
 let curTab = "orders";
+/* phones: the back button closes the open order, sheet, day or conversation instead of leaving the dashboard */
+const OV = {stack:[], skip:0, fromPop:false};
+function ovPush(n){ if (OV.stack[OV.stack.length - 1] === n) return; OV.stack.push(n); try { window.history.pushState({ov:n}, ""); } catch(e){} }
+function ovGone(n){ if (OV.fromPop) return; const i = OV.stack.lastIndexOf(n); if (i < 0) return; OV.stack.splice(i, 1); OV.skip++; window.history.back(); }
+addEventListener("popstate", () => {
+  if (OV.skip){ OV.skip--; return; }
+  const n = OV.stack.pop(); if (!n) return;
+  OV.fromPop = true;
+  try { ({pop:closeOrder, new:closeNew, edit:closeSheet, day:zoomOut, thread:() => { chatSel = null; renderChat(); }})[n](); } finally { OV.fromPop = false; }
+});
+let bodyLockY = null;
+function lockBody(){ if (bodyLockY !== null || !matchMedia("(max-width:860px)").matches) return; bodyLockY = scrollY; Object.assign(document.body.style, {position:"fixed", top:`-${bodyLockY}px`, left:"0", right:"0", width:"100%"}); }
+function unlockBody(){ if (bodyLockY === null) return; Object.assign(document.body.style, {position:"", top:"", left:"", right:"", width:""}); scrollTo({top:bodyLockY, behavior:"instant"}); bodyLockY = null; }
 function showTab(id, instant){
   const from = TABS.indexOf(curTab), to = TABS.indexOf(id);
   const apply = () => {
@@ -1701,7 +1748,7 @@ function renderPanel(){
       <span class="av" aria-hidden="true">${esc(ini)}</span>
       <span class="r2-main"><span class="r2-top"><b>${esc(o.name)}</b><span class="r2-k">${ICON[o.kind]}${o.kind === "pickup" ? "Pickup" : "Delivery"}</span></span>
         <span class="r2-it">${esc(shortItems(o, M))}</span>
-        <span class="r2-meta"><span class="r2-t num">${t}</span>${o.phone ? `<a class="r2-ph num" href="tel:${o.phone.replace(/\D/g,"")}">${ICON.phone}${esc(o.phone)}</a>` : ""}${o.addr ? `<span class="r2-ad">${ICON.pin}${esc(o.addr)}</span>` : ""}</span>
+        <span class="r2-meta"><span class="r2-t num">${t}</span>${o.phone ? `<span class="r2-ph num">${ICON.phone}${esc(o.phone)}</span>` : ""}${o.addr ? `<span class="r2-ad">${ICON.pin}${esc(o.addr)}</span>` : ""}</span>
         ${o.note ? `<span class="r2-note"><b>Note</b>${esc(o.note)}</span>` : ""}
       </span>
       <span class="r2-end"><span class="r2-p num">${money(o.sub)}</span><span class="stt ${wait ? "wait" : "done"}">${wait ? `<i class="live-dot"></i>Waiting` : `${CHECK}${o.kind === "pickup" ? "Picked up" : "Delivered"}`}</span></span>
@@ -1742,12 +1789,14 @@ function morph(name, el, update){
   return t;
 }
 function zoomIn(k){
+  ovPush("day");
   const card = document.querySelector(`.day[data-day="${k}"]`);
   morph("dayzoom", card, () => { curDay = k; $("#nowWrap").hidden = true; $("#weekWrap").hidden = true; $("#panel").hidden = false; renderPanel(); });
   const top = $("#panel").getBoundingClientRect().top; if (top < 70) scrollTo({top: 0, behavior: "smooth"});
 }
 function zoomOut(){
   const k = curDay; if (!k) return;
+  ovGone("day");
   const panel = $("#panel");
   if (!document.startViewTransition || calmMotion){ curDay = null; showWeek(k); return; }
   panel.style.viewTransitionName = "dayzoom";
@@ -1796,9 +1845,10 @@ function openOrder(num){
     html += `<p class="gone">${o.kind === "pickup" ? "Picked up" : "Delivered"}</p>` + (canUndo ? `<button class="undo" data-undo="${o.num}">Undo, it's not done yet</button>` : "");
   }
   $("#popBox").innerHTML = html + `<button class="link" id="popBack" style="display:block;margin:14px auto 0">Back</button>`;
-  $("#pop").hidden = false; document.body.style.overflow = "hidden";
+  const was = !$("#pop").hidden;
+  $("#pop").hidden = false; document.body.style.overflow = "hidden"; lockBody(); if (!was) ovPush("pop");
 }
-function closeOrder(){ $("#pop").hidden = true; document.body.style.overflow = ""; }
+function closeOrder(){ const was = !$("#pop").hidden; $("#pop").hidden = true; document.body.style.overflow = ""; unlockBody(); if (was) ovGone("pop"); }
 $("#pop").addEventListener("click", e => {
   if (e.target.id === "pop" || e.target.id === "popBack") { closeOrder(); return; }
   const u = e.target.closest("[data-undo]");
@@ -1830,10 +1880,10 @@ function openNew(){
   $("#nTime").value = `${String(t.getHours()).padStart(2,"0")}:${String(Math.ceil(t.getMinutes() / 5) * 5 % 60).padStart(2,"0")}`;
   $("#nWhenHint").hidden = !isToday;
   paintNew();
-  $("#nSheet").hidden = false; $("#scrim").hidden = false; document.body.style.overflow = "hidden";
-  setTimeout(() => $("#nName").focus(), 60);
+  $("#nSheet").hidden = false; $("#scrim").hidden = false; document.body.style.overflow = "hidden"; lockBody(); ovPush("new");
+  if (matchMedia("(pointer:fine)").matches) setTimeout(() => $("#nName").focus(), 60);
 }
-function closeNew(){ $("#nSheet").hidden = true; $("#scrim").hidden = true; document.body.style.overflow = ""; }
+function closeNew(){ const was = !$("#nSheet").hidden; $("#nSheet").hidden = true; $("#scrim").hidden = true; document.body.style.overflow = ""; unlockBody(); if (was) ovGone("new"); }
 function nSub(){ const M = byId(); return nLines.reduce((s,l) => s + l.q * (M[l.id]?.p || 0), 0); }
 function paintNew(){
   const M = byId();
@@ -2096,9 +2146,9 @@ function openSheet(it){
   $("#sheetTitle").textContent = it._new ? "New dish" : "Change dish";
   form.n.value = it.n || ""; form.p.value = it.p != null ? (+it.p).toFixed(2) : ""; form.cat.value = it.cat; form.d.value = it.d || ""; form.x.value = it.x || ""; form.say.value = it.say || ""; form.on.checked = it.on !== false;
   $("#fDelete").hidden = !!it._new; paintPic();
-  $("#sheet").hidden = false; $("#scrim").hidden = false; document.body.style.overflow = "hidden";
+  $("#sheet").hidden = false; $("#scrim").hidden = false; document.body.style.overflow = "hidden"; lockBody(); ovPush("edit");
 }
-function closeSheet(){ $("#sheet").hidden = true; $("#scrim").hidden = true; document.body.style.overflow = ""; editing = null; }
+function closeSheet(){ const was = !$("#sheet").hidden; $("#sheet").hidden = true; $("#scrim").hidden = true; document.body.style.overflow = ""; editing = null; unlockBody(); if (was) ovGone("edit"); }
 function paintPic(){ const t = $("#fPic"); t.style.backgroundImage = draftImg ? `url('${photoSrc(draftImg)}')` : ""; t.innerHTML = draftImg ? "" : CAMERA; $("#fRemove").hidden = !draftImg; }
 $("#dishList").addEventListener("click", e => { const b = e.target.closest("[data-edit]"); if (b) openSheet(items.find(i => i.id === b.dataset.edit)); });
 $("#sheetClose").addEventListener("click", closeSheet); $("#scrim").addEventListener("click", () => { if (!$("#nSheet").hidden) closeNew(); else closeSheet(); });
@@ -2216,9 +2266,9 @@ function sendReply(text){
   t.msgs.push({from:"bella", text:text.trim(), at:Date.now()}); t.unreadGuest = (t.unreadGuest || 0) + 1; t.updated = Date.now();
   d.threads.sort((a, b) => (b.updated || 0) - (a.updated || 0)); chatSave(d); $("#cxText") && ($("#cxText").value = ""); renderChat();
 }
-$("#cxList").addEventListener("click", e => { const b = e.target.closest("[data-th]"); if (!b) return; chatSel = b.dataset.th; renderChat(); if (matchMedia("(pointer:fine)").matches) $("#cxText")?.focus(); });
+$("#cxList").addEventListener("click", e => { const b = e.target.closest("[data-th]"); if (!b) return; chatSel = b.dataset.th; if (matchMedia("(max-width:860px)").matches) ovPush("thread"); renderChat(); if (matchMedia("(pointer:fine)").matches) $("#cxText")?.focus(); });
 $("#cxThread").addEventListener("click", e => {
-  if (e.target.closest("[data-cxback]")){ chatSel = null; renderChat(); return; }
+  if (e.target.closest("[data-cxback]")){ chatSel = null; ovGone("thread"); renderChat(); return; }
   const q = e.target.closest("[data-qr]"); if (q) sendReply(q.dataset.qr);
 });
 $("#cxThread").addEventListener("submit", e => { e.preventDefault(); sendReply($("#cxText").value); });
@@ -2249,6 +2299,18 @@ function ding(){
   if (!audioCtx) return;
   try { const t = audioCtx.currentTime; [880, 1320].forEach((f, i) => { const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = "sine"; o.frequency.value = f; g.gain.setValueAtTime(0, t + i * .14); g.gain.linearRampToValueAtTime(.18, t + i * .14 + .02); g.gain.exponentialRampToValueAtTime(.001, t + i * .14 + .35); o.connect(g).connect(audioCtx.destination); o.start(t + i * .14); o.stop(t + i * .14 + .4); }); } catch(e){}
 }
+
+/* phones: offer to put the dashboard on the home screen so it opens like an app */
+(() => {
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (standalone || !matchMedia("(max-width:860px)").matches || store.get("a2hsNo", false)) return;
+  const box = $("#a2hs"), ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  let ev = null;
+  if (ios){ $("#a2hsHow").textContent = "Tap the Share button, then Add to Home Screen. It opens like an app, full screen."; box.hidden = false; }
+  addEventListener("beforeinstallprompt", e => { e.preventDefault(); ev = e; $("#a2hsHow").textContent = "Opens like an app, full screen, one tap from your home screen."; $("#a2hsGo").hidden = false; box.hidden = false; });
+  $("#a2hsGo").addEventListener("click", async () => { if (!ev) return; ev.prompt(); try { await ev.userChoice; } catch(e){} box.hidden = true; });
+  $("#a2hsX").addEventListener("click", () => { store.set("a2hsNo", true); box.hidden = true; });
+})();
 </script>
 </body>
 </html>
