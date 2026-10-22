@@ -452,6 +452,91 @@ main.wrap{padding-top:40px}
   .r2-end{grid-column:2;flex-direction:row-reverse;justify-content:space-between;align-items:center;margin-top:6px}
   .r2-k{display:inline-flex}
 }
+
+/* ---------- money v2 ---------- */
+section#money{max-width:none}
+.m-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+.m-head .seg{margin-top:0}
+.m-hero{background:#fff;border-radius:26px;padding:28px 30px 8px;box-shadow:0 1px 2px rgba(42,24,35,.05),0 14px 36px -16px rgba(42,24,35,.16);margin-bottom:18px}
+.m-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.m-lbl{margin:0;font-size:15px;font-weight:700;color:var(--muted)}
+.m-amt{font-size:clamp(52px,7vw,76px);font-weight:800;letter-spacing:-2.5px;line-height:1;margin:6px 0 12px}
+.m-cmp{display:inline-flex;align-items:center;gap:6px;font-size:14.5px;font-weight:700;padding:6px 12px 6px 9px;border-radius:999px}
+.m-cmp svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.m-cmp.up{background:var(--note);color:var(--ink)}
+.m-cmp.down{background:#FBEAE7;color:var(--red)}
+.m-key{display:flex;gap:18px;font-size:13px;font-weight:700;color:var(--muted);padding-top:4px}
+.m-key span,.m-tip span{display:inline-flex;align-items:center;gap:7px}
+.k-now,.k-prev{display:inline-block;width:16px;height:3px;border-radius:3px;background:var(--red)}
+.k-prev{background:none;border-top:2px dashed #BFB3B8;height:0}
+.m-chart{position:relative;margin:22px -6px 0;height:260px;touch-action:pan-y;cursor:crosshair}
+.m-chart svg{width:100%;height:100%;display:block;overflow:visible}
+.m-chart .grid{stroke:var(--line);stroke-width:1;vector-effect:non-scaling-stroke}
+.m-chart text{font-family:var(--body);font-size:12.5px;font-weight:700;fill:var(--faint)}
+.m-chart .prev{fill:none;stroke:#C9BEC3;stroke-width:2;stroke-dasharray:5 6}
+.m-chart .area{fill:url(#mfill)}
+.m-chart .line{fill:none;stroke:var(--red);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.m-end{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#fff;border:3px solid var(--red);pointer-events:none}
+.m-end::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:3px solid var(--red);animation:ping 2s cubic-bezier(0,0,.2,1) 1.6s infinite}
+.m-chart .yl{position:absolute;right:6px;transform:translateY(-130%);font-size:12px;font-weight:700;color:var(--faint);pointer-events:none}
+.m-chart .xl{position:absolute;top:calc(100% - 22px);transform:translateX(-50%);font-size:12.5px;font-weight:700;color:var(--faint);white-space:nowrap;pointer-events:none}
+.m-chart .xl.first{transform:none}.m-chart .xl.last{transform:translateX(-100%)}
+.m-chart .hov{stroke:var(--ink);stroke-width:1;stroke-dasharray:3 4;opacity:0;transition:opacity .2s}
+.m-dot{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--red);border:3px solid #fff;box-shadow:0 2px 8px rgba(201,66,51,.45);pointer-events:none}
+.m-tip{position:absolute;top:-6px;transform:translate(-50%,-100%);background:var(--ink);color:#fff;border-radius:14px;padding:10px 14px;font-size:13.5px;font-weight:600;display:grid;gap:4px;white-space:nowrap;pointer-events:none;box-shadow:0 10px 24px -8px rgba(42,24,35,.5)}
+.m-tip b{font-size:12.5px;opacity:.7;font-weight:700}
+.m-tip .k-prev{border-color:rgba(255,255,255,.5)}
+.m-stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);margin:14px -30px 0}
+.m-stats div{padding:20px 30px 22px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.m-stats div:first-child{border-left:0}
+.m-stats .k{font-size:13.5px;font-weight:700;color:var(--muted)}
+.m-stats b{font-size:26px;font-weight:800;letter-spacing:-.6px;line-height:1}
+.m-stats b small{font-size:16px;color:var(--faint);font-weight:700;letter-spacing:0}
+.split{display:block;height:5px;border-radius:5px;background:var(--note);overflow:hidden;margin-top:4px}
+.split i{display:block;height:100%;background:var(--ink);border-radius:5px;transition:width .8s var(--ease)}
+.m-two{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-bottom:18px}
+.m-card{background:#fff;border-radius:24px;padding:24px 26px;box-shadow:0 1px 2px rgba(42,24,35,.05),0 14px 36px -18px rgba(42,24,35,.14)}
+.m-card h2{margin:0 0 14px;font-size:17px;font-weight:800}
+.m-best{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.m-best li{display:grid;grid-template-columns:28px 1fr auto;gap:12px;align-items:center;padding:9px 0}
+.m-best .rk{font-family:var(--mark);font-size:20px;color:var(--red);font-weight:400}
+.m-best .nm{font-weight:700;font-size:16px}
+.m-best .bar{display:block;height:6px;border-radius:6px;background:var(--note);margin-top:7px;overflow:hidden}
+.m-best .bar i{display:block;height:100%;border-radius:6px;background:var(--ink)}
+.m-best li:first-child .bar i{background:var(--red)}
+.m-best .c{font-weight:800;font-size:16px}
+.m-best .none{display:block;color:var(--muted);font-weight:600}
+.m-kept{background:var(--ink);color:#fff;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.m-kept h2{color:rgba(255,255,255,.7)}
+.m-kept{justify-content:flex-start}
+.m-kept .kamt{font-size:64px;font-weight:800;letter-spacing:-2px;line-height:1;margin:auto 0 16px}
+.m-kept p{margin:0;color:rgba(255,255,255,.72);font-size:15px;font-weight:500;line-height:1.5;max-width:26em}
+.m-kept::after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,66,51,.55),transparent 70%)}
+@media (prefers-reduced-motion:no-preference){
+  .m-chart .line,.m-chart .area{animation:mline 1.2s cubic-bezier(.45,0,.2,1) .1s both}
+  @keyframes mline{from{clip-path:inset(-10% 100% -10% 0)}to{clip-path:inset(-10% 0 -10% 0)}}
+  .m-end{animation:mpop .45s cubic-bezier(.3,1.6,.5,1) 1.2s both}
+  @keyframes mpop{from{transform:scale(0)}}
+  .m-chart .prev{animation:mfade .6s ease-out .2s both}
+  @keyframes mfade{from{opacity:0}}
+  .m-best .bar i{animation:mbar .8s var(--ease) both;animation-delay:calc(var(--i) * 70ms + 200ms);transform-origin:left}
+  @keyframes mbar{from{transform:scaleX(0)}}
+  .m-stats div,.m-card{animation:rowin .5s var(--ease) both}
+  .m-stats div:nth-child(2){animation-delay:.06s}.m-stats div:nth-child(3){animation-delay:.12s}.m-stats div:nth-child(4){animation-delay:.18s}
+  .m-two .m-card:nth-child(2){animation-delay:.1s}
+}
+@media (max-width:760px){
+  .m-hero{padding:22px 18px 4px;border-radius:22px}
+  .m-key{display:none}
+  .m-chart{height:190px}
+  .m-stats{grid-template-columns:1fr 1fr;margin:10px -18px 0}
+  .m-stats div{padding:16px 18px}
+  .m-stats div:nth-child(3){border-left:0}
+  .m-stats div:nth-child(n+3){border-top:1px solid var(--line)}
+  .m-stats b{font-size:22px}
+  .m-two{grid-template-columns:1fr}
+  .m-kept .kamt{font-size:46px}
+}
 body{padding-bottom:40px}
 
 /* ---------- page heading: a greeting and one plain sentence ---------- */
@@ -758,7 +843,7 @@ main{padding-top:88px}
 
 <!-- ================= MONEY ================= -->
 <section id="money" role="tabpanel" aria-labelledby="t-money" hidden>
-  <div class="head">
+  <div class="m-head">
     <p class="hello"><span class="ht"><span>Your money</span><svg class="swoosh" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M6 24 C 90 8, 230 4, 394 16"/><path pathLength="1" d="M30 34 C 120 22, 250 20, 340 30"/></svg></span></p>
     <div class="seg" role="group" aria-label="Time period">
       <button data-range="1" aria-pressed="true">Today</button>
@@ -766,11 +851,18 @@ main{padding-top:88px}
       <button data-range="30" aria-pressed="false">This month</button>
     </div>
   </div>
-  <div class="big"><div class="amt num" id="amt"></div><div class="lbl" id="amtLbl"></div><span class="cmp" id="cmp"></span></div>
-  <div class="three" id="tiles"></div>
-  <div class="card chart"><h2 id="chartTitle"></h2><div id="chart"></div></div>
-  <div class="card"><h2>What sold the most</h2><ol class="best" id="best"></ol></div>
-  <div class="card kept" id="kept"></div>
+  <div class="m-hero">
+    <div class="m-top">
+      <div><p class="m-lbl" id="amtLbl"></p><div class="m-amt num" id="amt">$0</div><span class="m-cmp" id="cmp"></span></div>
+      <div class="m-key" aria-hidden="true"><span><i class="k-now"></i><span id="keyNow">Today</span></span><span><i class="k-prev"></i><span id="keyPrev">Last week</span></span></div>
+    </div>
+    <div class="m-chart" id="chart"></div>
+    <div class="m-stats" id="tiles"></div>
+  </div>
+  <div class="m-two">
+    <div class="m-card"><h2>Best sellers</h2><ol class="m-best" id="best"></ol></div>
+    <div class="m-card m-kept" id="kept"></div>
+  </div>
   <p class="test"><button class="link" id="csv">Download this as a spreadsheet</button></p>
 </section>
 
@@ -1487,55 +1579,97 @@ function periodOrders(days, backDays = 0){
   return {start, list: allOrders().filter(o => o.at >= start.getTime() && o.at <= end.getTime())};
 }
 const sum = l => l.reduce((s,o) => s + o.sub, 0);
+function countUp(el, to, fmt){
+  const from = +(el.dataset.v || 0); el.dataset.v = to;
+  if (calmMotion){ el.textContent = fmt(to); return; }
+  const t0 = performance.now(), d = 800;
+  const step = t => { const p = Math.min(1, (t - t0) / d), e = 1 - Math.pow(1 - p, 3); el.textContent = fmt(from + (to - from) * e); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+const hr12 = x => (x % 12 || 12) + (x < 12 ? " am" : " pm");
+function buckets(list, start, days, cutHour){
+  if (days === 1){
+    const b = Array.from({length:13}, (_, i) => ({label: hr12(11+i).replace(" ", ""), full: hr12(11+i), v:0, off: cutHour != null && 11 + i > cutHour}));
+    list.forEach(o => { const i = new Date(o.at).getHours() - 11; if (b[i]) b[i].v += o.sub; });
+    return b;
+  }
+  const b = Array.from({length:days}, (_, i) => { const d = new Date(start); d.setDate(d.getDate() + i);
+    return {label: days === 7 ? d.toLocaleDateString("en-US",{weekday:"short"}) : d.toLocaleDateString("en-US",{month:"short",day:"numeric"}), full: d.toLocaleDateString("en-US",{weekday:"long", month:"short", day:"numeric"}), v:0}; });
+  list.forEach(o => { const i = Math.round((new Date(new Date(o.at).toDateString()) - new Date(start.toDateString())) / 864e5); if (b[i]) b[i].v += o.sub; });
+  return b;
+}
 function renderMoney(){
-  const {start, list} = periodOrders(range), prev = periodOrders(range, range === 1 ? 7 : range).list;
+  const back = range === 1 ? 7 : range;
+  const {start, list} = periodOrders(range), P = periodOrders(range, back), prev = P.list;
   const sales = sum(list), ps = sum(prev), n = list.length, diff = sales - ps;
-  const words = {1:["made today","last " + nowNY().toLocaleDateString("en-US",{weekday:"long"}) + " by this time"], 7:["made in the last 7 days","the 7 days before"], 30:["made in the last 30 days","the 30 days before"]}[range];
-  $("#amt").textContent = money0(sales);
-  $("#amtLbl").textContent = `You ${words[0]}`;
-  const c = $("#cmp"); c.className = "cmp " + (diff >= 0 ? "up" : "down");
-  c.textContent = `${money0(Math.abs(diff))} ${diff >= 0 ? "more" : "less"} than ${words[1]}`;
+  const day = nowNY().toLocaleDateString("en-US",{weekday:"long"});
+  const words = {1:["Sales today", `last ${day}`, "Today", `Last ${day}`], 7:["Sales, last 7 days", "the week before", "This week", "Week before"], 30:["Sales, last 30 days", "the month before", "This month", "Month before"]}[range];
+  $("#amtLbl").textContent = words[0];
+  countUp($("#amt"), sales, v => money0(v));
+  const c = $("#cmp"), pct = ps ? Math.round(Math.abs(diff) / ps * 100) : 0;
+  c.className = "m-cmp " + (diff >= 0 ? "up" : "down");
+  c.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${diff >= 0 ? "M12 19V5M6 11l6-6 6 6" : "M12 5v14M6 13l6 6 6-6"}"/></svg>${money0(Math.abs(diff))}${ps ? ` (${pct}%)` : ""} ${diff >= 0 ? "more" : "less"} than ${words[1]}${range === 1 ? " by this time" : ""}`;
+  $("#keyNow").textContent = words[2]; $("#keyPrev").textContent = words[3];
 
   const h = Array(24).fill(0); list.forEach(o => h[new Date(o.at).getHours()]++);
-  const peak = h.indexOf(Math.max(...h)), hr = x => (x % 12 || 12) + (x < 12 ? " am" : " pm");
-  $("#tiles").innerHTML = [
-    [n.toLocaleString(), n === 1 ? "order" : "orders"],
-    [money0(n ? sales / n : 0), "average order"],
-    [n ? hr(peak) : "None", "busiest time"],
-  ].map(([v,k]) => `<div class="tile"><div class="v num">${v}</div><div class="k">${k}</div></div>`).join("");
+  const peak = h.indexOf(Math.max(...h)), nP = list.filter(o => o.kind === "pickup").length, pPct = n ? Math.round(nP / n * 100) : 0;
+  $("#tiles").innerHTML = `
+    <div><span class="k">Orders</span><b class="num">${n.toLocaleString()}</b></div>
+    <div><span class="k">Average order</span><b class="num">${money(n ? sales / n : 0)}</b></div>
+    <div><span class="k">Busiest hour</span><b class="num">${n ? hr12(peak) : "None"}</b></div>
+    <div><span class="k">Pickup / delivery</span><b class="num">${pPct}% <small>/ ${n ? 100 - pPct : 0}%</small></b><span class="split"><i style="width:${pPct}%"></i></span></div>`;
 
-  let buckets;
-  if (range === 1){
-    buckets = Array.from({length:11}, (_, i) => ({label: (11+i) % 12 || 12, full: hr(11+i), v:0}));
-    list.forEach(o => { const i = new Date(o.at).getHours() - 11; if (buckets[i]) buckets[i].v += o.sub; });
-    $("#chartTitle").textContent = "Today, hour by hour";
-  } else {
-    buckets = Array.from({length:range}, (_, i) => { const d = new Date(start); d.setDate(d.getDate() + i);
-      return {label: range === 7 ? d.toLocaleDateString("en-US",{weekday:"short"}) : (i % 7 === 0 || i === range-1 ? d.toLocaleDateString("en-US",{month:"short",day:"numeric"}) : ""), full: d.toLocaleDateString("en-US",{weekday:"long", month:"short", day:"numeric"}), v:0, today: i === range - 1}; });
-    list.forEach(o => { const i = Math.round((new Date(new Date(o.at).toDateString()) - new Date(start.toDateString())) / 864e5); if (buckets[i]) buckets[i].v += o.sub; });
-    $("#chartTitle").textContent = "Day by day";
-  }
-  $("#chart").innerHTML = barChart(buckets);
+  const cut = range === 1 ? nowNY().getHours() : null;
+  $("#chart").innerHTML = lineChart(buckets(list, start, range, cut), buckets(prev, P.start, range, null));
 
   const M = byId(), cnt = {};
   list.forEach(o => o.lines.forEach(l => { cnt[l.id] = (cnt[l.id] || 0) + l.q; }));
-  const top = Object.entries(cnt).sort((a,b) => b[1] - a[1]).slice(0, 5);
-  $("#best").innerHTML = top.map(([id, c]) => `<li><span class="n">${esc(M[id]?.n || id)}</span><span class="c num">${c} sold</span></li>`).join("") || `<li><span class="n" style="color:var(--muted)">Nothing sold yet.</span></li>`;
+  const top = Object.entries(cnt).sort((a,b) => b[1] - a[1]).slice(0, 5), mx = top.length ? top[0][1] : 1;
+  $("#best").innerHTML = top.map(([id, k], i) => `<li style="--i:${i}"><span class="rk num">${i + 1}</span><span class="nm">${esc((M[id]?.n || id).replace(/ Pizza$/, ""))}<span class="bar"><i style="width:${(k / mx * 100).toFixed(0)}%"></i></span></span><span class="c num">${k}</span></li>`).join("") || `<li class="none">Nothing sold yet.</li>`;
 
-  $("#kept").innerHTML = `<h2>Money you kept</h2><div class="amt num">${money0(n * 2.25)}</div><p>On Slice you'd pay about $2.25 per order. That's ${plural(n, "order", "orders")} × $2.25.</p>`;
+  $("#kept").innerHTML = `<h2>Kept from Slice</h2><div class="kamt num" id="keptAmt">$0</div><p>Slice charges about $2.25 an order. ${plural(n, "order", "orders")} on your own site means that money stays with you.</p>`;
+  countUp($("#keptAmt"), n * 2.25, v => money0(v));
 }
-function barChart(b){
-  const W = 640, H = 210, padL = 44, padB = 26, max = Math.max(...b.map(x => x.v), 1);
-  const step = niceStep(max), top = Math.ceil(max / step) * step, bw = (W - padL) / b.length, gap = Math.min(12, bw * .3);
-  let g = "";
-  for (let v = 0; v <= top; v += step){ const y = H - padB - (v / top) * (H - padB - 10); g += `<line class="grid" x1="${padL}" x2="${W}" y1="${y}" y2="${y}"/><text x="${padL - 8}" y="${y + 4}" text-anchor="end">${v >= 1000 ? "$" + v/1000 + "k" : "$" + v}</text>`; }
-  b.forEach((x, i) => {
-    const h = (x.v / top) * (H - padB - 10), X = padL + i * bw + gap/2, Y = H - padB - h;
-    g += `<rect class="bar${x.today ? " today" : ""}" x="${X}" y="${Y}" width="${bw - gap}" height="${Math.max(h,0)}" rx="5"><title>${x.full}: ${money(x.v)}</title></rect>`;
-    if (x.label !== "") g += `<text x="${X + (bw - gap)/2}" y="${H - 6}" text-anchor="middle">${x.label}</text>`;
-  });
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Bar chart of sales">${g}</svg>`;
+function smooth(pts){
+  if (pts.length < 2) return pts.length ? `M${pts[0][0]},${pts[0][1]}` : "";
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++){
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2, t = .18, lo = Math.max(p1[1], p2[1]), hi = Math.min(p1[1], p2[1]), cl = y => Math.min(lo, Math.max(hi, y));
+    d += ` C${p1[0] + (p2[0] - p0[0]) * t},${cl(p1[1] + (p2[1] - p0[1]) * t)} ${p2[0] - (p3[0] - p1[0]) * t},${cl(p2[1] - (p3[1] - p1[1]) * t)} ${p2[0]},${p2[1]}`;
+  }
+  return d;
 }
+function lineChart(b, pb){
+  const W = 1000, H = 260, pl = 8, pr = 8, pt = 18, pbm = 34, max = Math.max(...b.map(x => x.v), ...pb.map(x => x.v), 1);
+  const top = Math.ceil(max / niceStep(max)) * niceStep(max);
+  const X = i => pl + i * (W - pl - pr) / (b.length - 1), Y = v => pt + (1 - v / top) * (H - pt - pbm);
+  const on = b.map((x, i) => [X(i), Y(x.v), x]).filter(p => !p[2].off), prevPts = pb.map((x, i) => [X(i), Y(x.v)]);
+  const line = smooth(on.map(p => [p[0], p[1]])), last = on[on.length - 1];
+  const area = on.length ? `${line} L${last[0]},${H - pbm} L${on[0][0]},${H - pbm} Z` : "";
+  const every = b.length > 12 ? Math.ceil(b.length / 6) : 1;
+  let g = "", lab = "";
+  [0, .5, 1].forEach(f => { const y = Y(top * f); g += `<line class="grid" x1="0" x2="${W}" y1="${y}" y2="${y}"/>`; lab += `<span class="yl" style="top:${(y / H * 100).toFixed(2)}%">${money0(top * f)}</span>`; });
+  b.forEach((x, i) => { if (i % every === 0 || i === b.length - 1) lab += `<span class="xl${i === 0 ? " first" : i === b.length - 1 ? " last" : ""}" style="left:${(X(i) / W * 100).toFixed(2)}%">${x.label}</span>`; });
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Sales chart" data-n="${b.length}">
+    <defs><linearGradient id="mfill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#C94233" stop-opacity=".22"/><stop offset="1" stop-color="#C94233" stop-opacity="0"/></linearGradient></defs>
+    ${g}<path class="prev" d="${smooth(prevPts)}" vector-effect="non-scaling-stroke"/>
+    <path class="area" d="${area}"/><path class="line" d="${line}" vector-effect="non-scaling-stroke"/>
+    <line class="hov" x1="0" x2="0" y1="${pt}" y2="${H - pbm}" vector-effect="non-scaling-stroke"/>
+  </svg>${lab}${last ? `<span class="m-end" style="left:${(last[0] / W * 100).toFixed(2)}%;top:${(last[1] / H * 100).toFixed(2)}%"></span>` : ""}<div class="m-dot" hidden></div><div class="m-tip" hidden></div>
+  <script type="application/json">${JSON.stringify(b.map((x, i) => ({x: X(i) / W, y: Y(x.v) / H, py: Y(pb[i]?.v || 0) / H, v: x.v, p: pb[i]?.v || 0, f: x.full, off: !!x.off})))}<\/script>`;
+}
+/* hover or drag across the chart to read any point */
+(() => { const box = $("#chart");
+  const show = e => { const j = box.querySelector("script"); if (!j) return; const pts = JSON.parse(j.textContent), r = box.getBoundingClientRect();
+    const fx = (e.clientX - r.left) / r.width; let k = 0; pts.forEach((p, i) => { if (Math.abs(p.x - fx) < Math.abs(pts[k].x - fx)) k = i; });
+    const p = pts[k], tip = box.querySelector(".m-tip"), dot = box.querySelector(".m-dot"), hov = box.querySelector(".hov");
+    hov.setAttribute("x1", p.x * 1000); hov.setAttribute("x2", p.x * 1000); hov.style.opacity = 1;
+    dot.hidden = p.off; dot.style.left = p.x * 100 + "%"; dot.style.top = p.y * 100 + "%";
+    tip.hidden = false; tip.innerHTML = `<b>${p.f}</b><span><i class="k-now"></i>${p.off ? "Not yet" : money(p.v)}</span><span><i class="k-prev"></i>${money(p.p)}</span>`;
+    tip.style.left = Math.min(Math.max(p.x * 100, 10), 90) + "%"; };
+  const hide = () => { box.querySelectorAll(".m-tip,.m-dot").forEach(x => x.hidden = true); const h = box.querySelector(".hov"); if (h) h.style.opacity = 0; };
+  box.addEventListener("pointermove", show); box.addEventListener("pointerdown", show); box.addEventListener("pointerleave", hide);
+})();
 function niceStep(max){ const raw = max / 4, p = Math.pow(10, Math.floor(Math.log10(raw))); return [1,2,2.5,5,10].map(m => m*p).find(s => s >= raw); }
 document.querySelectorAll("[data-range]").forEach(b => b.addEventListener("click", () => { range = +b.dataset.range; document.querySelectorAll("[data-range]").forEach(x => x.setAttribute("aria-pressed", x === b)); renderMoney(); }));
 $("#csv").addEventListener("click", () => {
