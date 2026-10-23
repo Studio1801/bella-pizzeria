@@ -2196,7 +2196,6 @@ textForm.addEventListener("submit", e => { e.preventDefault(); store.set("text",
 
 renderOrders();
 setInterval(renderOrders, 60000);
-showTab(store.get("tab", "orders"), true);
 addEventListener("resize", moveSlider);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveSlider);
 
@@ -2285,6 +2284,8 @@ addEventListener("storage", e => {
   }
 });
 renderChatBadge();
+/* first paint of the saved tab: runs after the chat code so a reload on Chat does not hit unset consts */
+showTab(store.get("tab", "orders"), true);
 
 /* from a chat order's ticket, jump straight to that conversation */
 document.addEventListener("click", e => {
