@@ -352,17 +352,37 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 /* ---------- Story ---------- */
 .rate{color:inherit;text-decoration:none;border-bottom:1px dashed rgba(255,255,255,.55)}.rate:hover{border-bottom-style:solid}
-.reviews{padding:80px 0;background:#fff}
-.reviews .wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:56px;align-items:center}
+.reviews{padding:84px 0;background:#fff}
+.reviews .wrap{display:grid;grid-template-columns:.78fr 1.22fr;gap:60px;align-items:start}
+.rv-score{position:sticky;top:96px}
 .rv-num{font-size:clamp(84px,11vw,132px);color:var(--red);margin:0}
 .rv-stars{margin:6px 0 14px;display:flex;gap:2px}.rv-stars .star{width:26px;height:26px;margin:0}
 .reviews h2{font-family:var(--display);font-weight:400;font-size:clamp(26px,3vw,36px);line-height:1.15;margin:0}
-.rv-sub{color:var(--muted);margin:8px 0 14px;max-width:24em}
-.rv-quotes{display:grid;gap:28px}
-.rv-quotes:empty{display:none}
-.rv-q{margin:0}.rv-q p{margin:0 0 6px;font-size:19px;max-width:30em}.rv-q cite{font-style:normal;color:var(--muted);font-size:15px}
-.reviews .wrap:has(.rv-quotes:empty){grid-template-columns:1fr}
-@media (max-width:860px){.reviews{padding:56px 0}.reviews .wrap{grid-template-columns:1fr;gap:28px}.rv-num{font-size:84px}}
+.rv-sub{color:var(--muted);margin:10px 0 18px;max-width:23em}
+.rv-acts{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.rv-form{margin-top:22px;display:grid;gap:14px;max-width:26em}
+.rv-form[hidden]{display:none}
+.rv-form label{display:grid;gap:6px;font-weight:600;font-size:15px}.rv-form small{font-weight:400;color:var(--muted)}
+.rv-form input,.rv-form textarea{font:inherit;font-weight:400;font-size:16px;padding:12px 14px;border:1.5px solid #CFC5CA;border-radius:12px;background:#fff;color:var(--ink);resize:vertical}
+.rv-form input:focus,.rv-form textarea:focus{outline:2px solid var(--red);outline-offset:1px}
+.rv-pick{border:0;padding:0;margin:0;display:flex;align-items:center;gap:12px}
+#rvStars{display:flex;gap:0}
+#rvStars button{background:none;border:0;padding:4px;width:46px;height:46px;display:grid;place-items:center}
+#rvStars svg{width:34px;height:34px;transition:transform .12s}
+#rvStars path{fill:#E4DADF;stroke:#E4DADF;stroke-width:1.5;transition:fill .12s,stroke .12s}
+#rvStars button.on path{fill:var(--mustard);stroke:var(--mustard)}
+#rvStars button:active svg{transform:scale(.88)}
+.rv-hint{color:var(--muted);font-size:15px}
+.rv-err{color:var(--red-dark);margin:0;font-weight:600;font-size:15px}
+.rv-wall{columns:2;column-gap:20px}
+.rv-q{break-inside:avoid;margin:0 0 20px;padding:22px 22px 18px;border-radius:20px;background:#FFF6E4}
+.rv-q:nth-child(3n+2){background:var(--sage)}.rv-q:nth-child(3n){background:#FBEAE6}
+.rv-q .rv-s{display:flex;gap:1px;margin-bottom:8px}.rv-q .star{width:17px;height:17px;margin:0}
+.rv-q p{margin:0 0 12px;font-size:17.5px;line-height:1.5}
+.rv-q cite{font-style:normal;font-size:14.5px;color:var(--muted);display:block}.rv-q cite b{color:var(--ink)}
+.rv-q.fresh{animation:rvIn .5s ease-out}@keyframes rvIn{from{opacity:0;transform:translateY(12px)}}
+@media (prefers-reduced-motion:reduce){.rv-q.fresh{animation:none}}
+@media (max-width:860px){.reviews{padding:56px 0}.reviews .wrap{grid-template-columns:1fr;gap:30px}.rv-score{position:static}.rv-num{font-size:84px}.rv-wall{columns:1}}
 .story{padding:96px 0}
 .story .wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:center}
 .story h2{font-size:clamp(30px,3.6vw,44px);margin-bottom:22px}
@@ -816,10 +836,23 @@ body.chat-open .help{display:none}
       <p class="rv-num scrawl" aria-hidden="true">4.7</p>
       <p class="rv-stars" aria-hidden="true"><svg class="star" viewBox="0 0 30 30" aria-hidden="true"><path d="M15 2.5 L18.8 11 L27.6 11.8 L20.8 17.6 L23.1 26.6 L15 21.6 L6.8 26.4 L9.3 17.5 L2.6 11.7 L11.4 11.2 Z"/></svg><svg class="star" viewBox="0 0 30 30" aria-hidden="true"><path d="M15 2.5 L18.8 11 L27.6 11.8 L20.8 17.6 L23.1 26.6 L15 21.6 L6.8 26.4 L9.3 17.5 L2.6 11.7 L11.4 11.2 Z"/></svg><svg class="star" viewBox="0 0 30 30" aria-hidden="true"><path d="M15 2.5 L18.8 11 L27.6 11.8 L20.8 17.6 L23.1 26.6 L15 21.6 L6.8 26.4 L9.3 17.5 L2.6 11.7 L11.4 11.2 Z"/></svg><svg class="star" viewBox="0 0 30 30" aria-hidden="true"><path d="M15 2.5 L18.8 11 L27.6 11.8 L20.8 17.6 L23.1 26.6 L15 21.6 L6.8 26.4 L9.3 17.5 L2.6 11.7 L11.4 11.2 Z"/></svg><svg class="star" viewBox="0 0 30 30" aria-hidden="true"><path d="M15 2.5 L18.8 11 L27.6 11.8 L20.8 17.6 L23.1 26.6 L15 21.6 L6.8 26.4 L9.3 17.5 L2.6 11.7 L11.4 11.2 Z"/></svg></p>
       <h2 id="revTitle"><span class="sr">4.7 stars. </span>445 Google reviews</h2>
-      <p class="rv-sub">From people who ordered here. Read every one on Google.</p>
-      <a class="textlink" href="https://www.google.com/maps/search/?api=1&amp;query=Bella+Pizzeria+143+Highland+St+Worcester+MA" target="_blank" rel="noopener">See them on Google</a>
+      <p class="rv-sub">People who ordered here, in their own words. Tried something? Tell the next person.</p>
+      <div class="rv-acts">
+        <button type="button" class="btn" id="rvOpen" aria-expanded="false" aria-controls="rvForm">Write a review</button>
+        <a class="textlink" href="https://www.google.com/maps/search/?api=1&amp;query=Bella+Pizzeria+143+Highland+St+Worcester+MA" target="_blank" rel="noopener">All reviews on Google</a>
+      </div>
+      <form class="rv-form" id="rvForm" hidden autocomplete="off">
+        <fieldset class="rv-pick"><legend class="sr">Your rating</legend>
+          <span id="rvStars"></span><span class="rv-hint" id="rvHint">Tap a star</span>
+        </fieldset>
+        <label>Your first name<input id="rvName" maxlength="24" autocomplete="given-name" enterkeyhint="next"></label>
+        <label>What did you order? <small>(optional)</small><input id="rvDish" maxlength="40" placeholder="Chicken with Catupiry" enterkeyhint="next"></label>
+        <label>How was it?<textarea id="rvText" rows="3" maxlength="400" placeholder="Anything we should know, or the next person should try"></textarea></label>
+        <p class="rv-err" id="rvErr" role="alert" hidden></p>
+        <button class="btn" type="submit">Post review</button>
+      </form>
     </div>
-    <div class="rv-quotes" id="rvQuotes"></div>
+    <div class="rv-wall" id="rvWall" aria-live="polite"></div>
   </div>
 </section>
 
@@ -2014,9 +2047,39 @@ renderChat();
   const menu = document.querySelector("#menu");
   if (menu) new IntersectionObserver(([en]) => document.body.classList.toggle("in-menu", en.isIntersecting), {rootMargin:"-40% 0px -40% 0px"}).observe(menu);
 })();
-/* SWAP: paste 3 real Google reviews here as ["quote", "First name L."]. Section shows only the rating until then. */
-const REVIEWS = [];
-$("#rvQuotes").innerHTML = REVIEWS.map(r => `<blockquote class="rv-q"><p>${esc(r[0])}</p><cite>${esc(r[1])}, on Google</cite></blockquote>`).join("");
+/* ---- reviews. SYNC: stored in this browser and shown on the owner's dashboard (same site). Swap for a backend to share across phones.
+   SWAP: the first four are sample reviews. Replace them with real ones from Bella's Google profile before showing the owner. ---- */
+const RV_KEY = "bella-reviews-v1", RV_SEED = [
+  {id:"s1", name:"Marcos", dish:"Chicken with Catupiry", stars:5, sample:true, text:"Tastes like the pizzaria back home. The catupiry is the real thing and the crust is thin and crisp like it should be."},
+  {id:"s2", name:"Danielle", dish:"Esfiha combo", stars:5, sample:true, text:"First time trying Brazilian food and the menu explained everything. Now we order the esfihas every Friday."},
+  {id:"s3", name:"Tom", dish:"Calabresa Paulista", stars:4, sample:true, text:"Ready when they said it would be. Great pizza, and the kid loved the brigadeiro."},
+  {id:"s4", name:"Priscila", dish:"X-Bacon", stars:5, sample:true, text:"Finally a place in Worcester that gets the lanchonete burger right. Friendly people too."}];
+const rvLoad = () => { try { return JSON.parse(localStorage.getItem(RV_KEY)) || []; } catch(e){ return []; } };
+const rvSave = d => { try { localStorage.setItem(RV_KEY, JSON.stringify(d)); } catch(e){} };
+const RV_STAR = $(".rv-stars .star").outerHTML;
+let rvPick = 0, rvFresh = null;
+function rvRender(){
+  const all = rvLoad().concat(RV_SEED);
+  $("#rvWall").innerHTML = all.map(r => `<blockquote class="rv-q${r.id === rvFresh ? " fresh" : ""}"><div class="rv-s" role="img" aria-label="${r.stars} out of 5 stars">${RV_STAR.repeat(r.stars)}</div><p>${esc(r.text)}</p><cite><b>${esc(r.name)}</b>${r.dish ? " · " + esc(r.dish) : ""}</cite></blockquote>`).join("");
+}
+const RV_WORDS = ["", "Not good", "Could be better", "Good", "Really good", "Loved it"];
+$("#rvStars").innerHTML = [1,2,3,4,5].map(n => `<button type="button" data-n="${n}" aria-label="${n} star${n > 1 ? "s" : ""}">${RV_STAR}</button>`).join("");
+function rvPaint(n){ document.querySelectorAll("#rvStars button").forEach(b => b.classList.toggle("on", +b.dataset.n <= n)); $("#rvHint").textContent = RV_WORDS[n] || "Tap a star"; }
+$("#rvStars").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; rvPick = +b.dataset.n; rvPaint(rvPick); $("#rvErr").hidden = true; });
+$("#rvOpen").addEventListener("click", () => { const f = $("#rvForm"), open = f.hidden; f.hidden = !open; $("#rvOpen").setAttribute("aria-expanded", open); if (open && matchMedia("(pointer:fine)").matches) $("#rvName").focus(); });
+$("#rvForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const name = $("#rvName").value.trim(), text = $("#rvText").value.trim(), er = $("#rvErr");
+  if (!rvPick){ er.textContent = "Tap a star rating first."; er.hidden = false; return; }
+  if (!name){ er.textContent = "Add your first name."; er.hidden = false; $("#rvName").focus(); return; }
+  if (text.length < 4){ er.textContent = "Write a few words about it."; er.hidden = false; $("#rvText").focus(); return; }
+  const r = {id:"r" + Date.now(), name, dish:$("#rvDish").value.trim(), stars:rvPick, text, at:Date.now()};
+  rvSave([r].concat(rvLoad())); rvFresh = r.id; rvRender();
+  $("#rvForm").reset(); rvPick = 0; rvPaint(0); $("#rvForm").hidden = true; $("#rvOpen").setAttribute("aria-expanded", "false");
+  toast("Thanks, your review is up");
+  $("#rvWall").firstElementChild.scrollIntoView({block:"center", behavior:"smooth"});
+});
+rvRender();
 </script>
 </body>
 </html>

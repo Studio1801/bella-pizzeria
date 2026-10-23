@@ -511,6 +511,14 @@ section#money{max-width:none}
 .m-best li:first-child .bar i{background:var(--red)}
 .m-best .c{font-weight:800;font-size:16px}
 .m-best .none{display:block;color:var(--muted);font-weight:600}
+.m-rev{margin-top:16px}
+.m-rev .rv-top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}.m-rev .rv-top h2{margin:0}
+.m-rev .rv-avg{font-size:15px;color:var(--muted)}.m-rev .rv-avg b{color:var(--ink)}
+.m-rev ul{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:0}
+.m-rev li{padding:14px 0;display:grid;gap:4px}.m-rev li+li{border-top:1px solid #EEE6EA}
+.m-rev .st{color:#E0A02B;letter-spacing:1px;font-size:15px}.m-rev .st i{font-style:normal;color:#E4DADF}
+.m-rev li p{margin:0;font-size:16px}.m-rev li small{color:var(--muted);font-size:13px}
+.m-rev li.new .st::after{content:"New";margin-left:10px;background:var(--red);color:#fff;border-radius:999px;font-size:12px;padding:1px 9px;letter-spacing:0;font-weight:700}
 .m-kept{background:var(--ink);color:#fff;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
 .m-kept h2{color:rgba(255,255,255,.7)}
 .m-kept{justify-content:flex-start}
@@ -1215,6 +1223,7 @@ main{padding-top:88px}
     <div class="m-card"><h2>Best sellers</h2><ol class="m-best" id="best"></ol></div>
     <div class="m-card m-kept" id="kept"></div>
   </div>
+  <div class="m-card m-rev" id="revCard"></div>
   <p class="test"><button class="link" id="csv">Download this as a spreadsheet</button></p>
 </section>
 
@@ -2006,6 +2015,23 @@ function renderMoney(){
   $("#kept").innerHTML = `<h2>Kept from Slice</h2><div class="kamt num" id="keptAmt">$0</div><p>Slice charges about $2.25 an order. ${plural(n, "order", "orders")} on your own site means that money stays with you.</p>`;
   countUp($("#keptAmt"), n * 2.25, v => money0(v));
   renderMore(list, prev, start);
+  renderReviews();
+}
+/* customer reviews left on the website (same browser storage). SYNC: swap for a backend to share across devices.
+   Sample reviews match the ones on the site until a real one arrives. */
+const RV_KEY = "bella-reviews-v1", RV_SEED_D = [
+  {name:"Marcos", dish:"Chicken with Catupiry", stars:5, text:"Tastes like the pizzaria back home. The catupiry is the real thing and the crust is thin and crisp like it should be."},
+  {name:"Danielle", dish:"Esfiha combo", stars:5, text:"First time trying Brazilian food and the menu explained everything. Now we order the esfihas every Friday."},
+  {name:"Tom", dish:"Calabresa Paulista", stars:4, text:"Ready when they said it would be. Great pizza, and the kid loved the brigadeiro."},
+  {name:"Priscila", dish:"X-Bacon", stars:5, text:"Finally a place in Worcester that gets the lanchonete burger right. Friendly people too."}];
+let rvSeen = +store.get("rvSeen", 0);
+function renderReviews(){
+  let mine = []; try { mine = JSON.parse(localStorage.getItem(RV_KEY)) || []; } catch(e){}
+  const all = mine.concat(RV_SEED_D), avg = all.reduce((x, r) => x + r.stars, 0) / all.length;
+  const ago2 = t => { if (!t) return ""; const a = ago(t); return a === "now" ? "just now" : a + " ago"; };
+  $("#revCard").innerHTML = `<div class="rv-top"><h2>What customers say</h2><span class="rv-avg"><b>${avg.toFixed(1)}</b> from ${plural(all.length, "review", "reviews")} on your website</span></div>
+    <ul>${all.slice(0, 6).map(r => `<li class="${r.at && r.at > rvSeen ? "new" : ""}"><span class="st" aria-label="${r.stars} of 5">${"★".repeat(r.stars)}<i>${"★".repeat(5 - r.stars)}</i></span><p>${esc(r.text)}</p><small>${esc(r.name)}${r.dish ? " · " + esc(r.dish) : ""}${r.at ? " · " + ago2(r.at) : ""}</small></li>`).join("")}</ul>`;
+  if (curTab === "money") setTimeout(() => { rvSeen = Date.now(); store.set("rvSeen", rvSeen); }, 4000);
 }
 function renderMore(list, prev, start){
   const n = list.length, sales = sum(list);
@@ -2276,6 +2302,11 @@ addEventListener("storage", e => {
   if (e.key === CHAT_KEY){
     const before = +($("#chatCount").textContent || 0); renderChat(); renderChatBadge();
     const now = +($("#chatCount").textContent || 0); if (now > before){ ding(); if (curTab !== "chat") toast("New message on the website"); }
+  }
+  if (e.key === RV_KEY){
+    let mine = []; try { mine = JSON.parse(e.newValue) || []; } catch(x){}
+    if (mine[0]){ ding(); toast(`New ${mine[0].stars}-star review from ${mine[0].name}`); }
+    renderReviews();
   }
   if (e.key === "bella-dash-manual"){
     const had = manual.length; manual = store.get("manual", []);
